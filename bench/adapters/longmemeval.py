@@ -49,6 +49,7 @@ from bench.adapters.schema import (
 
 __all__ = [
     "LONGMEMEVAL_PATHS",
+    "LONGMEMEVAL_CANDIDATES",
     "LONGMEMEVAL_DATE_FORMATS",
     "TURN_DELTA",
     "ABSTENTION_SUFFIX",
@@ -60,10 +61,30 @@ __all__ = [
 REPO_ROOT = Path(__file__).resolve().parents[2]
 _RAW = REPO_ROOT / "data" / "raw"
 
+# The widely-cited `xiaowu0162/longmemeval` release was DEPRECATED on 2025-09-19
+# and replaced by `longmemeval-cleaned`, which "removes noisy history sessions
+# that interfere with the answer correctness". Mem0 and Supermemory report on the
+# cleaned data; Mastra reports on the deprecated original; almost nobody says
+# which. The cleaned file is preferred here when present, and which file was used
+# is recorded in Episode.meta so a published number can never be ambiguous about it.
+#: Preference order per variant: cleaned first, deprecated original as fallback.
+LONGMEMEVAL_CANDIDATES: dict[str, list[Path]] = {
+    "oracle": [_RAW / "longmemeval_oracle.json"],
+    "s": [_RAW / "longmemeval_s_cleaned.json", _RAW / "longmemeval_s.json"],
+    "m": [_RAW / "longmemeval_m_cleaned.json", _RAW / "longmemeval_m.json"],
+}
+
+
+def _preferred(variant: str) -> Path:
+    for candidate in LONGMEMEVAL_CANDIDATES[variant]:
+        if candidate.exists():
+            return candidate
+    return LONGMEMEVAL_CANDIDATES[variant][0]
+
+
+#: The file that will actually be read for each variant.
 LONGMEMEVAL_PATHS: dict[str, Path] = {
-    "oracle": _RAW / "longmemeval_oracle.json",
-    "s": _RAW / "longmemeval_s.json",
-    "m": _RAW / "longmemeval_m.json",
+    variant: _preferred(variant) for variant in LONGMEMEVAL_CANDIDATES
 }
 
 # "2023/04/10 (Mon) 23:07". The weekday is redundant with the date and is not
@@ -262,7 +283,7 @@ def _resolve_path(path: str | Path | None, variant: str) -> Path:
             f"longmemeval: unknown variant {variant!r} "
             f"(known: {sorted(LONGMEMEVAL_PATHS)})"
         )
-    return LONGMEMEVAL_PATHS[variant]
+    return _preferred(variant)
 
 
 def iter_longmemeval(

@@ -36,7 +36,7 @@ from collections import defaultdict
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
-from bench.extract_facts import extract_episode
+from bench.extract_facts import extract_episode, prefetch_episodes
 from bench.judge import (
     ANSWER_SYSTEM,
     JUDGE_SYSTEM,
@@ -163,6 +163,17 @@ def run(
 
     print(f"dataset={dataset} episodes={len(eps)} systems={[n for n, _ in built]} "
           f"budget={token_budget} model={model}")
+
+    # Extract every episode in one wide parallel pass before evaluating. Doing it
+    # per-episode leaves most of the concurrency ceiling idle.
+    relevant = eps
+    if categories:
+        wanted = {c.strip().lower() for c in categories}
+        relevant = [e for e in eps if any(q.category.lower() in wanted for q in e.qa)]
+    pf = prefetch_episodes(relevant, client, model=model)
+    if pf.get("windows"):
+        print(f"  prefetched {pf['claims']} claims from {pf['windows']} windows; "
+              f"{pf.get('empty_episodes', 0)} episodes still empty")
 
     records: list[QARecord] = []
     rng = random.Random(0)

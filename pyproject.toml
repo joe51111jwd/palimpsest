@@ -30,8 +30,8 @@ bench = ["pytest>=8", "ruff>=0.6"]
 dev = ["pytest>=8", "ruff>=0.6"]
 
 [project.urls]
-Homepage = "https://github.com/jamescamarota/palimpsest"
-Repository = "https://github.com/jamescamarota/palimpsest"
+Homepage = "https://github.com/joe51111jwd/palimpsest"
+Repository = "https://github.com/joe51111jwd/palimpsest"
 
 [tool.hatch.build.targets.wheel]
 packages = ["palimpsest"]
