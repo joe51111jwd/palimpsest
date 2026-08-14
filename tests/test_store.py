@@ -91,6 +91,7 @@ def test_never_serves_a_superseded_value(mem):
     assert "New York" not in r.context, "a superseded value must not reach the model"
 
 
+@pytest.mark.semantic
 def test_current_facts_are_labeled_as_current(mem):
     r = mem.recall("Where do I work?")
     assert "Pied Piper" in r.context
@@ -111,6 +112,7 @@ def test_timeline_exposes_every_version_in_order(mem):
     assert tl[1].is_current
 
 
+@pytest.mark.semantic
 def test_history_question_shows_superseded_values_labeled(mem):
     r = mem.recall("Where did I live before?")
     assert "New York" in r.context
@@ -127,6 +129,7 @@ def test_stores_facts_outside_any_predefined_vocabulary(mem):
     assert "Ava" in values
 
 
+@pytest.mark.semantic
 def test_novel_predicates_are_retrievable(mem):
     assert "penicillin" in mem.recall("What am I allergic to?").context
     assert "Ava" in mem.recall("What is my daughter called?").context
@@ -157,6 +160,7 @@ def test_a_non_empty_store_never_returns_an_empty_context(mem, query):
     assert r.context.strip(), f"empty context for {query!r} — the v1 bug is back"
 
 
+@pytest.mark.semantic
 def test_paraphrased_questions_still_resolve(mem):
     assert "Austin" in mem.recall("Where am I living these days?").context
     assert "Pied Piper" in mem.recall("Who signs my paycheck now?").context

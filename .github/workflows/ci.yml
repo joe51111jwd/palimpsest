@@ -9,6 +9,11 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    # conftest defaults HF_HOME into the repo, so pin it at the job level or the
+    # warm step and the test step disagree about where the weights live.
+    env:
+      HF_HOME: ${{ github.workspace }}/data/hf_cache
+      PALIMPSEST_LLM_OFFLINE: "1"
     strategy:
       fail-fast: false
       matrix:
@@ -29,17 +34,16 @@ jobs:
       - name: Lint
         run: ruff check palimpsest/ bench/ tests/
 
-      # The engine must never need a network at test time. The embedder falls
-      # back to a deterministic hashing backend when the model2vec weights are
-      # absent, and PALIMPSEST_LLM_OFFLINE makes any cache miss return None
-      # instead of calling out — so a green CI run is proof the suite spends
-      # nothing and depends on no external service.
-      - name: Test (fully offline)
-        env:
-          PALIMPSEST_LLM_OFFLINE: "1"
-          HF_HUB_OFFLINE: "1"
-          TRANSFORMERS_OFFLINE: "1"
-        run: pytest tests/ -q --ignore=tests/test_adapters.py
+      # Fetch the embedding weights once so the similarity-sensitive tests run
+      # against the SHIPPED configuration rather than the hashing fallback.
+      # This is a free model download, not an API call: PALIMPSEST_LLM_OFFLINE
+      # stays set throughout, so a green run is still proof the suite spends
+      # no LLM quota and needs no external service at test time.
+      - name: Warm the embedder
+        run: python -c "from palimpsest.embed import default_embedder as d; print(d().backend)"
+
+      - name: Test
+        run: pytest tests/ -q --ignore=tests/test_adapters.py -rs
 
       - name: Import surface
         run: |
@@ -50,7 +54,4 @@ jobs:
           "
 
       - name: Quickstart example
-        env:
-          PALIMPSEST_LLM_OFFLINE: "1"
-          HF_HUB_OFFLINE: "1"
         run: python examples/quickstart.py
