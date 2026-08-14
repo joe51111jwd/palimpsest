@@ -59,6 +59,9 @@ class Ledger:
         self.atoms: list[Atom] = []
         self._chains: dict[tuple[int, int], _Chain] = {}
         self._value_ids: dict[str, int] = {}
+        #: per-key cardinality votes and the decision derived from them
+        self._cardinality_votes: dict[tuple[int, int], dict[str, int]] = {}
+        self._effective: dict[tuple[int, int], Cardinality] = {}
         self.stats = {
             "created": 0,
             "superseded": 0,
@@ -94,7 +97,29 @@ class Ledger:
         chain = self._chains.setdefault(key, _Chain())
         value_id = self._value_id(claim.value)
 
-        if claim.cardinality == "multi":
+        # Cardinality belongs to the KEY, not to the claim.
+        #
+        # The extractor labels every claim independently, so one mislabelled
+        # claim used to disable supersession for a whole attribute: `_insert`
+        # only repaired intervals for `single` claims, so a stray `multi` never
+        # closed its predecessor and both values stayed open. Measured on real
+        # extractions, 42% of LongMemEval knowledge-update episodes ended up
+        # holding two contradictory values as simultaneously current — on the
+        # exact category this engine exists to get right.
+        #
+        # The key now votes: whichever label the claims on it have carried more
+        # often wins, and every atom on the key is governed by that one decision.
+        # When the vote flips, the chain is rebuilt so the invariant holds by
+        # construction rather than by the order claims happened to arrive in.
+        votes = self._cardinality_votes.setdefault(key, {"single": 0, "multi": 0})
+        votes[claim.cardinality] = votes.get(claim.cardinality, 0) + 1
+        before = self._effective.get(key)
+        effective = self.effective_cardinality(key)
+        self._effective[key] = effective
+        if before is not None and before != effective:
+            self._rebuild_chain(key, effective)
+
+        if effective == "multi":
             if self._has_value(chain, value_id):
                 self.stats["noop"] += 1
                 return None
@@ -111,6 +136,43 @@ class Ledger:
             return None
 
         return self._insert(key, claim, value_id, valid_from, tx_time, value_type, "single")
+
+    def effective_cardinality(self, key: tuple[int, int]) -> Cardinality:
+        votes = self._cardinality_votes.get(key)
+        if not votes:
+            return "single"
+        return "multi" if votes.get("multi", 0) > votes.get("single", 0) else "single"
+
+    def _rebuild_chain(self, key: tuple[int, int], cardinality: Cardinality) -> None:
+        """Recompute every interval on a key under one cardinality.
+
+        Called when the key's cardinality vote flips. Cheap (chains are short)
+        and it restores the invariant regardless of arrival order.
+        """
+        chain = self._chains.get(key)
+        if chain is None:
+            return
+        atoms = [self.atoms[i] for i in chain.indices() if self.atoms[i].is_believed]
+        for atom in atoms:
+            atom.cardinality = cardinality
+            atom.valid_to = None
+            atom.closed_tx = None
+            atom.predecessor = None
+            atom.successor = None
+        if cardinality == "multi":
+            return
+        atoms.sort(key=lambda a: (a.valid_from, a.idx))
+        for earlier, later in zip(atoms, atoms[1:]):
+            if earlier.valid_from == later.valid_from:
+                # Same instant, two values: this is a belief conflict, not a
+                # change over time. Closing valid-time here would mint a
+                # zero-length interval that no as-of query can ever return.
+                earlier.tx_to = later.tx_from
+                continue
+            earlier.valid_to = later.valid_from
+            earlier.closed_tx = later.tx_from
+            earlier.successor = later.idx
+            later.predecessor = earlier.idx
 
     def _insert(
         self,
@@ -172,14 +234,24 @@ class Ledger:
                     nxt = other
 
         if prev is not None:
-            if prev.valid_to is None or prev.valid_to > atom.valid_from:
+            if prev.valid_from == atom.valid_from:
+                # Two values claimed true at the SAME instant. Closing valid time
+                # would create a zero-length interval — an atom no as-of query can
+                # ever return, whose evidence is nonetheless suppressed from the
+                # excerpt tier as "stale". That is a fact deleted in silence. This
+                # is a conflict of belief, so it is resolved on the belief axis.
+                prev.tx_to = atom.tx_from
+                self.stats["superseded"] += 1
+            elif prev.valid_to is None or prev.valid_to > atom.valid_from:
                 prev.valid_to = atom.valid_from
+                prev.closed_tx = atom.tx_from
                 prev.successor = atom.idx
                 atom.predecessor = prev.idx
                 self.stats["superseded"] += 1
 
         if nxt is not None:
             atom.valid_to = nxt.valid_from
+            atom.closed_tx = atom.tx_from
             atom.successor = nxt.idx
             nxt.predecessor = atom.idx
             self.stats["retroactive"] += 1
@@ -194,13 +266,21 @@ class Ledger:
         if chain is None:
             return
         value_id = self._value_ids.get(value.lower())
+        if value_id is None:
+            # The retracted value was never stored. Previously the per-atom
+            # filter was skipped when the lookup missed, so "I don't have a cat
+            # anymore" closed EVERY open interval on the key. A retraction we
+            # cannot match must retract nothing rather than everything.
+            self.stats["retract_unmatched"] = self.stats.get("retract_unmatched", 0) + 1
+            return
         for idx in chain.indices():
             atom = self.atoms[idx]
             if not atom.is_believed or not atom.is_open:
                 continue
-            if value_id is not None and atom.value_id != value_id:
+            if atom.value_id != value_id:
                 continue
             atom.valid_to = when
+            atom.closed_tx = when
 
     def correct(self, entity: str, predicate: str, value: str, *, tx_time: datetime) -> int:
         """Mark a stored fact as never-having-been-true (transaction-time close).
@@ -216,12 +296,18 @@ class Ledger:
         if chain is None:
             return 0
         value_id = self._value_ids.get(value.strip().lower())
+        if value_id is None:
+            # Same failure mode as an unmatched retraction, but through the
+            # PUBLIC api: Memory.correct("user", "city", "New York")  against a
+            # stored "New York City" used to wipe the entire chain and return a
+            # success count. A correction that matches nothing corrects nothing.
+            return 0
         n = 0
         for idx in chain.indices():
             atom = self.atoms[idx]
             if not atom.is_believed:
                 continue
-            if value_id is not None and atom.value_id != value_id:
+            if atom.value_id != value_id:
                 continue
             atom.tx_to = tx_time
             n += 1
@@ -238,17 +324,35 @@ class Ledger:
     def current(self, entity_id: int, predicate_id: int) -> Atom | None:
         return self._head(self._chains.get((entity_id, predicate_id)))
 
-    def at(self, entity_id: int, predicate_id: int, when: datetime) -> list[Atom]:
-        """Every believed atom valid at ``when`` (a list, since multi-valued
-        predicates legitimately hold several at once)."""
+    def at(
+        self,
+        entity_id: int,
+        predicate_id: int,
+        when: datetime,
+        *,
+        known_at: datetime | None = None,
+    ) -> list[Atom]:
+        """Every believed atom valid at ``when``.
+
+        ``known_at`` is the KNOWLEDGE cutoff — a transaction-time bound. The two
+        are genuinely different questions and conflating them leaks the future:
+        "what was true in January" (valid time) is not "what had we been told by
+        January" (transaction time). A benchmark that asks a question at time T
+        means the second, and answering it from a fact the store only learned in
+        March is seeing the future.
+        """
         chain = self._chains.get((entity_id, predicate_id))
         if chain is None:
             return []
-        return [
-            self.atoms[i]
-            for i in chain.indices()
-            if self.atoms[i].is_believed and self.atoms[i].valid_at(when)
-        ]
+        out = []
+        for i in chain.indices():
+            atom = self.atoms[i]
+            if not atom.is_believed or not atom.valid_at(when, known_at):
+                continue
+            if known_at is not None and atom.tx_from is not None and atom.tx_from > known_at:
+                continue
+            out.append(atom)
+        return out
 
     def chain(self, entity_id: int, predicate_id: int, *, believed_only: bool = True) -> list[Atom]:
         chain = self._chains.get((entity_id, predicate_id))
@@ -261,7 +365,11 @@ class Ledger:
         return [k for k in self._chains if k[0] == entity_id]
 
     def stale_sources(
-        self, when: datetime, *, predicate_ids: Sequence[int] | None = None
+        self,
+        when: datetime,
+        *,
+        predicate_ids: Sequence[int] | None = None,
+        known_at: datetime | None = None,
     ) -> set[str]:
         """Source messages that assert a value which is no longer true at ``when``.
 
@@ -281,7 +389,11 @@ class Ledger:
         for atom in self.atoms:
             if not atom.source_id or not atom.is_believed:
                 continue
-            if atom.valid_at(when):
+            if atom.valid_at(when, known_at):
+                continue
+            if known_at is not None and atom.tx_from is not None and atom.tx_from > known_at:
+                # We had not learned this supersession yet, so it cannot be used
+                # to suppress evidence at this point in time.
                 continue
             if wanted is not None and atom.predicate_id not in wanted:
                 continue

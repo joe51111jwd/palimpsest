@@ -310,11 +310,20 @@ def summarize(records, sys_stats, **meta) -> dict:
         for cat in sorted({r.category for r in main}):
             crows = [r for r in main if r.category == cat]
             cats[cat] = {"n": len(crows), "accuracy": _accuracy(crows)}
+        judged = [r for r in main if r.correct is not None]
+        n_correct = sum(1 for r in judged if r.correct)
         entry = {
             "n": len(main),
+            "n_judged": len(judged),
             "accuracy": _accuracy(main),
-            "ci95": _wilson(sum(1 for r in main if r.correct), len(main)),
-            "unjudged": sum(1 for r in main if r.correct is None),
+            # The interval MUST use the same denominator as the point estimate.
+            # It did not, and as a result every accuracy in the first LongMemEval
+            # artifact fell outside its own reported confidence interval: the
+            # estimate divided by judged rows while the interval divided by all
+            # rows, including 20 questions an LLM outage left unanswered.
+            "ci95": _wilson(n_correct, len(judged)),
+            "unjudged": len(main) - len(judged),
+            "unjudged_rate": (len(main) - len(judged)) / max(1, len(main)),
             "no_answer_rate": sum(1 for r in main if not r.answer or r.answer.upper() == "NO_ANSWER")
             / max(1, len(main)),
             "mean_context_tokens": _mean([r.context_tokens for r in main]),
@@ -333,18 +342,27 @@ def summarize(records, sys_stats, **meta) -> dict:
     return {"meta": meta, "systems": by_system}
 
 
+#: A run with more unanswered questions than this is not reportable.
+MAX_UNJUDGED_RATE = 0.02
+
+
 def print_report(report: dict) -> None:
     systems = report["systems"]
     if not systems:
         return
+    worst = max((s["unjudged_rate"] for s in systems.values()), default=0.0)
+    if worst > MAX_UNJUDGED_RATE:
+        print(f"\n!! WARNING: up to {worst:.0%} of questions were never answered "
+              f"(LLM failures). These are EXCLUDED from accuracy, which inflates "
+              f"it. This run is NOT reportable — re-run to fill the gaps.")
     cats = sorted({c for s in systems.values() for c in s["categories"]})
-    head = f"{'system':16s} {'n':>5s} {'acc':>7s} {'95% CI':>14s} {'tok':>6s} {'ms':>7s}  " + \
-           "  ".join(f"{c[:11]:>11s}" for c in cats)
+    head = (f"{'system':16s} {'n':>5s} {'judged':>7s} {'acc':>7s} {'95% CI':>14s} "
+            f"{'tok':>6s} {'ms':>7s}  ") + "  ".join(f"{c[:11]:>11s}" for c in cats)
     print("\n" + head)
     print("-" * len(head))
     for name, s in sorted(systems.items(), key=lambda kv: -kv[1]["accuracy"]):
         lo, hi = s["ci95"]
-        row = (f"{name:16s} {s['n']:5d} {s['accuracy']:7.3f} "
+        row = (f"{name:16s} {s['n']:5d} {s['n_judged']:7d} {s['accuracy']:7.3f} "
                f"[{lo:.3f},{hi:.3f}] {s['mean_context_tokens']:6.0f} "
                f"{s['mean_retrieval_ms']:7.1f}  ")
         row += "  ".join(f"{s['categories'].get(c, {}).get('accuracy', float('nan')):11.3f}"

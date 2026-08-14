@@ -94,6 +94,19 @@ class LLMAdjudicator:
         )
         self.stats["calls"] += 1
         payload = self._complete(prompt)
+
+        # A failed call and a genuine "these are different" both surface as a
+        # falsy result, and caching the first as if it were the second is the
+        # same archetype bug as caching an empty extraction — one layer up.
+        # Persisting it is worse here, because the cache is durable: one run that
+        # happened while the LLM was unreachable (or with PALIMPSEST_LLM_OFFLINE
+        # set) permanently teaches the store that `lives_in` and `city` are
+        # different predicates, and it then serves a superseded value labelled
+        # current — the exact failure this engine exists to prevent.
+        if payload is None:
+            self.stats["failures"] = self.stats.get("failures", 0) + 1
+            return None
+
         choice = _extract_choice(payload, cands)
         if choice:
             self.stats["merges"] += 1

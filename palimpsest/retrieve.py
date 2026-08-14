@@ -143,9 +143,24 @@ class Retriever:
         *,
         k: int = 8,
         as_of: datetime | None = None,
+        known_at: datetime | None = None,
         token_budget: int = 1024,
         now: datetime | None = None,
     ) -> Recall:
+        """Retrieve under two independent time bounds.
+
+        ``as_of``    — VALID time. "What was true on this date?"
+        ``known_at`` — TRANSACTION time. "What had we been told by this date?"
+
+        They are different questions and conflating them leaks the future. The
+        excerpt tier has always filtered transaction time (a message the store had
+        not received yet is not retrievable), but the fact tier filtered valid
+        time only — so a question asked in June could be answered from a fact the
+        store first heard in September, while the context header still claimed to
+        be "as of June". On LongMemEval that produced apparent wins where the
+        gold answer reached this system and no baseline, because no baseline can
+        see the future either.
+        """
         start = time.perf_counter()
         plan = self.plan(query, as_of)
         when = as_of or now or _latest(self.ledger)
@@ -165,16 +180,21 @@ class Retriever:
                 chain = self.ledger.chain(ent_id, pred_id)
                 if not chain:
                     continue
+                if known_at is not None:
+                    chain = [
+                        a for a in chain
+                        if a.tx_from is None or a.tx_from <= known_at
+                    ]
+                    if not chain:
+                        continue
                 if plan.wants_first:
                     take(chain[0], 3.0, "interval")
                 elif plan.wants_history or plan.wants_count:
                     for atom in chain:
                         take(atom, 2.5, "interval")
                 else:
-                    for atom in self.ledger.at(ent_id, pred_id, when):
+                    for atom in self.ledger.at(ent_id, pred_id, when, known_at=known_at):
                         take(atom, 3.0, "interval")
-                    if not chain:
-                        continue
             if len(picked) >= k:
                 break
 
@@ -182,7 +202,7 @@ class Retriever:
         if len(picked) < k:
             for ent_id in plan.entity_ids:
                 for key in self.ledger.keys_for_entity(ent_id):
-                    for atom in self.ledger.at(*key, when):
+                    for atom in self.ledger.at(*key, when, known_at=known_at):
                         take(atom, 1.5, "graph")
 
         # -- tier 3: hybrid over raw utterances (always) ------------------- #
@@ -192,12 +212,15 @@ class Retriever:
         # is already in the structured block above, correctly dated.
         stale: set[str] = set()
         if not plan.temporal:
-            stale = self.ledger.stale_sources(when, predicate_ids=plan.predicate_ids)
+            stale = self.ledger.stale_sources(
+                when, predicate_ids=plan.predicate_ids, known_at=known_at
+            )
 
+        cutoff = known_at or as_of
         hybrid_msgs = []
         for idx, score in self.index.hybrid(query, top_n=self.hybrid_top_n * 3):
             msg = self.index.message(idx)
-            if as_of is not None and msg.timestamp > as_of:
+            if cutoff is not None and msg.timestamp > cutoff:
                 continue
             if msg.msg_id in stale:
                 continue

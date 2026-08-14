@@ -68,8 +68,13 @@ class PalimpsestSystem:
         self, question: str, *, asked_at: datetime | None = None, token_budget: int = 1024
     ) -> QueryResult:
         start = time.perf_counter()
+        # asked_at is a KNOWLEDGE cutoff: the system may use nothing it had not
+        # been told by then. It also bounds valid time, since the question is
+        # about the world as of that moment. Passing it only as as_of let the
+        # fact tier answer from facts learned later — seeing the future.
         recall = self.mem.recall(
-            question, k=self.k, as_of=asked_at, token_budget=token_budget
+            question, k=self.k, as_of=asked_at, known_at=asked_at,
+            token_budget=token_budget,
         )
         return QueryResult(
             context=recall.context,

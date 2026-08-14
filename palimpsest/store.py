@@ -106,10 +106,18 @@ class Memory:
         *,
         k: int = 8,
         as_of: datetime | None = None,
+        known_at: datetime | None = None,
         token_budget: int = 1024,
     ) -> Recall:
+        """``as_of`` bounds VALID time, ``known_at`` bounds TRANSACTION time.
+
+        Ask "where did I live in 2023?" with ``as_of``; ask "answer using only
+        what you had been told by June" with ``known_at``. Passing a question's
+        timestamp means the latter, and usually both.
+        """
         return self.retriever.retrieve(
-            query, k=k, as_of=as_of, token_budget=token_budget, now=self._latest
+            query, k=k, as_of=as_of, known_at=known_at,
+            token_budget=token_budget, now=self._latest,
         )
 
     def facts(

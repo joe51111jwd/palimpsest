@@ -97,6 +97,12 @@ class Atom:
     predecessor: int | None = None
     successor: int | None = None
     access: int = 0
+    #: Transaction time at which ``valid_to`` was set — i.e. when the store
+    #: LEARNED that this value had ended. Distinct from ``valid_to`` itself,
+    #: which is when it ended in the world. Without this, a retroactive
+    #: supersession rewrites the past of the belief axis: an interval closed
+    #: today would look closed to a query about what we believed last week.
+    closed_tx: datetime | None = None
 
     # -- valid-time predicates ------------------------------------------- #
     @property
@@ -104,10 +110,24 @@ class Atom:
         """True if this value has not been superseded (still current)."""
         return self.valid_to is None
 
-    def valid_at(self, when: datetime) -> bool:
+    def valid_at(self, when: datetime, known_at: datetime | None = None) -> bool:
+        """Was this true at ``when``, according to what we knew by ``known_at``?
+
+        With no ``known_at`` this is plain valid-time. With one, a closure the
+        store had not yet learned is ignored — which is the whole point of
+        keeping two axes rather than one.
+        """
         if when < self.valid_from:
             return False
-        return self.valid_to is None or when < self.valid_to
+        valid_to = self.valid_to
+        if (
+            known_at is not None
+            and valid_to is not None
+            and self.closed_tx is not None
+            and self.closed_tx > known_at
+        ):
+            valid_to = None
+        return valid_to is None or when < valid_to
 
     # -- transaction-time predicates -------------------------------------- #
     @property
