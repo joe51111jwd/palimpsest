@@ -1,5 +1,9 @@
 # Palimpsest
 
+[![tests](https://github.com/joe51111jwd/palimpsest/actions/workflows/ci.yml/badge.svg)](https://github.com/joe51111jwd/palimpsest/actions/workflows/ci.yml)
+[![python](https://img.shields.io/badge/python-3.11%20|%203.12%20|%203.13-blue)](https://github.com/joe51111jwd/palimpsest)
+[![license](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
+
 **Memory for AI agents that never serves a stale fact — and can tell you what it knew last Tuesday.**
 
 > *A palimpsest is a manuscript where the earlier writing was scraped away but
