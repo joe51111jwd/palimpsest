@@ -11,6 +11,7 @@ from __future__ import annotations
 import collections
 import itertools
 import json
+from dataclasses import FrozenInstanceError
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -566,10 +567,10 @@ def test_schema_rejects_non_chronological_messages():
 
 def test_schema_dataclasses_are_frozen():
     message = Message("s", "A", "t", datetime(2023, 1, 1), "D1:1")
-    with pytest.raises(Exception):
+    with pytest.raises(FrozenInstanceError):
         message.text = "mutated"
     item = QAItem("q", "?", "a", "temporal")
-    with pytest.raises(Exception):
+    with pytest.raises(FrozenInstanceError):
         item.qid = "other"
 
 
