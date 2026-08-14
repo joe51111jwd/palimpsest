@@ -131,6 +131,39 @@ _HEAD_SYNONYMS: list[set[str]] = [
     {"child", "children", "kid", "kids", "son", "daughter"},
 ]
 
+# Seed synonym groups for attributes that come up in almost every personal
+# memory. This is emphatically NOT the v1 predicate whitelist: it restricts
+# nothing, and any predicate outside it is stored exactly as before. It exists
+# because the common cases should work with no LLM configured at all — without
+# it, `Memory()` out of the box mints `lives_in` and `city` as separate keys
+# (their cosine similarity is 0.136), supersession never fires, and the headline
+# promise fails silently, which is the worst way for it to fail.
+SEED_SYNONYMS: list[set[str]] = [
+    {"city", "lives_in", "residence", "current_city", "home_city", "located_in",
+     "based_in", "lives", "living_in", "relocated_to", "moved_to", "hometown"},
+    {"employer", "company", "works_at", "workplace", "employed_by", "works_for",
+     "current_employer"},
+    {"job_title", "occupation", "profession", "job", "role", "works_as", "career",
+     "position", "current_role"},
+    {"marital_status", "relationship_status", "relationship"},
+    {"partner", "spouse", "husband", "wife", "significant_other"},
+    {"favorite_food", "favourite_food", "preferred_food", "food_preference"},
+    {"car", "vehicle", "drives", "current_car"},
+    {"pet", "has_pet", "pets"},
+    {"phone_number", "phone", "mobile_number", "cell_number"},
+    {"email", "email_address"},
+    {"age", "current_age"},
+    {"birthday", "birthdate", "date_of_birth", "dob"},
+    {"allergic_to", "allergy", "allergies"},
+    {"dietary_restriction", "diet", "dietary_preference"},
+    {"current_project", "project", "working_on"},
+    {"goal", "objective"},
+    {"hobby", "hobbies", "pastime"},
+    {"timezone", "time_zone"},
+    {"language", "languages_spoken", "speaks"},
+    {"university", "school", "college", "alma_mater"},
+]
+
 _TOKEN_RE = re.compile(r"[a-z0-9]+")
 _DATE_RE = re.compile(
     r"^\s*(\d{4}[-/]\d{1,2}[-/]\d{1,2}|\d{1,2}[-/]\d{1,2}[-/]\d{2,4}"
@@ -414,6 +447,7 @@ class Canonicalizer:
         enabled: bool = True,
         adjudicator: PredicateAdjudicator | None = None,
         shortlist_k: int = 20,
+        seed_synonyms: list[set[str]] | None = None,
     ) -> None:
         self.embedder = embedder or default_embedder()
         self.tau_predicate = tau_predicate
@@ -431,6 +465,15 @@ class Canonicalizer:
         self._relation_binding: dict[str, int] = {}
 
         self.merge_log: list[tuple[str, str, float, str]] = []
+
+        # raw surface form -> seed group index, for O(1) lookup on ingest
+        self._seed_group: dict[str, int] = {}
+        groups = SEED_SYNONYMS if seed_synonyms is None else seed_synonyms
+        for gi, group in enumerate(groups):
+            for member in group:
+                self._seed_group.setdefault(member, gi)
+        #: seed group index -> canonical id, filled in as groups are first seen
+        self._seed_canonical: dict[int, int] = {}
 
     # ------------------------------------------------------------------ #
     # predicates
@@ -470,6 +513,28 @@ class Canonicalizer:
 
         # A brand-new surface form is profiled with the single value we have.
         vec = self._predicate_vec(raw, [value] if value else [])
+
+        # Seed synonyms: a known-equivalent surface form joins the group's
+        # canonical predicate directly, no similarity and no LLM involved. Still
+        # subject to the guards, which is why this cannot merge an antonym even
+        # if the table were wrong.
+        group = self._seed_group.get(raw)
+        if group is not None:
+            existing = self._seed_canonical.get(group)
+            if existing is not None:
+                cand = self.predicates[existing]
+                if not self._predicate_block_reason(raw, value_type, cand):
+                    cand.observe(raw, vec, value_type, value)
+                    self._pred_alias[raw] = cand.cid
+                    self.merge_log.append((raw, cand.name, 1.0, "seed"))
+                    return MergeDecision(
+                        canonical_id=cand.cid, minted=False,
+                        similarity=1.0, matched=cand.name,
+                    )
+            else:
+                decision = self._mint_predicate(raw, vec, value_type, value)
+                self._seed_canonical[group] = decision.canonical_id
+                return decision
 
         if not self.enabled or not self.predicates:
             return self._mint_predicate(raw, vec, value_type, value)
