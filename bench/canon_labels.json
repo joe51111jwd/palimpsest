@@ -1,0 +1,269 @@
+{
+  "_readme": [
+    "Gold predicate clusters, hand-labelled over the vocabulary an LLM extractor",
+    "ACTUALLY emitted on LoCoMo conversations (123 distinct surface forms from 249",
+    "claims, 90 of them singletons). This is not a curated wordlist \u2014 it is the real",
+    "output distribution, which is what canonicalization has to survive.",
+    "",
+    "Labelling rule: two predicates share a cluster only if a value for one could",
+    "REPLACE a value for the other without changing what is being claimed. Where a",
+    "judgement call was genuinely ambiguous the predicates were left in separate",
+    "singleton clusters rather than guessed, so recall here is a lower bound and",
+    "precision is not inflated by charitable labelling.",
+    "",
+    "Singleton clusters are load-bearing: they are the trap set. pet vs pet_name,",
+    "artwork_created vs artwork_medium vs artwork_subject, volunteer_cause vs",
+    "volunteer_location, hobby vs hobby_duration_years, marital_status vs",
+    "marriage_duration. Any system that merges those is destroying facts, and the",
+    "pairwise metric will catch it."
+  ],
+  "clusters": {
+    "attended_event": [
+      "attended_event",
+      "event_attended",
+      "event_attending",
+      "participated_in_event",
+      "activity_attended",
+      "activity_participated",
+      "activity_participated_in",
+      "concert_attended"
+    ],
+    "hobby": [
+      "hobby",
+      "leisure_activity",
+      "recreational_activity",
+      "interest",
+      "interest_area"
+    ],
+    "children": [
+      "children",
+      "child",
+      "has_children"
+    ],
+    "life_event": [
+      "life_event",
+      "life_experience",
+      "experienced_event",
+      "event_experienced"
+    ],
+    "family_activity": [
+      "family_activity",
+      "activity_with_family"
+    ],
+    "artwork_subject": [
+      "artwork_subject",
+      "artistic_theme"
+    ],
+    "visited_place": [
+      "visited_place",
+      "visited_landmark"
+    ],
+    "instrument_played": [
+      "instrument_played",
+      "instrument_plays"
+    ],
+    "injury": [
+      "injury",
+      "injury_occurred"
+    ],
+    "volunteered": [
+      "volunteered",
+      "volunteering_activity"
+    ],
+    "volunteer_cause": [
+      "volunteer_cause",
+      "cause_advocated_for",
+      "advocacy_cause"
+    ],
+    "volunteer_location": [
+      "volunteer_location",
+      "volunteered_at"
+    ],
+    "job_title": [
+      "job_title",
+      "profession"
+    ],
+    "career_interest": [
+      "career_interest",
+      "career_specialization_interest"
+    ],
+    "conflict_resolution": [
+      "conflict_resolution",
+      "conflict_resolution_attempted"
+    ],
+    "book_collection": [
+      "book_collection",
+      "book_collection_contains"
+    ],
+    "favorite_childhood_book": [
+      "childhood_favorite_book",
+      "favorite_childhood_book"
+    ],
+    "identity": [
+      "identity",
+      "identity_aspect"
+    ],
+    "received_gift": [
+      "received_gift"
+    ],
+    "pet": [
+      "pet"
+    ],
+    "pet_name": [
+      "pet_name"
+    ],
+    "artwork_created": [
+      "artwork_created"
+    ],
+    "artwork_medium": [
+      "artwork_medium"
+    ],
+    "artwork_type": [
+      "artwork_type"
+    ],
+    "hobby_duration_years": [
+      "hobby_duration_years"
+    ],
+    "started_hobby_age": [
+      "started_hobby_age"
+    ],
+    "years_playing_instrument": [
+      "years_playing_instrument"
+    ],
+    "years_practicing_art": [
+      "years_practicing_art"
+    ],
+    "art_creation_start_age": [
+      "art_creation_start_age"
+    ],
+    "marital_status": [
+      "marital_status"
+    ],
+    "marriage_duration": [
+      "marriage_duration"
+    ],
+    "wedding_anniversary": [
+      "wedding_anniversary"
+    ],
+    "friendship_duration": [
+      "friendship_duration"
+    ],
+    "gender_identity": [
+      "gender_identity"
+    ],
+    "family_status": [
+      "family_status"
+    ],
+    "family_structure": [
+      "family_structure"
+    ],
+    "family_role": [
+      "family_role"
+    ],
+    "parental_status": [
+      "parental_status"
+    ],
+    "goal": [
+      "goal"
+    ],
+    "motivation": [
+      "motivation"
+    ],
+    "motivation_for_career": [
+      "motivation_for_career"
+    ],
+    "value": [
+      "value"
+    ],
+    "concern": [
+      "concern"
+    ],
+    "health_issue": [
+      "health_issue"
+    ],
+    "birthday": [
+      "birthday"
+    ],
+    "home_country": [
+      "home_country"
+    ],
+    "favorite_color": [
+      "favorite_color"
+    ],
+    "favorite_song": [
+      "favorite_song"
+    ],
+    "favorite_artist": [
+      "favorite_artist"
+    ],
+    "favorite_book": [
+      "favorite_book"
+    ],
+    "meaningful_song": [
+      "meaningful_song"
+    ],
+    "music_genre_preference": [
+      "music_genre_preference"
+    ],
+    "treasured_object": [
+      "treasured_object"
+    ],
+    "purchase": [
+      "purchase"
+    ],
+    "project": [
+      "project"
+    ],
+    "relationship": [
+      "relationship"
+    ],
+    "personal_achievement": [
+      "personal_achievement"
+    ],
+    "transition_start_date": [
+      "transition_start_date"
+    ],
+    "source_of_support": [
+      "source_of_support"
+    ],
+    "source_of_peace": [
+      "source_of_peace"
+    ],
+    "camping_activity": [
+      "camping_activity"
+    ],
+    "beach_trip_frequency": [
+      "beach_trip_frequency"
+    ],
+    "activity_frequency": [
+      "activity_frequency"
+    ],
+    "activity_shared": [
+      "activity_shared"
+    ],
+    "activity_engaged": [
+      "activity_engaged"
+    ],
+    "bonding_activity": [
+      "bonding_activity"
+    ],
+    "milestone_witnessed": [
+      "milestone_witnessed"
+    ],
+    "mentee": [
+      "mentee"
+    ],
+    "joined_organization": [
+      "joined_organization"
+    ],
+    "took_roadtrip": [
+      "took_roadtrip"
+    ],
+    "volunteer_note": [
+      "benefited_from"
+    ],
+    "gift_giver": [
+      "gift_giver"
+    ]
+  }
+}

@@ -1,0 +1,51 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "palimpsest-memory"
+version = "0.1.0"
+description = "Bitemporal claim-interval memory for AI agents — never serves a stale fact, and can tell you what it knew last Tuesday."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+keywords = ["llm", "memory", "agents", "bitemporal", "rag", "knowledge-graph"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "numpy>=1.26",
+    "model2vec>=0.3",
+    "tiktoken>=0.7",
+]
+
+[project.optional-dependencies]
+bench = ["pytest>=8", "ruff>=0.6"]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[project.urls]
+Homepage = "https://github.com/jamescamarota/palimpsest"
+Repository = "https://github.com/jamescamarota/palimpsest"
+
+[tool.hatch.build.targets.wheel]
+packages = ["palimpsest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501", "B008", "B905"]  # B905: zip strict= — pairs here are same-length by construction

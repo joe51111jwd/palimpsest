@@ -1,0 +1,19 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# Benchmark data — downloaded by scripts/fetch_data.sh, 300MB+
+data/raw/
+data/hf_cache/
+data/tiktoken_cache/
+data/llm_cache/
+
+# Caches that are reproducible but large
+data/claims_cache/
+
+# Local scratch
+results/*.log
+scratch/
