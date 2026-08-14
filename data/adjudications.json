@@ -1,0 +1,127 @@
+[
+ {
+  "raw": "career_interest",
+  "candidates": [
+   "attended_event"
+  ],
+  "choice": null
+ },
+ {
+  "raw": "has_children",
+  "candidates": [
+   "career_interest",
+   "attended_event"
+  ],
+  "choice": null
+ },
+ {
+  "raw": "motivation_for_career",
+  "candidates": [
+   "career_interest",
+   "attended_event",
+   "has_children"
+  ],
+  "choice": "career_interest"
+ },
+ {
+  "raw": "artwork_created",
+  "candidates": [
+   "career_interest",
+   "has_children",
+   "attended_event",
+   "motivation_for_career"
+  ],
+  "choice": null
+ },
+ {
+  "raw": "hobby",
+  "candidates": [
+   "artwork_created",
+   "career_interest",
+   "motivation_for_career",
+   "has_children",
+   "attended_event"
+  ],
+  "choice": null
+ },
+ {
+  "raw": "purpose_for_activity",
+  "candidates": [
+   "motivation_for_career",
+   "career_interest",
+   "hobby",
+   "artwork_created",
+   "attended_event",
+   "has_children"
+  ],
+  "choice": null
+ },
+ {
+  "raw": "children",
+  "candidates": [
+   "has_children",
+   "purpose_for_activity",
+   "artwork_created",
+   "hobby",
+   "career_interest",
+   "motivation_for_career",
+   "attended_event"
+  ],
+  "choice": "has_children"
+ },
+ {
+  "raw": "goal",
+  "candidates": [
+   "purpose_for_activity",
+   "motivation_for_career",
+   "children",
+   "attended_event",
+   "career_interest",
+   "hobby",
+   "artwork_created"
+  ],
+  "choice": "purpose_for_activity"
+ },
+ {
+  "raw": "considering_adoption_agency",
+  "candidates": [
+   "attended_event",
+   "goal",
+   "career_interest",
+   "motivation_for_career",
+   "children",
+   "hobby",
+   "artwork_created"
+  ],
+  "choice": null
+ },
+ {
+  "raw": "family_structure",
+  "candidates": [
+   "children",
+   "considering_adoption_agency",
+   "goal",
+   "career_interest",
+   "attended_event",
+   "artwork_created",
+   "hobby",
+   "motivation_for_career"
+  ],
+  "choice": null
+ },
+ {
+  "raw": "parental_status",
+  "candidates": [
+   "family_structure",
+   "goal",
+   "considering_adoption_agency",
+   "children",
+   "career_interest",
+   "motivation_for_career",
+   "attended_event",
+   "artwork_created",
+   "hobby"
+  ],
+  "choice": "family_structure"
+ }
+]

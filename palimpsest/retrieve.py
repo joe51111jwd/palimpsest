@@ -65,6 +65,11 @@ class QueryPlan:
     wants_history: bool = False
     wants_when: bool = False
     wants_count: bool = False
+    #: Similarity of the best-matching predicate. Measured: query->predicate
+    #: similarity RANKS correctly but is never thresholdable ("where do I work?"
+    #: -> employer is the top match at 0.288). So the floor is near-zero and this
+    #: score is used to size the fact block instead of to gate it.
+    predicate_confidence: float = 0.0
 
     @property
     def temporal(self) -> bool:
@@ -78,8 +83,8 @@ class Retriever:
         index: EpisodicIndex,
         *,
         predicate_top_m: int = 3,
-        predicate_floor: float = 0.25,
-        hybrid_top_n: int = 12,
+        predicate_floor: float = 0.02,
+        hybrid_top_n: int = 40,
     ) -> None:
         self.ledger = ledger
         self.index = index
@@ -123,6 +128,7 @@ class Retriever:
             qv = canon.embedder.embed_one(query)
             sims = matrix @ qv
             order = sims.argsort()[::-1][: self.predicate_top_m]
+            plan.predicate_confidence = float(sims[order[0]]) if len(order) else 0.0
             for i in order:
                 if float(sims[i]) < self.predicate_floor:
                     break
@@ -200,7 +206,7 @@ class Retriever:
                 break
 
         picked.sort(key=lambda rf: -rf.score)
-        picked = picked[:k]
+        picked = picked[: max(k, 24)]
 
         context, n_tokens = render_context(
             picked,
@@ -208,6 +214,7 @@ class Retriever:
             plan=plan,
             token_budget=token_budget,
             as_of=as_of,
+            query=query,
         )
         tier_counts: dict[str, int] = {}
         for rf in picked:

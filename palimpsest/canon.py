@@ -251,6 +251,10 @@ def humanize(raw: str) -> str:
     return raw.replace("_", " ").replace("-", " ").strip().lower()
 
 
+def _NAME_EMB(name: str) -> np.ndarray:
+    return default_embedder().embed_one(humanize(name))
+
+
 #: How many observed values go into a predicate's profile string.
 PROFILE_VALUES = 6
 
@@ -296,6 +300,11 @@ class CanonicalPredicate:
     value_types: dict[str, int] = field(default_factory=dict)
     alias_counts: dict[str, int] = field(default_factory=dict)
     values: list[str] = field(default_factory=list)
+    #: Embedding of the NAME alone. Canonicalization compares value-profiles
+    #: (synonymous predicates share a value distribution); query resolution
+    #: compares names, because a question names the attribute it wants and says
+    #: nothing about its values. Two tasks, two representations.
+    name_centroid: np.ndarray | None = None
 
     @property
     def dominant_type(self) -> ValueType:
@@ -318,6 +327,8 @@ class CanonicalPredicate:
         self.value_types[value_type] = self.value_types.get(value_type, 0) + 1
         if value and value not in self.values:
             self.values.append(value)
+        if self.name_centroid is None:
+            self.name_centroid = _NAME_EMB(self.name)
         if self.centroid is None:
             self.centroid = vec.astype(np.float32).copy()
         else:
@@ -646,17 +657,24 @@ class Canonicalizer:
     # ------------------------------------------------------------------ #
     # lookup helpers (used by retrieval)
     # ------------------------------------------------------------------ #
-    def predicate_matrix(self) -> np.ndarray:
+    def predicate_matrix(self, *, by_name: bool = True) -> np.ndarray:
+        """Matrix for query resolution (``by_name``) or merging (value profiles).
+
+        Query resolution defaults to names: a user asking "where do I work?" is
+        naming an attribute, and matching that against a profile dominated by
+        values ("employer: Globex, Pied Piper") measurably fails to resolve.
+        """
         if not self.predicates:
             return np.zeros((0, self.embedder.dim), dtype=np.float32)
-        return np.stack(
-            [
-                p.centroid
-                if p.centroid is not None
-                else np.zeros(self.embedder.dim, dtype=np.float32)
-                for p in self.predicates
-            ]
-        ).astype(np.float32)
+        zero = np.zeros(self.embedder.dim, dtype=np.float32)
+        rows = []
+        for p in self.predicates:
+            if by_name:
+                vec = p.name_centroid if p.name_centroid is not None else self.embedder.embed_one(humanize(p.name))
+            else:
+                vec = p.centroid
+            rows.append(vec if vec is not None else zero)
+        return np.stack(rows).astype(np.float32)
 
     def entity_matrix(self) -> np.ndarray:
         if not self.entities:

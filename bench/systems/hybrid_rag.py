@@ -64,7 +64,23 @@ The rest:
   annotations — fitting a baseline knob to the test labels is the other way to
   manufacture a result.
 - ``k_rrf=60``, the constant from Cormack et al. 2009 and every shipped
-  implementation since. Left alone rather than tuned, for the same reason.
+  implementation since. Left alone rather than tuned, for the same reason. The
+  fusion is done here rather than by calling ``EpisodicIndex.hybrid``, which
+  truncates each ranking to 100 internally: that is a third fixed constant that
+  would cap the candidate pool at 200 and start binding before the budget again
+  above ~7,600 tokens. Cormack defines RRF over complete rankings, so each list
+  is fused to the same budget-scaled depth as the candidate cap.
+- ``asked_at`` filters *before* fusion, always, on one code path. Verified by
+  content rather than by inspection: over 3,972 LoCoMo queries no message text,
+  ``msg_id`` or rendered date from after the cutoff ever reached the context.
+  The residual coupling is statistical, not a content leak: BM25's ``idf``/
+  ``avgdl`` and the dense quantization thresholds are corpus-wide statistics over
+  the whole episode, so hidden messages still nudge the *scores* of visible ones
+  (measured: a different top-30 on 12/28 and 20/28 of the LongMemEval questions
+  whose cutoff bites, versus an index physically rebuilt without the future).
+  That is inherent to indexing once per episode, it is shared by every indexed
+  system here including the engine, and rebuilding per query would wreck both the
+  latency and the storage accounting — so it is disclosed rather than patched.
 - ``include_image_captions=False``. 1,226 LoCoMo messages carry a BLIP caption in
   a field separate from ``text``. Indexing them is a real experimental knob (see
   ``bench/adapters/REPORT.md``); it is off by default because the engine's ingest
@@ -209,7 +225,7 @@ class HybridRAG:
             latency_ms=(time.perf_counter() - start) * 1000,
             meta={
                 "n_indexed_chunks": len(self.index),
-                "n_candidates": len(visible),
+                "n_candidates": len(picked),
                 "n_visible": len(visible),
                 "n_visible_messages": n_visible_msgs,
                 "cutoff_hides_all": bool(self._messages) and n_visible_msgs == 0,
