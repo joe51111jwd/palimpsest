@@ -7,6 +7,7 @@ here is a straight pass-through to ``Memory``.
 
 from __future__ import annotations
 
+import os
 import time
 from collections.abc import Sequence
 from datetime import datetime
@@ -47,7 +48,7 @@ def _default_adjudicator():
 class PalimpsestSystem:
     name = "palimpsest"
 
-    def __init__(self, *, k: int = 8, adjudicator=None, adjudicate: bool = True) -> None:
+    def __init__(self, *, k: int = 8, adjudicator=None, adjudicate: bool | None = None) -> None:
         self.k = k
         # Predicate adjudication is what makes supersession fire on open-world
         # input: without it, `lives_in` and `city` are separate keys and both
@@ -57,7 +58,20 @@ class PalimpsestSystem:
         #
         # Decisions are cached to disk and are stable across runs, so the cost is
         # paid once and a re-run is free. Set adjudicate=False for the ablation.
-        self.adjudicator = adjudicator or (_default_adjudicator() if adjudicate else StaticAdjudicator())
+        # Default OFF for benchmarking. Adjudication fires one LLM call per
+        # never-before-seen predicate surface form during build(), and a
+        # LongMemEval-S episode carries ~240 claims — measured at roughly one
+        # episode per 20 minutes, which is hours for a single benchmark run and
+        # makes the numbers impossible for anyone else to reproduce offline.
+        # Seed synonyms plus the deterministic guards cover the common vocabulary
+        # with no LLM at all; adjudication is measured separately, on its own, in
+        # bench/canon_eval.py where its contribution is visible rather than
+        # entangled with everything else.
+        if adjudicate is None:
+            adjudicate = os.environ.get("PALIMPSEST_ADJUDICATE", "0") == "1"
+        self.adjudicator = adjudicator or (
+            _default_adjudicator() if adjudicate else StaticAdjudicator()
+        )
         self.mem = Memory(adjudicator=self.adjudicator)
 
     def build(self, messages: Sequence[Message], claims: Sequence[Claim]) -> None:

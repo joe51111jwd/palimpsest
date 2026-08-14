@@ -113,6 +113,16 @@ you compare this to anyone's published number, including ours.** Briefly:
   lineage are **wrong on three of four categories**. See
   [`docs/LANDSCAPE.md`](docs/LANDSCAPE.md).
 
+We hold ourselves to the same standard, which is why
+[`docs/AUDIT.md`](docs/AUDIT.md) exists: four adversarial audits against this
+engine and its own harness, hunting failures that are silent and that a green
+test suite does not catch. They found nine. Six of seven confirmed defects
+survived a suite passing at 305 tests, and several were measurably corrupting
+numbers this project was about to publish — including a knowledge-update figure
+that looked good and was measured on a ledger violating its own invariant, with
+a future leak, over 72% of the questions. Every number here was re-run after
+those fixes; the pre-fix artifacts are withdrawn rather than corrected.
+
 So the deliverable here is not a leaderboard entry. It is **a harness where every
 system runs in the same process, with the same answering model, the same judge,
 the same unmodified judge prompt, and the same token budget** — plus our engine
@@ -130,7 +140,44 @@ baseline gets a binary-quantized index and a sane top-k rather than a
 configuration chosen to lose. The predecessor of this project failed its own
 audit for exactly that mistake, and the fix is documented rather than hidden.
 
-**Results: see [`docs/RESULTS.md`](docs/RESULTS.md).**
+### Results
+
+**LongMemEval-S, knowledge-update** — the thesis category, with ~500 sessions of
+distractors per question. 72 questions, all judged, micro-averaged, cleaned release.
+
+| system | accuracy | 95% CI | tokens |
+|---|---:|---|---:|
+| **palimpsest** | **0.736** | [0.624, 0.824] | 1,011 |
+| hybrid_rag | 0.708 | [0.595, 0.801] | 1,010 |
+| bm25 | 0.639 | [0.524, 0.740] | 997 |
+| mem0_style | 0.625 | [0.510, 0.728] | 970 |
+| vector_rag | 0.556 | [0.441, 0.665] | 1,016 |
+| zep_style | 0.542 | [0.427, 0.652] | 815 |
+| full_context | 0.389 | [0.285, 0.504] | 31,998 |
+
++9.7 over BM25, +34.7 over full context on **1/32 of the tokens**. The interval
+overlaps `hybrid_rag`, so the margin over the runner-up is *not* significant at
+n=72; the margin over everything below it is.
+
+The sharper finding is what happens when you remove the distractors and put them
+back. On the oracle haystack Palimpsest and `hybrid_rag` are tied inside their
+intervals (0.750 vs 0.764). Add the distractors and only one holds:
+
+| system | oracle | with distractors | change |
+|---|---:|---:|---:|
+| **palimpsest** | 0.750 | 0.736 | **−1.4** |
+| hybrid_rag | 0.764 | 0.708 | −5.6 |
+| full_context | 0.681 | 0.389 | −29.2 |
+
+The ledger is not finding the answer better. It is refusing to hand the model the
+wrong one, and that matters more as the haystack grows.
+
+**And it loses LoCoMo.** Plain BM25 beats it there by 14 points at the same budget
+(0.545 vs 0.407), because LoCoMo asks about details *inside* an utterance and a
+fact ledger has nothing to offer those. Fixing our own cardinality bug *lowered*
+that score from 0.502, because part of the apparent advantage was spurious
+supersession. Both facts are in [`docs/RESULTS.md`](docs/RESULTS.md) with the
+full tables.
 
 ## What this is not
 

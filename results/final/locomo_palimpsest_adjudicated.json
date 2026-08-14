@@ -1,0 +1,8095 @@
+{
+ "report": {
+  "meta": {
+   "dataset": "locomo",
+   "variant": null,
+   "token_budget": 1024,
+   "model": "haiku",
+   "judge_model": "haiku",
+   "averaging": "micro",
+   "judge_prompt": "mem0-standard-unmodified",
+   "wall_s": 913.1033260822296
+  },
+  "systems": {
+   "palimpsest": {
+    "n": 231,
+    "n_judged": 231,
+    "accuracy": 0.44155844155844154,
+    "ci95": [
+     0.37899587379948185,
+     0.5060330137570669
+    ],
+    "unjudged": 0,
+    "unjudged_rate": 0.0,
+    "no_answer_rate": 0.2510822510822511,
+    "mean_context_tokens": 1014.4025974025974,
+    "p95_context_tokens": 1024.0,
+    "mean_retrieval_ms": 1.6280521701182766,
+    "p95_retrieval_ms": 2.0111671183258295,
+    "categories": {
+     "multi_hop": {
+      "n": 56,
+      "accuracy": 0.21428571428571427
+     },
+     "open_domain": {
+      "n": 21,
+      "accuracy": 0.19047619047619047
+     },
+     "single_hop": {
+      "n": 84,
+      "accuracy": 0.5833333333333334
+     },
+     "temporal": {
+      "n": 70,
+      "accuracy": 0.5285714285714286
+     }
+    },
+    "storage": {
+     "bytes_stored": 159549,
+     "index_bytes": 21216,
+     "source_text_bytes": 89753,
+     "n_atoms": 274,
+     "n_current": 259,
+     "n_entities": 8,
+     "n_canonical_predicates": 75,
+     "n_predicate_surface_forms": 184,
+     "build_ms": 360957.99141703174,
+     "token_budget": 1024
+    },
+    "adversarial": {
+     "n": 69,
+     "misattribution_resistance": 0.927536231884058
+    }
+   }
+  }
+ },
+ "records": [
+  {
+   "qid": "conv-26:q175",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What did Caroline and her family see during their camping trip last year?",
+   "gold": "Perseid meteor shower",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1022,
+   "retrieval_ms": 261.8422908708453,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "visited_place",
+     "took_roadtrip",
+     "beach_trip_frequency"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q55",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What subject have Caroline and Melanie both painted?",
+   "gold": "Sunsets",
+   "answer": "NO_ANSWER\n\nThe memory shows Caroline painted a beach sunset and Melanie painted a lake sunrise and animals, but no subject they both painted is documented.",
+   "correct": false,
+   "context_tokens": 1017,
+   "retrieval_ms": 2.160874893888831,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "favorite_artist",
+     "artwork_medium"
+    ],
+    "entities": [
+     "caroline",
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 6,
+     "graph": 18,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q50",
+   "system": "palimpsest",
+   "category": "open_domain",
+   "question": "What would Caroline's political leaning likely be?",
+   "gold": "Liberal",
+   "answer": "Progressive/left-leaning (based on LGBTQ rights concern and mental health advocacy for trans people)",
+   "correct": true,
+   "context_tokens": 1019,
+   "retrieval_ms": 1.6660001128911972,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "interest",
+     "concern",
+     "career_interest"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 7,
+     "graph": 17,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q131",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "Who is Melanie a fan of in terms of modern music?",
+   "gold": "Ed Sheeran",
+   "answer": "Ed Sheeran",
+   "correct": true,
+   "context_tokens": 1012,
+   "retrieval_ms": 1.6414590645581484,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "favorite_song",
+     "favorite_artist"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 4,
+     "graph": 20,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q53",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Caroline apply to adoption agencies?",
+   "gold": "The week of 23 August 2023",
+   "answer": "2023-08-23",
+   "correct": true,
+   "context_tokens": 1023,
+   "retrieval_ms": 1.7408749554306269,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "friend_adoption_status",
+     "transition_start_date",
+     "child_experienced_accident"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q159",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What was grandma's gift to Melanie?",
+   "gold": "necklace",
+   "answer": "NO_ANSWER\n\nThe memory shows grandma's gift was to Caroline (a necklace from Sweden), not to Melanie.",
+   "correct": false,
+   "context_tokens": 1022,
+   "retrieval_ms": 1.5978750307112932,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "gift_giver",
+     "treasured_object"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q19",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What do Melanie's kids like?",
+   "gold": "dinosaurs, nature",
+   "answer": "Painting, swimming, activities with family",
+   "correct": false,
+   "context_tokens": 1019,
+   "retrieval_ms": 1.5034170355647802,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "children",
+     "favorite_book"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 12,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q59",
+   "system": "palimpsest",
+   "category": "open_domain",
+   "question": "Would Caroline be considered religious?",
+   "gold": "Somewhat, but not extremely religious",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1005,
+   "retrieval_ms": 1.574499998241663,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "children",
+     "interest",
+     "relationship"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q122",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "Why did Melanie choose to use colors and patterns in her pottery project?",
+   "gold": "She wanted to catch the eye and make people smile.",
+   "answer": "NO_ANSWER\n\nThe memory doesn't explain why Melanie chose colors and patterns. Caroline asked about it, but Melanie's response isn't recorded.",
+   "correct": false,
+   "context_tokens": 1008,
+   "retrieval_ms": 2.142125042155385,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "favorite_color",
+     "favorite_artist"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q57",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Caroline encounter people on a hike and have a negative experience?",
+   "gold": "The week before 25 August 2023",
+   "answer": "2023-08-17",
+   "correct": true,
+   "context_tokens": 1008,
+   "retrieval_ms": 1.8539580050855875,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "experienced_negative_incident",
+     "life_experience",
+     "experienced_event"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q154",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What type of individuals does the adoption agency Melanie is considering support?",
+   "gold": "LGBTQ+ individuals",
+   "answer": "LGBTQ+ folks",
+   "correct": true,
+   "context_tokens": 1004,
+   "retrieval_ms": 1.7200419679284096,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "friend_adoption_status",
+     "connection_to",
+     "identity"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q60",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What instruments does Melanie play?",
+   "gold": "clarinet and violin",
+   "answer": "Clarinet",
+   "correct": false,
+   "context_tokens": 1009,
+   "retrieval_ms": 1.4447909779846668,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "instrument_played",
+     "hobby_duration_years",
+     "connection_to"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q30",
+   "system": "palimpsest",
+   "category": "open_domain",
+   "question": "Would Melanie be considered a member of the LGBTQ community?",
+   "gold": "Likely no, she does not refer to herself as part of it",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1011,
+   "retrieval_ms": 1.6495420131832361,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "advocacy_cause",
+     "friend_adoption_status"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q112",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What did Mel and her kids paint in their latest project in July 2023?",
+   "gold": "a sunset with a palm tree",
+   "answer": "Nature-inspired paintings from last weekend",
+   "correct": false,
+   "context_tokens": 1015,
+   "retrieval_ms": 1.4443330001085997,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "children",
+     "event_completed",
+     "project"
+    ],
+    "entities": [],
+    "tiers": {
+     "interval": 12,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q5",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Melanie run a charity race?",
+   "gold": "The sunday before 25 May 2023",
+   "answer": "Last Saturday before 2023-05-25 (around 2023-05-20)",
+   "correct": true,
+   "context_tokens": 1001,
+   "retrieval_ms": 1.3172910548746586,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "event_completed",
+     "attended_event"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 12,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q190",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What was the poetry reading that Melanie attended about?",
+   "gold": "It was a transgender poetry reading where transgender people shared their stories.",
+   "answer": "NO_ANSWER\n\nThe memory shows Caroline attended a transgender poetry reading, not Melanie.",
+   "correct": true,
+   "context_tokens": 1004,
+   "retrieval_ms": 1.4013750478625298,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "attended_event",
+     "visited_place"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 13,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q32",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What LGBTQ+ events has Caroline participated in?",
+   "gold": "Pride parade, school speech, support group",
+   "answer": "- LGBTQ support group\n- LGBTQ+ counseling workshop\n- LGBTQ+ pride parade\n- LGBTQ art show (planned/participated)\n- LGBTQ center visit\n- LGBTQ youth mentorship program\n- School event on transgender journey",
+   "correct": false,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.5942088793963194,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "attended_event",
+     "activity_participated_in",
+     "event_completed"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 20,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q2",
+   "system": "palimpsest",
+   "category": "open_domain",
+   "question": "What fields would Caroline be likely to pursue in her educaton?",
+   "gold": "Psychology, counseling certification",
+   "answer": "Counseling and mental health support for trans people",
+   "correct": true,
+   "context_tokens": 1022,
+   "retrieval_ms": 1.734584104269743,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "career_interest",
+     "interest",
+     "concern"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 7,
+     "graph": 17,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q119",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "How did Melanie feel while watching the meteor shower?",
+   "gold": "in awe of the universe",
+   "answer": "Amazing, at one with the universe, awe-inspired.",
+   "correct": true,
+   "context_tokens": 1011,
+   "retrieval_ms": 1.86608312651515,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "child_experienced_accident",
+     "favorite_song"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q31",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Melanie go camping in June?",
+   "gold": "The week before 27 June 2023",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1021,
+   "retrieval_ms": 1.5682920347899199,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "took_roadtrip",
+     "visited_place"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q153",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What are Melanie's plans for the summer with respect to adoption?",
+   "gold": "researching adoption agencies",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1008,
+   "retrieval_ms": 1.5274579636752605,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "friend_adoption_status",
+     "transition_start_date"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q56",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What symbols are important to Caroline?",
+   "gold": "Rainbow flag, transgender symbol",
+   "answer": "Rainbow flag (courage/strength of trans community), eagle (freedom/pride/resilience), flowers (growth/beauty)",
+   "correct": false,
+   "context_tokens": 1014,
+   "retrieval_ms": 1.6022080089896917,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "pet_name",
+     "artwork_subject",
+     "meaningful_song"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q77",
+   "system": "palimpsest",
+   "category": "open_domain",
+   "question": "Would Melanie go on another roadtrip soon?",
+   "gold": "Likely no; since this one went badly",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1023,
+   "retrieval_ms": 1.7192501109093428,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "took_roadtrip",
+     "connection_to",
+     "beach_trip_frequency"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q105",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What did Caroline take away from the book \"Becoming Nicole\"?",
+   "gold": "Lessons on self-acceptance and finding support",
+   "answer": "Connected and hopeful for her own path",
+   "correct": true,
+   "context_tokens": 1006,
+   "retrieval_ms": 1.7488750163465738,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "favorite_book",
+     "life_experience"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q72",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Melanie's friend adopt a child?",
+   "gold": "2022",
+   "answer": "Last year (as of 2023-10-22), which would be 2022.",
+   "correct": true,
+   "context_tokens": 1023,
+   "retrieval_ms": 1.391582889482379,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "friend_adoption_status",
+     "children"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 12,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q164",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What kind of counseling workshop did Melanie attend recently?",
+   "gold": "LGBTQ+ counseling workshop",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1012,
+   "retrieval_ms": 1.4168748166412115,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "attended_event",
+     "experienced_event"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 12,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q7",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What is Caroline's relationship status?",
+   "gold": "Single",
+   "answer": "Friends with Melanie",
+   "correct": false,
+   "context_tokens": 1007,
+   "retrieval_ms": 1.352541847154498,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship",
+     "connection_to",
+     "friend_adoption_status"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q64",
+   "system": "palimpsest",
+   "category": "open_domain",
+   "question": "Would Melanie likely enjoy the song \"The Four Seasons\" by Vivaldi?",
+   "gold": "Yes; it's classical music",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1002,
+   "retrieval_ms": 1.6119999345391989,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "favorite_song",
+     "meaningful_song"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q106",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What are the new shoes that Melanie got used for?",
+   "gold": "Running",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1010,
+   "retrieval_ms": 1.5412080101668835,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "purchase",
+     "treasured_object"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q68",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "How long has Melanie been practicing art?",
+   "gold": "Since 2016",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1009,
+   "retrieval_ms": 1.5212921425700188,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "favorite_artist",
+     "artwork_medium"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 4,
+     "graph": 20,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q163",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What kind of counseling and mental health services is Melanie interested in pursuing?",
+   "gold": "working with trans people, helping them accept themselves and supporting their mental health",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1016,
+   "retrieval_ms": 1.6406250651925802,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "career_interest",
+     "interest"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 4,
+     "graph": 20,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q18",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "Where has Melanie camped?",
+   "gold": "beach, mountains, forest",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1010,
+   "retrieval_ms": 1.7967501189559698,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "visited_place",
+     "volunteer_location"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q81",
+   "system": "palimpsest",
+   "category": "open_domain",
+   "question": "Would Caroline want to move back to her home country soon?",
+   "gold": "No; she's in the process of adopting children.",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1014,
+   "retrieval_ms": 1.706290990114212,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "home_country",
+     "family_support_during_move",
+     "transition_start_date"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q147",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "How did Melanie feel after the accident?",
+   "gold": "Grateful and thankful for her family",
+   "answer": "Scared initially; grateful son was okay; reflective about family's importance; thankful to have them.",
+   "correct": true,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.5457919798791409,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "child_experienced_accident",
+     "connection_to",
+     "event_completed"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q25",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Caroline go to the LGBTQ conference?",
+   "gold": "10 July 2023",
+   "answer": "July 10, 2023",
+   "correct": true,
+   "context_tokens": 1016,
+   "retrieval_ms": 1.4899580273777246,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "attended_event",
+     "transition_start_date",
+     "life_event"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 20,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q197",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What did Caroline do after the road trip to relax?",
+   "gold": "Went on a nature walk or hike",
+   "answer": "NO_ANSWER\n\nThe memory shows Melanie relaxed after a road trip (nature/Grand Canyon), but does not specify what Caroline did to relax after a road trip.",
+   "correct": true,
+   "context_tokens": 1003,
+   "retrieval_ms": 1.6428329981863499,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "took_roadtrip",
+     "visited_place",
+     "beach_trip_frequency"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q48",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What types of pottery have Melanie and her kids made?",
+   "gold": "bowls, cup",
+   "answer": "Pots, cups",
+   "correct": false,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.4886660501360893,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "children",
+     "favorite_book"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 12,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q42",
+   "system": "palimpsest",
+   "category": "open_domain",
+   "question": "Would Melanie be more interested in going to a national park or a theme park?",
+   "gold": "National park; she likes the outdoors",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1022,
+   "retrieval_ms": 1.672457903623581,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "interest",
+     "volunteer_location"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 4,
+     "graph": 20,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q84",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "How does Melanie prioritize self-care?",
+   "gold": "by carving out some me-time each day for activities like running, reading, or playing the violin",
+   "answer": "NO_ANSWER\n\nThe memory shows Melanie values self-care and realizes it helps her better care for her family, but doesn't specify how she prioritizes it.",
+   "correct": false,
+   "context_tokens": 1019,
+   "retrieval_ms": 1.6529171261936426,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "life_experience",
+     "pet_name"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q63",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When is Caroline's youth center putting on a talent show?",
+   "gold": "September 2023",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1023,
+   "retrieval_ms": 1.925166929140687,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "started_hobby_age",
+     "volunteer_location",
+     "attended_event"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 20,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q182",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What did Melanie find in her neighborhood during her walk?",
+   "gold": "a rainbow sidewalk",
+   "answer": "NO_ANSWER\n\n(The memory shows Caroline found a rainbow sidewalk in her neighborhood, not Melanie.)",
+   "correct": false,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.5389169566333294,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "visited_place",
+     "attended_event"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 13,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q76",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "When did Melanie go on a hike after the roadtrip?",
+   "gold": "19 October 2023",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1007,
+   "retrieval_ms": 1.7231251113116741,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "took_roadtrip",
+     "visited_place",
+     "connection_to"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q27",
+   "system": "palimpsest",
+   "category": "open_domain",
+   "question": "Would Caroline pursue writing as a career option?",
+   "gold": "LIkely no; though she likes reading, she wants to be a counselor",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 998,
+   "retrieval_ms": 2.5172089226543903,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "career_interest",
+     "motivation_for_career",
+     "interest"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 7,
+     "graph": 17,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q121",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "Who performed at the concert at Melanie's daughter's birthday?",
+   "gold": "Matt Patterson",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1015,
+   "retrieval_ms": 1.31679093465209,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "birthday",
+     "connection_to",
+     "attended_event"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 12,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q54",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Caroline draw a self-portrait?",
+   "gold": "The week before 23 August 2023",
+   "answer": "2023-08-16",
+   "correct": false,
+   "context_tokens": 1020,
+   "retrieval_ms": 1.3320418074727058,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "artwork_created",
+     "favorite_artist",
+     "artwork_medium"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 10,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q165",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What motivated Melanie to pursue counseling?",
+   "gold": "her own journey and the support she received, and how counseling improved her life",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1021,
+   "retrieval_ms": 1.5579161699861288,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "motivation_for_career",
+     "motivation",
+     "connection_to"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q75",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "How many children does Melanie have?",
+   "gold": "3",
+   "answer": "2 younger kids",
+   "correct": false,
+   "context_tokens": 1003,
+   "retrieval_ms": 1.372666796669364,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "children",
+     "child_experienced_accident"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 12,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q46",
+   "system": "palimpsest",
+   "category": "open_domain",
+   "question": "Would Melanie be considered an ally to the transgender community?",
+   "gold": "Yes, she is supportive",
+   "answer": "YES",
+   "correct": true,
+   "context_tokens": 1010,
+   "retrieval_ms": 1.6123750247061253,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "friend_adoption_status",
+     "advocacy_cause"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q124",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What pets does Melanie have?",
+   "gold": "Two cats and a dog",
+   "answer": "Dog (Oliver), cat, Luna",
+   "correct": true,
+   "context_tokens": 1005,
+   "retrieval_ms": 1.4932500198483467,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "pet",
+     "pet_name"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 7,
+     "graph": 17,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q79",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Caroline pass the adoption interview?",
+   "gold": "The Friday before 22 October 2023",
+   "answer": "Last Friday (2023-10-20)",
+   "correct": true,
+   "context_tokens": 1006,
+   "retrieval_ms": 1.5681670047342777,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "friend_adoption_status",
+     "life_experience",
+     "transition_start_date"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 4,
+     "graph": 20,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q155",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "Why did Melanie choose the adoption agency?",
+   "gold": "because of their inclusivity and support for LGBTQ+ individuals",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.5638750046491623,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "friend_adoption_status",
+     "connection_to",
+     "pet_name"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 4,
+     "graph": 20,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q13",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What career path has Caroline decided to persue?",
+   "gold": "counseling or mental health for Transgender people",
+   "answer": "Counseling and mental health support for trans people",
+   "correct": true,
+   "context_tokens": 1009,
+   "retrieval_ms": 1.423708163201809,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "motivation_for_career",
+     "career_interest",
+     "life_experience"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 8,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q22",
+   "system": "palimpsest",
+   "category": "open_domain",
+   "question": "Would Caroline likely have Dr. Seuss books on her bookshelf?",
+   "gold": "Yes, since she collects classic children's books",
+   "answer": "YES",
+   "correct": true,
+   "context_tokens": 1011,
+   "retrieval_ms": 2.629833994433284,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "favorite_book",
+     "connection_to",
+     "children"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q98",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What was discussed in the LGBTQ+ counseling workshop?",
+   "gold": "therapeutic methods and how to best work with trans people",
+   "answer": "Different therapeutic methods and how to best work with trans people.",
+   "correct": true,
+   "context_tokens": 1019,
+   "retrieval_ms": 1.595374895259738,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "advocacy_cause",
+     "attended_event",
+     "relationship"
+    ],
+    "entities": [],
+    "tiers": {
+     "interval": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q17",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When is Caroline going to the transgender conference?",
+   "gold": "July 2023",
+   "answer": "NO_ANSWER\n\nThe memory shows Caroline already attended a transgender conference in July 2023, but contains no information about a future conference date.",
+   "correct": false,
+   "context_tokens": 1015,
+   "retrieval_ms": 1.4436671044677496,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "transition_start_date",
+     "life_event",
+     "attended_event"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 20,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q194",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "How did Caroline's children handle the accident?",
+   "gold": "They were scared but resilient",
+   "answer": "NO_ANSWER\n\nThe accident was Melanie's son's accident during a road trip, not Caroline's children. The memory does not mention Caroline having children or them being in an accident.",
+   "correct": true,
+   "context_tokens": 1021,
+   "retrieval_ms": 1.3540422078222036,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "child_experienced_accident",
+     "children",
+     "event_completed"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q47",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "Who supports Caroline when she has a negative experience?",
+   "gold": "Her mentors, family, and friends",
+   "answer": "Her friends (known them 4 years since moving from home country); Melanie (friend since 2023-07-15)",
+   "correct": false,
+   "context_tokens": 1021,
+   "retrieval_ms": 1.6260829288512468,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "experienced_negative_incident",
+     "connection_to",
+     "family_support_during_move"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q14",
+   "system": "palimpsest",
+   "category": "open_domain",
+   "question": "Would Caroline still want to pursue counseling as a career if she hadn't received support growing up?",
+   "gold": "Likely no",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1010,
+   "retrieval_ms": 1.8102501053363085,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "career_interest",
+     "motivation_for_career",
+     "friend_adoption_status"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q149",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What do Melanie's family give her?",
+   "gold": "Strength and motivation",
+   "answer": "Love, strength, motivation, joy, peace.",
+   "correct": false,
+   "context_tokens": 1017,
+   "retrieval_ms": 1.3898750767111778,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "gift_giver",
+     "treasured_object"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q29",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Melanie go to the pottery workshop?",
+   "gold": "The Friday before 15 July 2023",
+   "answer": "2023-07-15",
+   "correct": false,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.6088751144707203,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "started_hobby_age",
+     "event_completed"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q186",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "Who is Caroline a fan of in terms of modern music?",
+   "gold": "Ed Sheeran",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1018,
+   "retrieval_ms": 1.5897499397397041,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "favorite_song",
+     "favorite_artist",
+     "connection_to"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q39",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "In what ways is Caroline participating in the LGBTQ community?",
+   "gold": "Joining activist group, going to pride parades, participating in an art show, mentoring program",
+   "answer": "Speaking for transgender and LGBTQ community, volunteering at LGBTQ+ youth center, activism with Connected LGBTQ Activists, creating art/paintings for LGBTQ art shows, advocating for LGBTQ rights, mentoring LGBTQ youth, attending support groups and events.",
+   "correct": true,
+   "context_tokens": 1022,
+   "retrieval_ms": 1.735582947731018,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "advocacy_cause",
+     "activity_participated_in",
+     "volunteered_at"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 6,
+     "graph": 18,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q69",
+   "system": "palimpsest",
+   "category": "open_domain",
+   "question": "What personality traits might Melanie say Caroline has?",
+   "gold": "Thoughtful, authentic, driven",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1021,
+   "retrieval_ms": 1.8399159889668226,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "mentee_characteristic",
+     "career_interest"
+    ],
+    "entities": [
+     "caroline",
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 7,
+     "graph": 17,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q86",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What type of individuals does the adoption agency Caroline is considering support?",
+   "gold": "LGBTQ+ individuals",
+   "answer": "LGBTQ+ folks",
+   "correct": true,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.8182911444455385,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "friend_adoption_status",
+     "identity",
+     "career_interest"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q21",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Caroline have a picnic?",
+   "gold": "The week before 6 July 2023",
+   "answer": "2023-07-05 (last week mentioned on 2023-07-06)",
+   "correct": true,
+   "context_tokens": 1021,
+   "retrieval_ms": 1.391999889165163,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "attended_event",
+     "treasured_object",
+     "connection_to"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q179",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "Where did Oscar hide his bone once?",
+   "gold": "In Melanie's slipper",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.3652080669999123,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "visited_place",
+     "favorite_song",
+     "event_completed"
+    ],
+    "entities": [],
+    "tiers": {
+     "interval": 5,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q66",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What does Melanie do with her family on hikes?",
+   "gold": "Roast marshmallows, tell stories",
+   "answer": "NO_ANSWER\n\nThe memory mentions Melanie does hiking in the mountains with family, but does not specify what activities she does during those hikes.",
+   "correct": false,
+   "context_tokens": 1000,
+   "retrieval_ms": 1.5968750230967999,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "activity_with_family",
+     "family_support_during_move"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 10,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q87",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "Why did Caroline choose the adoption agency?",
+   "gold": "because of their inclusivity and support for LGBTQ+ individuals",
+   "answer": "They help LGBTQ+ folks with adoption; their inclusivity and support spoke to her.",
+   "correct": true,
+   "context_tokens": 1019,
+   "retrieval_ms": 1.8334160558879375,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "friend_adoption_status",
+     "pet_name",
+     "transition_start_date"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q35",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Melanie go camping in July?",
+   "gold": "two weekends before 17 July 2023",
+   "answer": "NO_ANSWER\n\nThe memory mentions camping trips in July but does not specify an exact date when Melanie went camping.",
+   "correct": false,
+   "context_tokens": 1018,
+   "retrieval_ms": 1.5434999950230122,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "took_roadtrip",
+     "beach_trip_frequency"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q158",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What country is Melanie's grandma from?",
+   "gold": "Sweden",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1005,
+   "retrieval_ms": 1.3279998674988747,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "home_country",
+     "favorite_book"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q61",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What musical artists/bands has Melanie seen?",
+   "gold": "Summer Sounds, Matt Patterson",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1004,
+   "retrieval_ms": 1.6785841435194016,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "instrument_played",
+     "connection_to",
+     "favorite_artist"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 4,
+     "graph": 20,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q125",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "Where did Oliver hide his bone once?",
+   "gold": "In Melanie's slipper",
+   "answer": "Melanie's slipper",
+   "correct": true,
+   "context_tokens": 1022,
+   "retrieval_ms": 1.4556669630110264,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "took_roadtrip",
+     "visited_place",
+     "child_experienced_accident"
+    ],
+    "entities": [],
+    "tiers": {
+     "interval": 5,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q10",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "How long has Caroline had her current group of friends for?",
+   "gold": "4 years",
+   "answer": "4 years",
+   "correct": true,
+   "context_tokens": 1013,
+   "retrieval_ms": 1.7240841407328844,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "friendship_duration",
+     "connection_to",
+     "friend_adoption_status"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q168",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What are the new shoes that Caroline got used for?",
+   "gold": "Running",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1016,
+   "retrieval_ms": 1.6942499205470085,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "treasured_object",
+     "purchase",
+     "activity_participated_in"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q71",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What book did Melanie read from Caroline's suggestion?",
+   "gold": "\"Becoming Nicole\"",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1013,
+   "retrieval_ms": 1.7010420560836792,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "favorite_book",
+     "favorite_song"
+    ],
+    "entities": [
+     "caroline",
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q130",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "Which  classical musicians does Melanie enjoy listening to?",
+   "gold": "Bach and Mozart",
+   "answer": "Bach and Mozart",
+   "correct": true,
+   "context_tokens": 1000,
+   "retrieval_ms": 1.5899999998509884,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "instrument_played",
+     "hobby_duration_years",
+     "connection_to"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q73",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Melanie get hurt?",
+   "gold": "September 2023",
+   "answer": "Last month (before 2023-10-13)",
+   "correct": false,
+   "context_tokens": 1009,
+   "retrieval_ms": 1.5865419991314411,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "child_experienced_accident",
+     "experienced_negative_incident"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q196",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What was Caroline's reaction to her children enjoying the Grand Canyon?",
+   "gold": "She was happy and thankful",
+   "answer": "NO_ANSWER\n\nThe memory shows Melanie mentioning that her kids enjoyed the Grand Canyon, but contains no information about Caroline's reaction to this.",
+   "correct": true,
+   "context_tokens": 1013,
+   "retrieval_ms": 1.6868750099092722,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "children",
+     "child_experienced_accident",
+     "favorite_book"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q40",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "How many times has Melanie gone to the beach in 2023?",
+   "gold": "2",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1022,
+   "retrieval_ms": 1.8158340826630592,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "beach_trip_frequency",
+     "connection_to",
+     "favorite_song"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q90",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "How long have Mel and her husband been married?",
+   "gold": "Mel and her husband have been married for 5 years.",
+   "answer": "5 years",
+   "correct": true,
+   "context_tokens": 1020,
+   "retrieval_ms": 1.528833992779255,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "wedding_anniversary",
+     "relationship"
+    ],
+    "entities": [],
+    "tiers": {
+     "interval": 7,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q8",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Caroline give a speech at a school?",
+   "gold": "The week before 9 June 2023",
+   "answer": "2023-06-02 (since date) / June 2023 (approximate)",
+   "correct": false,
+   "context_tokens": 1021,
+   "retrieval_ms": 1.655791886150837,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "gift_giver",
+     "attended_event",
+     "treasured_object"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q191",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What happened to Caroline's son on their road trip?",
+   "gold": "He got into an accident",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1023,
+   "retrieval_ms": 1.5909168869256973,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "took_roadtrip",
+     "child_experienced_accident",
+     "visited_place"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q4",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What is Caroline's identity?",
+   "gold": "Transgender woman",
+   "answer": "Womanhood",
+   "correct": false,
+   "context_tokens": 1019,
+   "retrieval_ms": 1.4356670435518026,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "identity",
+     "connection_to",
+     "pet_name"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q91",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What does Caroline's necklace symbolize?",
+   "gold": "love, faith, and strength",
+   "answer": "Love, faith, and strength",
+   "correct": true,
+   "context_tokens": 1023,
+   "retrieval_ms": 1.4125839807093143,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "treasured_object",
+     "gift_giver",
+     "artwork_created"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 14,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q58",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Melanie make a plate in pottery class?",
+   "gold": "24 August 2023",
+   "answer": "2023-08-24",
+   "correct": true,
+   "context_tokens": 1022,
+   "retrieval_ms": 1.6097500920295715,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "treasured_object",
+     "gift_giver"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q195",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "How did Caroline feel after the accident?",
+   "gold": "Grateful and thankful for her family",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1017,
+   "retrieval_ms": 1.687999814748764,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "child_experienced_accident",
+     "event_completed",
+     "took_roadtrip"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q78",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What items has Melanie bought?",
+   "gold": "Figurines, shoes",
+   "answer": "Figurines",
+   "correct": false,
+   "context_tokens": 1020,
+   "retrieval_ms": 1.524333143606782,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "purchase",
+     "treasured_object"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q144",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "How did Melanie's son handle the accident?",
+   "gold": "He was scared but reassured by his family",
+   "answer": "Melanie's son was okay. The other kids were scared but reassured they'd be fine.",
+   "correct": false,
+   "context_tokens": 1023,
+   "retrieval_ms": 1.4917911030352116,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "child_experienced_accident",
+     "connection_to",
+     "event_completed"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q41",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Caroline join a new activist group?",
+   "gold": "The Tuesday before 20 July 2023",
+   "answer": "2023-07-18",
+   "correct": true,
+   "context_tokens": 1004,
+   "retrieval_ms": 1.5901669394224882,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "attended_event",
+     "activity_participated_in",
+     "advocacy_cause"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q172",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What inspired Melanie's painting for the art show?",
+   "gold": "visiting an LGBTQ center and wanting to capture unity and strength",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1009,
+   "retrieval_ms": 1.5382501296699047,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "artwork_created",
+     "favorite_artist",
+     "artwork_subject"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 14,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q23",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What books has Melanie read?",
+   "gold": "\"Nothing is Impossible\", \"Charlotte's Web\"",
+   "answer": "Charlotte's Web (childhood favorite); one book last year that reminded her to pursue dreams",
+   "correct": false,
+   "context_tokens": 997,
+   "retrieval_ms": 2.2307499311864376,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "favorite_book",
+     "children"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 12,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q138",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What kind of painting did Caroline share with Melanie on October 13, 2023?",
+   "gold": "An abstract painting with blue streaks on a wall.",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1022,
+   "retrieval_ms": 1.7309589311480522,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "favorite_artist",
+     "children"
+    ],
+    "entities": [
+     "caroline",
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 14,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q6",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When is Melanie planning on going camping?",
+   "gold": "June 2023",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1012,
+   "retrieval_ms": 1.5940419398248196,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "beach_trip_frequency",
+     "took_roadtrip"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q161",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What is Caroline's hand-painted bowl a reminder of?",
+   "gold": "art and self-expression",
+   "answer": "Art and self-expression",
+   "correct": false,
+   "context_tokens": 1007,
+   "retrieval_ms": 1.461750129237771,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "artwork_created",
+     "favorite_artist",
+     "artwork_medium"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 10,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q38",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What activities has Melanie done with her family?",
+   "gold": "Pottery, painting, camping, museum, swimming, hiking",
+   "answer": "Camping, camping trips in the forest, hiking in mountains, homeless shelter volunteer work.",
+   "correct": false,
+   "context_tokens": 1015,
+   "retrieval_ms": 1.4620840083807707,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "activity_with_family",
+     "activity"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 10,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q126",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What activity did Caroline used to do with her dad?",
+   "gold": "Horseback riding",
+   "answer": "Horseback riding",
+   "correct": true,
+   "context_tokens": 1005,
+   "retrieval_ms": 1.6466251108795404,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "activity_with_family",
+     "activity_participated_in",
+     "activity"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q16",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Melanie sign up for a pottery class?",
+   "gold": "2 July 2023",
+   "answer": "July 2, 2023",
+   "correct": true,
+   "context_tokens": 1007,
+   "retrieval_ms": 1.6272501088678837,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "treasured_object",
+     "gift_giver"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q192",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "How did Caroline's son handle the accident?",
+   "gold": "He was scared but reassured by his family",
+   "answer": "NO_ANSWER\n\nThe accident involved Melanie's son, not Caroline's son.",
+   "correct": true,
+   "context_tokens": 1018,
+   "retrieval_ms": 1.4552918728441,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "child_experienced_accident",
+     "event_completed",
+     "experienced_negative_incident"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q51",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What has Melanie painted?",
+   "gold": "Horse, sunset, sunrise",
+   "answer": "Lake sunrise, abstract painting, horse painting",
+   "correct": false,
+   "context_tokens": 1022,
+   "retrieval_ms": 1.4840408693999052,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "connection_to",
+     "favorite_artist",
+     "artwork_medium"
+    ],
+    "entities": [
+     "melanie"
+    ],
+    "tiers": {
+     "interval": 4,
+     "graph": 20,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-26:q116",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What inspired Caroline's painting for the art show?",
+   "gold": "visiting an LGBTQ center and wanting to capture unity and strength",
+   "answer": "LGBTQ center and inclusivity/diversity themes",
+   "correct": true,
+   "context_tokens": 1002,
+   "retrieval_ms": 1.480459002777934,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "artwork_created",
+     "favorite_artist",
+     "artwork_subject"
+    ],
+    "entities": [
+     "caroline"
+    ],
+    "tiers": {
+     "interval": 11,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q102",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What did Jon make a limited edition line of?",
+   "gold": "Hoodies",
+   "answer": "NO_ANSWER\n\nThe memory shows Gina made a limited edition line (a hoodie), not Jon.",
+   "correct": true,
+   "context_tokens": 1018,
+   "retrieval_ms": 77.26087514311075,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "content_created",
+     "acquired_inventory"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q18",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "Do Jon and Gina start businesses out of what they love?",
+   "gold": "Yes",
+   "answer": "Yes. Jon started a dance studio (his passion), Gina started an online clothes store (blending her love for dance and fashion).",
+   "correct": true,
+   "context_tokens": 1007,
+   "retrieval_ms": 1.944832969456911,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "business_owner",
+     "business_founded"
+    ],
+    "entities": [
+     "jon",
+     "gina"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q67",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "How does Jon use the clipboard with a notepad attached to it?",
+   "gold": "To set goals, track achievements, and find areas for improvement",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1002,
+   "retrieval_ms": 1.7759168986231089,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "received_mentorship",
+     "content_created"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q34",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Gina start being recognized by fashion editors?",
+   "gold": "July 2023",
+   "answer": "2023-07-09 (last week before that date)",
+   "correct": false,
+   "context_tokens": 1007,
+   "retrieval_ms": 1.6220000106841326,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "business_owner",
+     "content_created",
+     "business_founded"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q94",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "Why did Jon combine his clothing business with dance?",
+   "gold": "he is passionate about dance and fashion",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.8575838766992092,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "attended_event",
+     "relationship_to_jon",
+     "dance_style_practiced"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 8,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q25",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What does Jon's dance studio offer?",
+   "gold": "one-on-one metoring and training to dancers,  workshops and classes to local schools and centers",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1019,
+   "retrieval_ms": 1.4263340272009373,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "dance_style_practiced",
+     "attended_event"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 8,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q59",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "Why did Gina combine her clothing business with dance?",
+   "gold": "she is passionate about dance and fashion",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1006,
+   "retrieval_ms": 1.617790898308158,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "dance_style_practiced",
+     "attended_event",
+     "favorite_dance_style"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q10",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Gina team up with a local artist for some cool designs?",
+   "gold": "February, 2023",
+   "answer": "2023-02-08",
+   "correct": true,
+   "context_tokens": 1011,
+   "retrieval_ms": 1.5184581279754639,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "tattoo",
+     "creativity_source",
+     "favorite_dance_style"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q91",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "How is Jon's store doing?",
+   "gold": "The store is doing great.",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1007,
+   "retrieval_ms": 1.4249999076128006,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "work_activity",
+     "job_status"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 7,
+     "graph": 17,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q3",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What do Jon and Gina both have in common?",
+   "gold": "They lost their jobs and decided to start their own businesses.",
+   "answer": "Both have their own businesses and are mutually supportive of each other's entrepreneurial efforts.",
+   "correct": false,
+   "context_tokens": 1003,
+   "retrieval_ms": 1.4485828578472137,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "collaboration",
+     "business"
+    ],
+    "entities": [
+     "jon",
+     "gina"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q76",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What is the general sentiment about the upcoming grand opening?",
+   "gold": "excitement",
+   "answer": "Very excited and enthusiastic. Multiple celebrations of making memories, can't wait, woohoo, unforgettable.",
+   "correct": true,
+   "context_tokens": 1021,
+   "retrieval_ms": 1.4875840861350298,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "opening_night_scheduled",
+     "business_owner",
+     "content_created"
+    ],
+    "entities": [],
+    "tiers": {
+     "interval": 4,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q0",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When Jon has lost his job as a banker?",
+   "gold": "19 January, 2023",
+   "answer": "2023-01-19",
+   "correct": true,
+   "context_tokens": 1001,
+   "retrieval_ms": 1.4483751729130745,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "job_loss",
+     "former_job_title"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "graph": 24,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q79",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What temporary job did Jon take to cover expenses?",
+   "gold": "Not mentioned",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.4712500851601362,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "job_loss",
+     "relationship_to_jon",
+     "business"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q24",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "Which events has Jon participated in to promote his business venture?",
+   "gold": "fair, networking events, dance competition",
+   "answer": "Networking events",
+   "correct": false,
+   "context_tokens": 1021,
+   "retrieval_ms": 1.5118748415261507,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "activity_involved_in",
+     "business_founded",
+     "relationship_to_jon"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q55",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What does Gina's tattoo symbolize?",
+   "gold": "Freedom and expressing herself through dance",
+   "answer": "Freedom and dancing without judgment/worrying what people think",
+   "correct": true,
+   "context_tokens": 1020,
+   "retrieval_ms": 1.2302498798817396,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "tattoo_meaning",
+     "tattoo",
+     "tattoo_date"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q22",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Gina develop a video presentation to teach how to style her fashion pieces? ",
+   "gold": "June, 2023",
+   "answer": "2023-06-13",
+   "correct": true,
+   "context_tokens": 1023,
+   "retrieval_ms": 1.5579999890178442,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "dance_style_practiced",
+     "attended_event",
+     "favorite_dance_style"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q87",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What did Jon find for his clothing store on 1 February, 2023?",
+   "gold": "The perfect spot for her store",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1012,
+   "retrieval_ms": 1.5113749541342258,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "favorite_dance_style",
+     "tattoo_date"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q5",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What Jon thinks the ideal dance studio should look like?",
+   "gold": "By the water, with natural light and Marley flooring",
+   "answer": "By the water with great natural light.",
+   "correct": false,
+   "context_tokens": 1014,
+   "retrieval_ms": 1.6079158522188663,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "favorite_dance_style",
+     "dance_style_practiced",
+     "relationship_to_jon"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q80",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What plans does Jon have after receiving advice at the networking event?",
+   "gold": "Sprucing up his business plan, tweaking his pitch to investors, and working on an online platform.",
+   "answer": "Spruce up business plan, tweak investor pitch, work on online platform for dance studio.",
+   "correct": true,
+   "context_tokens": 1018,
+   "retrieval_ms": 1.568750012665987,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "growth_strategy",
+     "event_outcome"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q38",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Gina go to a dance class with a group of friends?",
+   "gold": "21 July 2023",
+   "answer": "Last Friday (July 21, 2023)",
+   "correct": true,
+   "context_tokens": 1020,
+   "retrieval_ms": 1.6089999116957188,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "dance_style_practiced",
+     "favorite_dance_style",
+     "attended_event"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q101",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What did Jon take a trip to Barcelona for?",
+   "gold": "To clear his mind",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.5423749573528767,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "visited_place",
+     "relationship_to_jon",
+     "event_outcome"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q31",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "How long did it take for Jon to open his studio?",
+   "gold": "six months",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1020,
+   "retrieval_ms": 1.7709999810904264,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "studio_location_preference",
+     "collaboration"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q74",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What does Jon plan to do at the grand opening of his dance studio?",
+   "gold": "savor all the good vibes",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1013,
+   "retrieval_ms": 1.6094169113785028,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "dance_style_practiced",
+     "relationship_to_jon",
+     "favorite_dance_style"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q20",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Gina get accepted for the design internship?",
+   "gold": "27 May, 2023",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1020,
+   "retrieval_ms": 1.4730410184711218,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "internship_type",
+     "opportunity_accepted",
+     "received_mentorship"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q99",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What book is Gina currently reading?",
+   "gold": "The Lean Startup",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 996,
+   "retrieval_ms": 1.4130419585853815,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "work_activity",
+     "past_activity",
+     "former_job_title"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 4,
+     "graph": 20,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q27",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "Did Jon and Gina both participate in dance competitions?",
+   "gold": "Yes",
+   "answer": "Yes. Jon won first place in a local competition; Gina won first place at regionals at age fifteen.",
+   "correct": true,
+   "context_tokens": 1014,
+   "retrieval_ms": 1.54954195022583,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "event_participation",
+     "dance_competition_placement",
+     "attended_event"
+    ],
+    "entities": [
+     "jon",
+     "gina"
+    ],
+    "tiers": {
+     "interval": 10,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q45",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What is Jon's attitude towards being part of the dance festival?",
+   "gold": "Glad",
+   "answer": "Passionate and excited. He found joy in performing, appreciated the audience's compliments, and was reminded why he's passionate about dance.",
+   "correct": true,
+   "context_tokens": 1023,
+   "retrieval_ms": 1.5179170295596123,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "dance_style_practiced",
+     "event_participation",
+     "relationship_to_jon"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q30",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When Jon is planning to open his dance studio?",
+   "gold": "20 June, 2023",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.5631669666618109,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "dance_style_practiced",
+     "favorite_dance_style"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q97",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "Where is Gina's HR internship?",
+   "gold": "fashion department of an international company",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1017,
+   "retrieval_ms": 1.3302089646458626,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "internship_type",
+     "business",
+     "job_title"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q29",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "Which cities has Jon visited?",
+   "gold": "Paris, Rome",
+   "answer": "Rome",
+   "correct": false,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.4100000262260437,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "visited_place",
+     "relationship_to_jon",
+     "past_activity"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q56",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What did Jon and Gina compare their entrepreneurial journeys to?",
+   "gold": "dancing together and supporting each other",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.5327499713748693,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "visited_place",
+     "achievement"
+    ],
+    "entities": [
+     "jon",
+     "gina"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q26",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Jon receive mentorship to promote his venture?",
+   "gold": "15 June, 2023",
+   "answer": "2023-06-15",
+   "correct": true,
+   "context_tokens": 1015,
+   "retrieval_ms": 1.3962918892502785,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "received_mentorship",
+     "relationship_to_jon",
+     "opportunity_accepted"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q84",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What kind of dance piece did Jon's team perform to win first place?",
+   "gold": "\"Finding Freedom\"",
+   "answer": "NO_ANSWER\n\nThe memory states Jon's dance crew won first place in a local competition, but does not specify what dance piece they performed.",
+   "correct": true,
+   "context_tokens": 1022,
+   "retrieval_ms": 1.6534589231014252,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "attended_event",
+     "dance_style_practiced",
+     "event_participation"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q23",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "How did Gina promote her clothes store?",
+   "gold": "worked with an artist to make unique fashion pieces, made limited-edition sweatshirts, got some new offers and promotions for online store, developed a video presentation showing how to style her pieces",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1002,
+   "retrieval_ms": 1.4554578810930252,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "marketing_channel",
+     "activity",
+     "dance_style_practiced"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q61",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What did Gina receive from a dance contest?",
+   "gold": "a trophy",
+   "answer": "A trophy",
+   "correct": true,
+   "context_tokens": 1007,
+   "retrieval_ms": 1.5171249397099018,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "event_participation",
+     "attended_event",
+     "dance_competition_placement"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 7,
+     "graph": 17,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q14",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Jon start expanding his studio's social media presence?",
+   "gold": "April, 2023",
+   "answer": "2023-04-03",
+   "correct": true,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.4443330001085997,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "business_owner",
+     "content_created"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q96",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What kind of professional experience did Jon get accepted for on May 23, 2023?",
+   "gold": "fashion internship",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1005,
+   "retrieval_ms": 2.3555411025881767,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "opportunity_accepted",
+     "relationship_to_jon",
+     "event_outcome"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q17",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "Why did Gina decide to start her own clothing store?",
+   "gold": "She always loved fashion trends and finding unique pieces and she lost her job so decided it was time to start her own business.",
+   "answer": "Passionate about dance and fashion; wanted to combine them and share creativity with others.",
+   "correct": false,
+   "context_tokens": 1000,
+   "retrieval_ms": 1.5047090128064156,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "business_owner",
+     "business_founded",
+     "studio_location_preference"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q63",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What kind of professional experience did Gina get accepted for on May 23, 2023?",
+   "gold": "fashion internship",
+   "answer": "Fashion internship",
+   "correct": true,
+   "context_tokens": 1020,
+   "retrieval_ms": 1.5574588906019926,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "opportunity_accepted",
+     "received_mentorship",
+     "tattoo_date"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q16",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Jon go to a fair to get more exposure for his dance studio?",
+   "gold": "24 April, 2023",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1009,
+   "retrieval_ms": 1.485208049416542,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "dance_style_practiced",
+     "attended_event",
+     "relationship_to_jon"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 8,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q82",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What is Jon's favorite style of painting?",
+   "gold": "Contemporary",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1017,
+   "retrieval_ms": 1.268208958208561,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "favorite_dance_style",
+     "relationship_to_jon",
+     "dance_style_practiced"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q9",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "Which city have both Jean and John visited?",
+   "gold": "Rome",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1015,
+   "retrieval_ms": 1.167292008176446,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "visited_place",
+     "past_activity"
+    ],
+    "entities": [],
+    "tiers": {
+     "interval": 5,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q42",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What kind of dance piece did Gina's team perform to win first place?",
+   "gold": "\"Finding Freedom\"",
+   "answer": "The memory states Gina won first place at regionals, but the piece she performed for that competition isn't specified. The memory shows she performed \"Finding Freedom\" (a contemporary piece), but that was mentioned separately, not explicitly tied to the first place win.\n\nNO_ANSWER",
+   "correct": false,
+   "context_tokens": 1011,
+   "retrieval_ms": 1.7362087965011597,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "attended_event",
+     "dance_style_practiced",
+     "event_participation"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q19",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Gina interview for a design internship?",
+   "gold": "10 May, 2023",
+   "answer": "2023-05-10",
+   "correct": true,
+   "context_tokens": 1001,
+   "retrieval_ms": 1.470124814659357,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "internship_type",
+     "business",
+     "received_mentorship"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q90",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What made Jon choose the furniture and decor for his store?",
+   "gold": "personal style and customer comfort",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1014,
+   "retrieval_ms": 1.5319159720093012,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "favorite_dance_style",
+     "flooring_preference"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q2",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "How do Jon and Gina both like to destress?",
+   "gold": "by dancing",
+   "answer": "Dancing",
+   "correct": true,
+   "context_tokens": 1009,
+   "retrieval_ms": 1.673875143751502,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "former_job_title",
+     "collaboration"
+    ],
+    "entities": [
+     "jon",
+     "gina"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q33",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Jon visit networking events for his store?",
+   "gold": "20 June, 2023",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1023,
+   "retrieval_ms": 1.6181250102818012,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "age_at_event",
+     "past_activity"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "graph": 24,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q104",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What plans does Gina have after receiving advice at the networking event?",
+   "gold": "Sprucing up her business plan, tweaking her pitch to investors, and working on an online platform.",
+   "answer": "NO_ANSWER\n\nThe memory shows Gina gave advice about networking at events, but does not contain information about her own plans after receiving advice at a networking event.",
+   "correct": true,
+   "context_tokens": 1021,
+   "retrieval_ms": 1.5888751950114965,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "growth_strategy",
+     "received_mentorship",
+     "event_outcome"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 4,
+     "graph": 20,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q49",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What did Gina want her customers to feel in her store?",
+   "gold": "cozy and comfortable",
+   "answer": "Cozy and welcome; like they're in a cool oasis.",
+   "correct": false,
+   "context_tokens": 1011,
+   "retrieval_ms": 1.5362079720944166,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "studio_location_preference",
+     "flooring_preference",
+     "content_created"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "graph": 24,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q15",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Jon host a dance competition?",
+   "gold": "May, 2023",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1010,
+   "retrieval_ms": 1.6347079072147608,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "event_participation",
+     "dance_competition_placement",
+     "relationship_to_jon"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 4,
+     "graph": 20,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q95",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What did Gina receive from a dance contest?",
+   "gold": "a trophy",
+   "answer": "A trophy",
+   "correct": false,
+   "context_tokens": 1007,
+   "retrieval_ms": 1.6083328519016504,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "event_participation",
+     "attended_event",
+     "dance_competition_placement"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 7,
+     "graph": 17,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q78",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "According to Gina, what makes Jon a perfect mentor and guide?",
+   "gold": "His positivity and determination",
+   "answer": "Positivity and determination.",
+   "correct": true,
+   "context_tokens": 1023,
+   "retrieval_ms": 1.6883329953998327,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "received_mentorship",
+     "creativity_source"
+    ],
+    "entities": [
+     "jon",
+     "gina"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q8",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When was Jon in Paris?",
+   "gold": "28 January 2023",
+   "answer": "2023-01-28 (or January 29, 2023 based on conversation)",
+   "correct": true,
+   "context_tokens": 996,
+   "retrieval_ms": 2.365041058510542,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "visited_place",
+     "tattoo_date"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q85",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What is Gina's attitude towards participating in the dance festival?",
+   "gold": "Glad",
+   "answer": "NO_ANSWER\n\nThe memory doesn't indicate Gina participated in or expressed an attitude towards a dance festival. The festival mentions involve Jon, not Gina.",
+   "correct": true,
+   "context_tokens": 1016,
+   "retrieval_ms": 1.62341701798141,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "event_participation",
+     "dance_style_practiced",
+     "attended_event"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 6,
+     "graph": 18,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q47",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What did Gina find for her clothing store on 1 February, 2023?",
+   "gold": "The perfect spot for her store",
+   "answer": "Wholesaler who said yes to expand the store",
+   "correct": false,
+   "context_tokens": 1018,
+   "retrieval_ms": 1.6309169586747885,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "favorite_dance_style",
+     "tattoo_date",
+     "attended_event"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 6,
+     "graph": 18,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q6",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When is Jon's group performing at a festival?",
+   "gold": "February, 2023",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1019,
+   "retrieval_ms": 1.407167175784707,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "age_at_event",
+     "attended_event"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 6,
+     "graph": 18,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q93",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "Why did Gina shut down her bank account?",
+   "gold": "for her business",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1007,
+   "retrieval_ms": 1.4422079548239708,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "business_founded",
+     "business_action",
+     "job_loss"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q70",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What is Jon working on opening?",
+   "gold": "a dance studio",
+   "answer": "A dance studio",
+   "correct": true,
+   "context_tokens": 1010,
+   "retrieval_ms": 1.436667051166296,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "opening_night_scheduled",
+     "business_owner"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q13",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Gina open her online clothing store?",
+   "gold": "16 March, 2023",
+   "answer": "March 2023",
+   "correct": false,
+   "context_tokens": 1021,
+   "retrieval_ms": 1.4316251035779715,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "favorite_dance_style",
+     "dance_style_practiced",
+     "opening_night_scheduled"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q83",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What was Jon's favorite dancing memory?",
+   "gold": "Winning first place at a regionals dance competition",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1022,
+   "retrieval_ms": 1.4853330794721842,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "favorite_dance_style",
+     "relationship_to_jon",
+     "attended_event"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 7,
+     "graph": 17,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q44",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What does Gina say about the dancers in the photo?",
+   "gold": "They look graceful",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1012,
+   "retrieval_ms": 1.4668339863419533,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "attended_event",
+     "favorite_dance_style",
+     "dance_style_practiced"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q36",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Jon and Gina decide to collaborate to create dance content?",
+   "gold": "21 July 2023",
+   "answer": "2023-07-21",
+   "correct": true,
+   "context_tokens": 1021,
+   "retrieval_ms": 2.0111671183258295,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "collaboration",
+     "content_created",
+     "relationship_to_jon"
+    ],
+    "entities": [
+     "jon",
+     "gina"
+    ],
+    "tiers": {
+     "interval": 4,
+     "graph": 20,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q98",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "Where is Jon's fashion internship?",
+   "gold": "fashion department of an international company",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1019,
+   "retrieval_ms": 1.484291860833764,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "internship_type",
+     "relationship_to_jon",
+     "collaboration"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q64",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "Where is Gina's fashion internship?",
+   "gold": "fashion department of an international company",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1014,
+   "retrieval_ms": 1.4270420651882887,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "internship_type",
+     "business",
+     "studio_location_preference"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q12",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Jon start to go to the gym?",
+   "gold": "March, 2023",
+   "answer": "2023-03-16",
+   "correct": false,
+   "context_tokens": 1017,
+   "retrieval_ms": 1.4349170960485935,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "business_owner",
+     "activity"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q92",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What does Jon's tattoo symbolize?",
+   "gold": "Freedom and expressing himself through dance",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1021,
+   "retrieval_ms": 1.1567911133170128,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "tattoo_meaning",
+     "tattoo",
+     "tattoo_date"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "graph": 24,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q57",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What advice does Gina give to Jon about running a successful business?",
+   "gold": "build relationships with customers, create a strong brand image, stay positive",
+   "answer": "Stay resilient and focused. Networking is key - reach out to people in your field for help and contacts. Don't be scared to ask for advice. Stay positive and keep pushing.",
+   "correct": false,
+   "context_tokens": 1009,
+   "retrieval_ms": 1.5997500158846378,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "growth_strategy",
+     "business_owner"
+    ],
+    "entities": [
+     "jon",
+     "gina"
+    ],
+    "tiers": {
+     "interval": 9,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q1",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When Gina has lost her job at Door Dash?",
+   "gold": "January, 2023",
+   "answer": "2023-01-20",
+   "correct": true,
+   "context_tokens": 1021,
+   "retrieval_ms": 1.4882080722600222,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "job_loss",
+     "former_job_title",
+     "business"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q86",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What kind of flooring is Gina looking for in her dance studio?",
+   "gold": "Marley flooring",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1015,
+   "retrieval_ms": 1.5633339062333107,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "favorite_dance_style",
+     "dance_style_practiced",
+     "flooring_preference"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q51",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What made Gina choose the furniture and decor for her store?",
+   "gold": "personal style and customer comfort",
+   "answer": "She wanted to make the place look like her own style, make customers feel cozy, chose furniture that looks great and is comfy, and the chandelier adds a nice glam feel while matching the store's style.",
+   "correct": true,
+   "context_tokens": 1020,
+   "retrieval_ms": 1.4817090705037117,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "favorite_dance_style",
+     "flooring_preference",
+     "studio_location_preference"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q32",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Gina design a limited collection of hoodies?",
+   "gold": "June 2023",
+   "answer": "Last week before 2023-06-21",
+   "correct": false,
+   "context_tokens": 1003,
+   "retrieval_ms": 1.436042133718729,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "acquired_inventory",
+     "favorite_dance_style",
+     "hobby"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 6,
+     "graph": 18,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q100",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "How does Gina use the clipboard with a notepad attached to it?",
+   "gold": "To set goals, track achievements, and find areas for improvement",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1016,
+   "retrieval_ms": 1.3407499063760042,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "received_mentorship",
+     "activity",
+     "work_activity"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q68",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What does Jon tell Gina he won't do?",
+   "gold": "quit",
+   "answer": "Quit/give up",
+   "correct": true,
+   "context_tokens": 1021,
+   "retrieval_ms": 1.4955829828977585,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "event_outcome",
+     "achievement"
+    ],
+    "entities": [
+     "jon",
+     "gina"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q37",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Gina mention Shia Labeouf?",
+   "gold": " 23 July, 2023",
+   "answer": "2023-07-23",
+   "correct": true,
+   "context_tokens": 1001,
+   "retrieval_ms": 1.2979169841855764,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "collaboration",
+     "studio_location_preference",
+     "past_activity"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q89",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What did Jon want his customers to feel in her store?",
+   "gold": "cozy and comfortable",
+   "answer": "NO_ANSWER\n\nThe memory shows Jon wanted to create a place for people to dance and express themselves, but there's no information about what Jon wanted customers to feel in \"her store\" (Gina's clothing store).",
+   "correct": true,
+   "context_tokens": 1021,
+   "retrieval_ms": 1.6449589747935534,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "content_created",
+     "flooring_preference"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q81",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What offer does Gina make to Jon regarding social media?",
+   "gold": "Helping with making content and managing his social media accounts.",
+   "answer": "Create content and manage his social media accounts.",
+   "correct": true,
+   "context_tokens": 1013,
+   "retrieval_ms": 1.660750014707446,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "content_created",
+     "received_mentorship"
+    ],
+    "entities": [
+     "jon",
+     "gina"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q28",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When was Jon in Rome?",
+   "gold": "June 2023",
+   "answer": "2023-06-19 (short trip last week)",
+   "correct": true,
+   "context_tokens": 1004,
+   "retrieval_ms": 1.388832926750183,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "collaboration",
+     "tattoo_date"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q103",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What temporary job did Gina take to cover expenses?",
+   "gold": "Not mentioned",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1006,
+   "retrieval_ms": 1.4975420199334621,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "job_loss",
+     "business",
+     "job_title"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q58",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "Why did Jon shut down his bank account?",
+   "gold": "for his business",
+   "answer": "He needed to do it for his business.",
+   "correct": true,
+   "context_tokens": 1009,
+   "retrieval_ms": 1.4591251965612173,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "business_action",
+     "business_founded"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q11",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Gina get her tattoo?",
+   "gold": "A few years ago",
+   "answer": "A few years ago (as of 2023-02-08)",
+   "correct": true,
+   "context_tokens": 1009,
+   "retrieval_ms": 1.4222499448806047,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "tattoo",
+     "tattoo_date",
+     "tattoo_meaning"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q88",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What did Jon design for his store?",
+   "gold": "the space, furniture, and decor",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1011,
+   "retrieval_ms": 1.4693329576402903,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "content_created",
+     "studio_location_preference"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q77",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What did Gina make a limited edition line of?",
+   "gold": "Hoodies",
+   "answer": "Hoodies",
+   "correct": true,
+   "context_tokens": 1013,
+   "retrieval_ms": 1.3724998570978642,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "content_created",
+     "acquired_inventory",
+     "opening_night_scheduled"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q35",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Jon start learning marketing and analytics tools?",
+   "gold": "July, 2023",
+   "answer": "2023-07-09",
+   "correct": true,
+   "context_tokens": 1019,
+   "retrieval_ms": 1.4924160204827785,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "marketing_channel",
+     "planning_method",
+     "relationship_to_jon"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q50",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What did Jon say about Gina's progress with her store?",
+   "gold": "hard work's paying off",
+   "answer": "Jon said he's proud of Gina's progress, congratulated her on the store, said it looks great/sick, and encouraged her to keep it up.",
+   "correct": false,
+   "context_tokens": 1009,
+   "retrieval_ms": 1.4197078999131918,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "goal",
+     "attended_event"
+    ],
+    "entities": [
+     "jon",
+     "gina"
+    ],
+    "tiers": {
+     "interval": 13,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q7",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Gina launch an ad campaign for her store?",
+   "gold": "29 January, 2023",
+   "answer": "2023-01-29",
+   "correct": true,
+   "context_tokens": 1020,
+   "retrieval_ms": 1.5103339683264494,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "marketing_channel",
+     "business_action",
+     "business_owner"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q4",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "Why did Jon decide to start his dance studio?",
+   "gold": "He lost his job and decided to start his own business to share his passion.",
+   "answer": "Jon's passion for dancing since childhood and desire to teach others the joy that dancing brings him.",
+   "correct": false,
+   "context_tokens": 1009,
+   "retrieval_ms": 1.4575831592082977,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "dance_style_practiced",
+     "attended_event"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 8,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q21",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Jon start reading \"The Lean Startup\"?",
+   "gold": "May, 2023",
+   "answer": "2023-05-27",
+   "correct": true,
+   "context_tokens": 1005,
+   "retrieval_ms": 1.4081669505685568,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "business_owner",
+     "relationship_to_jon",
+     "business_founded"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q60",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What does Jon's dance make him?",
+   "gold": "happy",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1012,
+   "retrieval_ms": 1.4510001055896282,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "attended_event",
+     "favorite_dance_style"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 7,
+     "graph": 17,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q73",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "How does Gina describe the feeling that dance brings?",
+   "gold": "magical",
+   "answer": "Joy, accomplishment, happiness, expressing herself, freedom.",
+   "correct": false,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.6353330574929714,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "favorite_dance_style",
+     "attended_event",
+     "dance_style_practiced"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q62",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "How does Gina stay confident in her business?",
+   "gold": "By reminding herself of her successes and progress, having a support system, and focusing on why she started",
+   "answer": "Reminding herself of successes and progress; having good support system; focusing on why she started; having faith in herself.",
+   "correct": true,
+   "context_tokens": 1021,
+   "retrieval_ms": 1.484458101913333,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "confidence_level",
+     "received_mentorship",
+     "growth_strategy"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 4,
+     "graph": 20,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q39",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What is Gina's favorite style of dance?",
+   "gold": "Contemporary",
+   "answer": "Contemporary",
+   "correct": true,
+   "context_tokens": 1023,
+   "retrieval_ms": 1.4837090857326984,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "favorite_dance_style",
+     "dance_style_practiced",
+     "attended_event"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q71",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "How does Gina describe the studio that Jon has opened?",
+   "gold": "amazing",
+   "answer": "Amazing, awesome, looks great",
+   "correct": true,
+   "context_tokens": 1016,
+   "retrieval_ms": 1.6603749245405197,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "studio_location_preference",
+     "content_created"
+    ],
+    "entities": [
+     "jon",
+     "gina"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q52",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What did Jon say about creating a special experience for customers?",
+   "gold": "It's the key to making them feel welcome and coming back",
+   "answer": "Jon said creating a special experience for customers is key to making them feel welcome and coming back.",
+   "correct": true,
+   "context_tokens": 1019,
+   "retrieval_ms": 1.5673330053687096,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "content_created",
+     "project_status"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q41",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What was Gina's favorite dancing memory?",
+   "gold": "Winning first place at a regionals dance competition",
+   "answer": "Won first place at regionals at age fifteen with her team.",
+   "correct": true,
+   "context_tokens": 1023,
+   "retrieval_ms": 1.4776668976992369,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "favorite_dance_style",
+     "attended_event",
+     "dance_style_practiced"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q72",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "How does Jon feel about the opening night of his dance studio?",
+   "gold": "excited",
+   "answer": "Excited, can't wait, working hard to make everything just right.",
+   "correct": true,
+   "context_tokens": 1018,
+   "retrieval_ms": 1.4840839430689812,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "attended_event",
+     "dance_style_practiced",
+     "opening_night_scheduled"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 9,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q53",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What did Gina say about creating an experience for her customers?",
+   "gold": "making them want to come back",
+   "answer": "Gina wanted to make her store a comfortable, inviting space that felt like a \"cool oasis\" - creating a special shopping experience to make customers feel welcome and want to return.",
+   "correct": true,
+   "context_tokens": 1017,
+   "retrieval_ms": 1.571832923218608,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "content_created",
+     "received_mentorship",
+     "creativity_source"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q75",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What does Gina say to Jon about the grand opening?",
+   "gold": "Let's live it up and make some great memories",
+   "answer": "\"Can't wait for tomorrow's grand opening!\"",
+   "correct": false,
+   "context_tokens": 1023,
+   "retrieval_ms": 1.5358750242739916,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_jon",
+     "opening_night_scheduled",
+     "business_owner"
+    ],
+    "entities": [
+     "jon",
+     "gina"
+    ],
+    "tiers": {
+     "interval": 4,
+     "graph": 20,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q46",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What kind of flooring is Jon looking for in his dance studio?",
+   "gold": "Marley flooring",
+   "answer": "Marley flooring",
+   "correct": true,
+   "context_tokens": 1018,
+   "retrieval_ms": 1.5632498543709517,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "favorite_dance_style",
+     "dance_style_practiced",
+     "relationship_to_jon"
+    ],
+    "entities": [
+     "jon"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q48",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What did Gina design for her store?",
+   "gold": "the space, furniture, and decor",
+   "answer": "NO_ANSWER\n\nThe memory mentions Gina has a store and has acquired/added pieces to it, but doesn't specify what she designed for it.",
+   "correct": false,
+   "context_tokens": 999,
+   "retrieval_ms": 1.3510419521480799,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "favorite_dance_style",
+     "studio_location_preference",
+     "tattoo"
+    ],
+    "entities": [
+     "gina"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-30:q43",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What do the dancers in the photo represent?",
+   "gold": "They are performing at the festival",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1017,
+   "retrieval_ms": 1.367832999676466,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "attended_event",
+     "dance_style_practiced",
+     "event_participation"
+    ],
+    "entities": [],
+    "tiers": {
+     "interval": 11,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q158",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "How often does John take his kids to the library?",
+   "gold": "A few times a week",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1019,
+   "retrieval_ms": 93.71129213832319,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "relationship_to_john",
+     "has_children",
+     "childhood_memory_object"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 4,
+     "graph": 20,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q36",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What music events has John attended?",
+   "gold": "Live music event, violin concert",
+   "answer": "Violin concert, live music event",
+   "correct": true,
+   "context_tokens": 1007,
+   "retrieval_ms": 1.8021659925580025,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "trip_taken",
+     "participated_in_event",
+     "classes_attended"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 13,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q17",
+   "system": "palimpsest",
+   "category": "open_domain",
+   "question": "What might John's degree be in?",
+   "gold": "Political science, Public administration, Public affairs",
+   "answer": "NO_ANSWER\n\nThe memory mentions John finished a degree and is considering policymaking, but doesn't specify what the degree is in.",
+   "correct": false,
+   "context_tokens": 1018,
+   "retrieval_ms": 1.643999945372343,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_john",
+     "marital_status",
+     "job_title"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q87",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "Where did John explore on a road trip last year?",
+   "gold": "Pacific Northwest",
+   "answer": "NO_ANSWER\n\nThe memory mentions John took a family road trip last year but does not specify where he explored.",
+   "correct": true,
+   "context_tokens": 1009,
+   "retrieval_ms": 2.047291025519371,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "event_planned",
+     "travel_experience",
+     "volunteer_location"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q43",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When was John's old area hit with a flood?",
+   "gold": "The week before 7 July 2023",
+   "answer": "Last week before 2023-07-07",
+   "correct": true,
+   "context_tokens": 1023,
+   "retrieval_ms": 1.4606250915676355,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "location_affected_by_event",
+     "age",
+     "relationship_to_john"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "graph": 24,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q190",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "How does Maria describe the camping trip with Max?",
+   "gold": "Peaceful and awesome",
+   "answer": "NO_ANSWER\n\nThe memory shows Maria went camping with church friends, not with Max. Max was John's pet that passed away.",
+   "correct": true,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.7861658707261086,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "travel_experience",
+     "event_planned",
+     "experiencing_difficulty"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q26",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What has Maria done to feel closer to her faith?",
+   "gold": "Join a local church, buy a cross necklace",
+   "answer": "Joined a church, bought a cross necklace",
+   "correct": true,
+   "context_tokens": 1018,
+   "retrieval_ms": 1.7711250111460686,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "wellness_practice",
+     "belief",
+     "challenge_overcome"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 6,
+     "graph": 18,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q64",
+   "system": "palimpsest",
+   "category": "open_domain",
+   "question": "What job might Maria pursue in the future?",
+   "gold": "Shelter coordinator, Counselor",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1022,
+   "retrieval_ms": 1.7305829096585512,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "job_title",
+     "work_role",
+     "job_status"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "graph": 24,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q132",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "How did Maria start volunteering at the homeless shelter?",
+   "gold": "Witnessed a family struggling on the streets and reached out to the shelter",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1015,
+   "retrieval_ms": 1.8453339580446482,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "volunteer_location",
+     "volunteering_start_date",
+     "volunteered_at"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q63",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "How many weeks passed between Maria adopting Coco and Shadow?",
+   "gold": "two weeks",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1023,
+   "retrieval_ms": 1.7504170536994934,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "pet_duration",
+     "pet_loss",
+     "shared_photo"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "graph": 24,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q183",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "How did Maria describe her kids' reaction at the military memorial?",
+   "gold": "awestruck and humbled",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1023,
+   "retrieval_ms": 1.7042499966919422,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "has_children",
+     "classes_attended",
+     "incident_occurred"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q23",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What desserts has Maria made?",
+   "gold": "Banana split sundae, Peach cobbler",
+   "answer": "Peach cobbler, banana split sundae",
+   "correct": true,
+   "context_tokens": 1011,
+   "retrieval_ms": 1.7642909660935402,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "created_food",
+     "favorite_food",
+     "photo_created"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q8",
+   "system": "palimpsest",
+   "category": "open_domain",
+   "question": "What might John's financial status be?",
+   "gold": "Middle-class or wealthy",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1021,
+   "retrieval_ms": 1.4884171541780233,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_john",
+     "marital_status",
+     "job_status"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q74",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "Why did Maria sit with the little girl at the shelter event in February 2023?",
+   "gold": "The girl seemed sad and had no other family",
+   "answer": "The girl seemed sad and was sitting alone; Maria wanted to comfort her.",
+   "correct": true,
+   "context_tokens": 1019,
+   "retrieval_ms": 1.8948751967400312,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "invited_to_event",
+     "participated_in_event",
+     "trip_taken"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q5",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Maria go to the beach?",
+   "gold": "December 2022",
+   "answer": "2022-12 (last month before 2023-01-01)",
+   "correct": true,
+   "context_tokens": 1021,
+   "retrieval_ms": 1.3930408749729395,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "event_planned",
+     "activity_participated_in",
+     "trip_taken"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 14,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q161",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What did Maria receive a certificate for?",
+   "gold": "completion of a university degree",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1012,
+   "retrieval_ms": 1.9617080688476562,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "received_support_from",
+     "award_received",
+     "classes_attended"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q52",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "Who have written notes of gratitude to Maria?",
+   "gold": "Cindy, Laura",
+   "answer": "Laura, Cindy",
+   "correct": true,
+   "context_tokens": 1000,
+   "retrieval_ms": 1.7093329224735498,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "wrote_note_to",
+     "inspiration_source",
+     "received_support_from"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 7,
+     "graph": 17,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q39",
+   "system": "palimpsest",
+   "category": "open_domain",
+   "question": "Around which US holiday did Maria get into a car accident?",
+   "gold": "Independence Day",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.916124951094389,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "event_planned",
+     "incident_occurred",
+     "family_activity"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 7,
+     "graph": 17,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q104",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "How long was Max a part of John's family?",
+   "gold": "10 years",
+   "answer": "10 years",
+   "correct": true,
+   "context_tokens": 1018,
+   "retrieval_ms": 1.776625169441104,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_john",
+     "children",
+     "family_size"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 6,
+     "graph": 18,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q22",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did John go to a convention with colleagues?",
+   "gold": "March 2023",
+   "answer": "April 2023",
+   "correct": false,
+   "context_tokens": 1023,
+   "retrieval_ms": 1.5350829344242811,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "trip_taken",
+     "relationship_to_john",
+     "participated_in_event"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 9,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q188",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What recognition did John receive at the homeless shelter in August 2023?",
+   "gold": "a medal for volunteering",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1015,
+   "retrieval_ms": 1.8742920365184546,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "award_received",
+     "donation",
+     "received_support_from"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "graph": 24,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q32",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What outdoor activities has John done with his colleagues?",
+   "gold": "Hiking, mountaineering",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1007,
+   "retrieval_ms": 1.5507088974118233,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "activity_participated_in",
+     "camping_experience",
+     "activity_enjoys"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 11,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q14",
+   "system": "palimpsest",
+   "category": "open_domain",
+   "question": "Would John be considered a patriotic person?",
+   "gold": "Yes",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1004,
+   "retrieval_ms": 1.4156249817460775,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_john",
+     "volunteer_status",
+     "interest"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 9,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q117",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What event did John participate in to show support for veterans' rights?",
+   "gold": "marching event",
+   "answer": "Marching event for veterans' rights",
+   "correct": true,
+   "context_tokens": 1021,
+   "retrieval_ms": 1.7548331525176764,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "participated_in_event",
+     "trip_taken",
+     "volunteer_status"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 9,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q10",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Maria meet Jean?",
+   "gold": "February 24, 2023",
+   "answer": "2023-02-24",
+   "correct": true,
+   "context_tokens": 1014,
+   "retrieval_ms": 1.6227499581873417,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_john",
+     "participated_in_event",
+     "met_person"
+    ],
+    "entities": [
+     "maria",
+     "jean"
+    ],
+    "tiers": {
+     "interval": 4,
+     "graph": 20,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q177",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "Why did John need to help his cousin find a new place to live?",
+   "gold": "His cousin had to leave and find a new place in a hurry.",
+   "answer": "NO_ANSWER\n\nThe memory states Maria's cousin needed help finding a new place, not John's cousin.",
+   "correct": true,
+   "context_tokens": 1002,
+   "retrieval_ms": 1.9609578885138035,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "relationship_to_john",
+     "volunteer_location",
+     "pet_loss"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q11",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What people has Maria met and helped while volunteering?",
+   "gold": "David, Jean, Cindy, Laura",
+   "answer": "Jean (homeless shelter), kids at shelter, person who laughed while playing with kids, veteran(s)",
+   "correct": false,
+   "context_tokens": 1004,
+   "retrieval_ms": 1.8887920305132866,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "volunteered_at",
+     "interest",
+     "volunteer_status"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q45",
+   "system": "palimpsest",
+   "category": "open_domain",
+   "question": "Would John be open to moving to another country?",
+   "gold": "No, he has goals specifically in the U.S. like joining the military and running for office.",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1009,
+   "retrieval_ms": 1.7163748852908611,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_john",
+     "travel_experience",
+     "event_planned"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q108",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What did Maria say it was like being at the waterfall in Oregon?",
+   "gold": "Like being in a fairy tale",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.7214580439031124,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "trip_taken",
+     "activity_enjoys",
+     "classes_attended"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q55",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Maria receive a medal from the homeless shelter?",
+   "gold": "The week before 9 August 2023",
+   "answer": "2023-08-02",
+   "correct": true,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.7709170933812857,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "award_received",
+     "received_support_from",
+     "volunteered_at"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 7,
+     "graph": 17,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q179",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "How did the drought impact the homes in John's old area?",
+   "gold": "Lots of homes were ruined.",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1007,
+   "retrieval_ms": 1.6139999497681856,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "location_affected_by_event",
+     "relationship_to_john",
+     "previous_election_success"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "graph": 24,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q12",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What test has John taken multiple times?",
+   "gold": "The military aptitude test",
+   "answer": "Aptitude test",
+   "correct": false,
+   "context_tokens": 1010,
+   "retrieval_ms": 1.7825420945882797,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "test_taken",
+     "relationship_to_john",
+     "previous_election_success"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q41",
+   "system": "palimpsest",
+   "category": "open_domain",
+   "question": "Does John live close to a beach or the mountains?",
+   "gold": "beach",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1017,
+   "retrieval_ms": 1.6646671574562788,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_john",
+     "travel_experience",
+     "volunteer_location"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q148",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "How is Maria's new puppy adjusting to its new home?",
+   "gold": "doing great - learning commands and house training",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1011,
+   "retrieval_ms": 1.6416669823229313,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "pet",
+     "pet_name",
+     "pet_duration"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q48",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did John have his first firefighter call-out?",
+   "gold": "The sunday before 3` July 2023",
+   "answer": "Last Sunday before 2023-07-31",
+   "correct": false,
+   "context_tokens": 1022,
+   "retrieval_ms": 1.8150829710066319,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_john",
+     "incident_occurred",
+     "participated_in_event"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q185",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What happened to Maria's job in August 2023?",
+   "gold": "John lost his job at the mechanical engineering company.",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1012,
+   "retrieval_ms": 1.409249845892191,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "job_event",
+     "job_title",
+     "job_status"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "graph": 24,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q25",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What European countries has Maria been to?",
+   "gold": "Spain, England",
+   "answer": "Spain",
+   "correct": false,
+   "context_tokens": 999,
+   "retrieval_ms": 1.4272499829530716,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "has_children",
+     "travel_experience",
+     "family_activity"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 7,
+     "graph": 17,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q50",
+   "system": "palimpsest",
+   "category": "open_domain",
+   "question": "What attributes describe John?",
+   "gold": "Selfless, family-oriented, passionate, rational",
+   "answer": "Respects military, new job, attended camping trip with Max, renovated community center, family road trip activities, networks for campaign input.",
+   "correct": false,
+   "context_tokens": 1018,
+   "retrieval_ms": 1.6195829957723618,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_john",
+     "belief",
+     "job_title"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q119",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "How often does John get to see sunsets like the one he shared with Maria?",
+   "gold": "At least once a week",
+   "answer": "Plenty of times",
+   "correct": false,
+   "context_tokens": 1013,
+   "retrieval_ms": 2.221332862973213,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_john",
+     "shared_photo",
+     "met_person"
+    ],
+    "entities": [
+     "john",
+     "maria"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q31",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did John get his dog Max?",
+   "gold": "In 2013",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.728834118694067,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_john",
+     "previous_election_success",
+     "pet"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q191",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What is the name of Maria's second kitten?",
+   "gold": "Shadow",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.4439169317483902,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "pet_name",
+     "pet",
+     "pet_duration"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q33",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What types of yoga has Maria practiced?",
+   "gold": "Aerial, kundalini",
+   "answer": "Aerial yoga, kundalini yoga",
+   "correct": true,
+   "context_tokens": 1005,
+   "retrieval_ms": 1.4948751777410507,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "wellness_practice",
+     "activity_participated_in",
+     "camping_experience"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 15,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q78",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What is the name of John's one-year-old child?",
+   "gold": "Kyle",
+   "answer": "Kyle",
+   "correct": true,
+   "context_tokens": 1008,
+   "retrieval_ms": 1.649209065362811,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "has_children",
+     "age",
+     "relationship_to_john"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q61",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Maria adopt Shadow?",
+   "gold": "The week before 13 August 2023",
+   "answer": "2023-08-13",
+   "correct": false,
+   "context_tokens": 1014,
+   "retrieval_ms": 1.776333898305893,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "priority",
+     "pet",
+     "pet_name"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q172",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What important values does Maria want to teach her kids through adopting a rescue dog?",
+   "gold": "Responsibility and compassion",
+   "answer": "NO_ANSWER\n\nThe memory shows Maria *encouraging* John to adopt a rescue dog to teach his kids responsibility and compassion, but does not contain information about Maria's own values for teaching her children through dog adoption.",
+   "correct": false,
+   "context_tokens": 1015,
+   "retrieval_ms": 2.0645831245929003,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "priority",
+     "has_children",
+     "value"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q19",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What damages have happened to John's car?",
+   "gold": "Broken windshield, Car broke down",
+   "answer": "Broke down (April 2023); hit by car running red light (July 2023, via Maria's account); potholes damage mentioned as general concern (May 2023).",
+   "correct": false,
+   "context_tokens": 1015,
+   "retrieval_ms": 1.829042099416256,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "incident_occurred",
+     "relationship_to_john",
+     "car_breakdown"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "graph": 24,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q77",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What activity did John's colleague, Rob, invite him to?",
+   "gold": "beginner's yoga class",
+   "answer": "beginner's yoga class",
+   "correct": true,
+   "context_tokens": 1016,
+   "retrieval_ms": 1.733207842335105,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "camping_experience",
+     "activity_participated_in",
+     "relationship_to_john"
+    ],
+    "entities": [
+     "john",
+     "rob"
+    ],
+    "tiers": {
+     "interval": 7,
+     "graph": 17,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q58",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Maria get Coco?",
+   "gold": "Two weeks before 11 August 2023",
+   "answer": "Two weeks before 2023-08-11 (approximately 2023-07-28)",
+   "correct": true,
+   "context_tokens": 1022,
+   "retrieval_ms": 1.5422077849507332,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "participated_in_event",
+     "has_children",
+     "childhood_memory_object"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q178",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What event did Maria participate in to show support for veterans' rights?",
+   "gold": "marching event",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1023,
+   "retrieval_ms": 1.891374820843339,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "participated_in_event",
+     "trip_taken",
+     "invited_to_event"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q2",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What martial arts has John done?",
+   "gold": "Kickboxing, Taekwondo",
+   "answer": "Kickboxing",
+   "correct": false,
+   "context_tokens": 1019,
+   "retrieval_ms": 1.7030001617968082,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_john",
+     "classes_attended",
+     "camping_experience"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q137",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What happened to John's job in August 2023?",
+   "gold": "John lost his job at the mechanical engineering company.",
+   "answer": "Lost job at mechanical engineering company (2023-08-05), then found new job at tech company hardware team (2023-08-05).",
+   "correct": false,
+   "context_tokens": 1015,
+   "retrieval_ms": 1.5755840577185154,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "job_event",
+     "job_status",
+     "job_title"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 4,
+     "graph": 20,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q59",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did John go on a camping trip with Max?",
+   "gold": "The summer of 2022",
+   "answer": "Last summer (2022)",
+   "correct": true,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.8313750624656677,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "event_planned",
+     "travel_experience",
+     "volunteer_location"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q167",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What kind of food did Maria have on her dinner spread with her father?",
+   "gold": "Salads, sandwiches, homemade desserts",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1022,
+   "retrieval_ms": 1.8225000239908695,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "favorite_food",
+     "created_food",
+     "family_size"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q9",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "Who gave Maria's family money when she was younger and her family was going through tough times?",
+   "gold": "Her aunt",
+   "answer": "Her aunt",
+   "correct": true,
+   "context_tokens": 1008,
+   "retrieval_ms": 1.8327080179005861,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "children",
+     "family_size",
+     "age"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q127",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "Why did John feel inspired to join the military after the visit to the hospital?",
+   "gold": "seeing the resilience of the veterans",
+   "answer": "He heard inspiring and heartbreaking stories from an elderly veteran named Samuel that filled him with hope and reminded him why he wanted to join the military.",
+   "correct": true,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.7659168224781752,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "trip_taken",
+     "classes_attended",
+     "relationship_to_john"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 9,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q0",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "Who did Maria have dinner with on May 3, 2023?",
+   "gold": "her mother",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1000,
+   "retrieval_ms": 1.519625075161457,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "event_planned",
+     "met_person",
+     "invited_to_event"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 4,
+     "graph": 20,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q181",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What did John take away from visiting the orphanage?",
+   "gold": "appreciation for giving back",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.801209058612585,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "event_planned",
+     "volunteer_location",
+     "travel_experience"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q35",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What states has Maria vacationed at?",
+   "gold": "Oregon, Florida",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1004,
+   "retrieval_ms": 1.46770803257823,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "event_planned",
+     "travel_experience",
+     "family_activity"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 8,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q126",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What did John take away from visiting the veteran's hospital?",
+   "gold": "appreciation for giving back",
+   "answer": "John appreciated what he has and recognized the need to give back.",
+   "correct": true,
+   "context_tokens": 1017,
+   "retrieval_ms": 1.784082967787981,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "travel_experience",
+     "relationship_to_john",
+     "event_planned"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q46",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Maria go hiking with her church friends?",
+   "gold": "The weekend before 22 July 2023",
+   "answer": "2023-07-15",
+   "correct": true,
+   "context_tokens": 1018,
+   "retrieval_ms": 1.682708039879799,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "met_person",
+     "event_planned",
+     "shared_photo"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 4,
+     "graph": 20,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q184",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "Why does Maria think it's important for younger generations to visit art galleries?",
+   "gold": "To remember and appreciate those who served",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1015,
+   "retrieval_ms": 1.9911250565201044,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "age",
+     "priority",
+     "has_children"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q18",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "Who did John go to yoga with?",
+   "gold": "Rob",
+   "answer": "A colleague",
+   "correct": false,
+   "context_tokens": 1018,
+   "retrieval_ms": 1.5189170371741056,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_john",
+     "classes_attended",
+     "activity_participated_in"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 9,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q109",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What does Maria say she feels when doing upside-down yoga poses?",
+   "gold": "Free and light",
+   "answer": "Free and light",
+   "correct": true,
+   "context_tokens": 1016,
+   "retrieval_ms": 1.8372498452663422,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "experiencing_difficulty",
+     "activity_enjoys",
+     "shared_photo"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "graph": 24,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q91",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "What did John attend with his colleagues in March 2023?",
+   "gold": "a tech-for-good convention",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.4715830329805613,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "trip_taken",
+     "participated_in_event",
+     "invited_to_event"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 10,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q173",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What did Maria say it was like being at the desert in Oregon?",
+   "gold": "Like being in a fairy tale",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1007,
+   "retrieval_ms": 1.6887919045984745,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "belief",
+     "activity_enjoys",
+     "test_taken"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "graph": 24,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q21",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What areas of the U.S. has John been to or is planning to go to?",
+   "gold": "Pacific northwest, east coast",
+   "answer": "East Coast (planned trip)",
+   "correct": false,
+   "context_tokens": 1014,
+   "retrieval_ms": 1.769165974110365,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "event_planned",
+     "relationship_to_john",
+     "travel_experience"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q138",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What activity did Maria take up with her friends from church in August 2023?",
+   "gold": "community work",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1018,
+   "retrieval_ms": 1.7968749161809683,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "activity_participated_in",
+     "camping_experience",
+     "activity"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 24,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q53",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did John help renovate his hometown community center?",
+   "gold": "2022",
+   "answer": "2022-08-05",
+   "correct": false,
+   "context_tokens": 1011,
+   "retrieval_ms": 1.875125104561448,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "volunteer_location",
+     "relationship_to_john",
+     "volunteered_at"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q192",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "How is John's new puppy adjusting to its new home?",
+   "gold": "doing great - learning commands and house training",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1002,
+   "retrieval_ms": 1.6623330302536488,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "relationship_to_john",
+     "pet",
+     "pet_name"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q30",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What shelters does Maria volunteer at?",
+   "gold": "The homeless shelter, the dog shelter",
+   "answer": "Homeless shelter, shelter front desk",
+   "correct": false,
+   "context_tokens": 1013,
+   "retrieval_ms": 1.6688338946551085,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "volunteer_location",
+     "interest",
+     "volunteered_at"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q80",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What did Maria make for her home to remind her of a trip to England?",
+   "gold": "painting of a castle on a hill",
+   "answer": "A painting",
+   "correct": false,
+   "context_tokens": 998,
+   "retrieval_ms": 1.8974579870700836,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "event_planned",
+     "travel_experience",
+     "trip_taken"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 7,
+     "graph": 17,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q27",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did John have a party with veterans?",
+   "gold": "The Friday before 20 May 2023",
+   "answer": "2023-05-20",
+   "correct": false,
+   "context_tokens": 1023,
+   "retrieval_ms": 1.5242919325828552,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_john",
+     "participated_in_event",
+     "trip_taken"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 9,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q169",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "Why did John join a nearby church recently?",
+   "gold": "to feel closer to a community and her faith",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1020,
+   "retrieval_ms": 1.8619578331708908,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "relationship_to_john",
+     "joined_organization",
+     "recent_event"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 6,
+     "graph": 18,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q42",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What area was hit by a flood?",
+   "gold": "West County",
+   "answer": "Pacific Northwest coast (or the area John mentioned being hit by a flood, which he later references as his old area)\n\nActually, reviewing more carefully: John's old area was hit by a flood, which he later identifies as West County.\n\n**West County**",
+   "correct": true,
+   "context_tokens": 1011,
+   "retrieval_ms": 1.4298330061137676,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "location_affected_by_event",
+     "incident_occurred",
+     "trip_taken"
+    ],
+    "entities": [],
+    "tiers": {
+     "interval": 9,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q140",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What cause did the 5K charity run organized by John support?",
+   "gold": "veterans and their families",
+   "answer": "Veterans and their families; domestic abuse awareness and funds",
+   "correct": false,
+   "context_tokens": 1007,
+   "retrieval_ms": 2.0823751110583544,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "donation",
+     "worked_with_organization",
+     "hosted_event"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 4,
+     "graph": 20,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q51",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Maria start volunteering at the homeless shelter?",
+   "gold": "Around August 2022",
+   "answer": "Approximately one year before August 3, 2023 (around August 2022)",
+   "correct": true,
+   "context_tokens": 1008,
+   "retrieval_ms": 1.970791956409812,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "volunteer_location",
+     "volunteering_start_date",
+     "volunteered_at"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q171",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "How does Maria plan to honor the memories of her beloved pet?",
+   "gold": "By considering adopting a rescue dog",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1009,
+   "retrieval_ms": 2.1851661149412394,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "pet_name",
+     "pet",
+     "pet_duration"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q47",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What exercises has John done?",
+   "gold": "Weight training, Circuit training, Kickboxing, yoga",
+   "answer": "Yoga (beginner class), weight training",
+   "correct": false,
+   "context_tokens": 1015,
+   "retrieval_ms": 1.6610000748187304,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_john",
+     "camping_experience",
+     "activity_participated_in"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 6,
+     "graph": 18,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q79",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "How often does John take his kids to the park?",
+   "gold": "A few times a week",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1012,
+   "retrieval_ms": 1.5308340080082417,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_john",
+     "has_children",
+     "activity_enjoys"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 8,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q56",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did John participate in a 5K charity run?",
+   "gold": "first weekend of August 2023",
+   "answer": "NO_ANSWER\n\nThe memory shows John set up a 5K charity run (mentioned 2023-08-09), but does not specify when he participated in one as a runner.",
+   "correct": false,
+   "context_tokens": 1021,
+   "retrieval_ms": 1.7111669294536114,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "participated_in_event",
+     "donation",
+     "volunteered_at"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q159",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What did Maria make for her home to remind her of a trip to France?",
+   "gold": "painting of a castle on a hill",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1011,
+   "retrieval_ms": 1.8584169447422028,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "event_planned",
+     "travel_experience",
+     "met_person"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q57",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What causes has John done events for?",
+   "gold": "Toy drive, Community food drive, veterans, domestic violence",
+   "answer": "Veterans' rights, flood solutions, community center renovation, fire rescue.",
+   "correct": false,
+   "context_tokens": 1005,
+   "retrieval_ms": 1.7122910358011723,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "participated_in_event",
+     "recent_event",
+     "relationship_to_john"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q129",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What does John think about trying new classes at the yoga studio?",
+   "gold": "Trying new classes is a fun way to switch up the exercise routine.",
+   "answer": "John thinks it's a great way to push himself and mix things up. He finds it keeps things interesting.",
+   "correct": true,
+   "context_tokens": 1019,
+   "retrieval_ms": 1.8576248548924923,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "classes_attended",
+     "relationship_to_john",
+     "attends_gym"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q13",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Maria's grandmother pass away?",
+   "gold": "The week before 6 March 2023",
+   "answer": "Last week before 2023-03-06",
+   "correct": true,
+   "context_tokens": 1023,
+   "retrieval_ms": 1.35404197499156,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "pet_loss",
+     "priority",
+     "challenge_overcome"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "graph": 24,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q152",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What is John's main focus in international politics?",
+   "gold": "Improving education and infrastructure",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1024,
+   "retrieval_ms": 1.6377081628888845,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "relationship_to_john",
+     "volunteer_at",
+     "priority"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q3",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What type of volunteering have John and Maria both done?",
+   "gold": "Volunteering at a homeless shelter",
+   "answer": "NO_ANSWER\n\nThe memory shows Maria volunteered at shelters and homeless shelters, while John volunteered at a domestic abuse awareness event and as a school mentor. No overlapping volunteering activities are documented.",
+   "correct": false,
+   "context_tokens": 1020,
+   "retrieval_ms": 2.0266668871045113,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "volunteered_at",
+     "volunteering_start_date",
+     "volunteer_status"
+    ],
+    "entities": [
+     "john",
+     "maria"
+    ],
+    "tiers": {
+     "interval": 6,
+     "graph": 18,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q120",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What natural disaster affected John's old area on 7 July, 2023?",
+   "gold": "Flood",
+   "answer": "Flood",
+   "correct": true,
+   "context_tokens": 1013,
+   "retrieval_ms": 1.580541953444481,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "location_affected_by_event",
+     "incident_occurred",
+     "current_concern"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "graph": 24,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q24",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did John start boot camp with his family?",
+   "gold": "April.2023",
+   "answer": "May 2023 (started last month as of 2023-05-04)",
+   "correct": false,
+   "context_tokens": 1020,
+   "retrieval_ms": 1.85870798304677,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_john",
+     "volunteering_start_date",
+     "children"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 6,
+     "graph": 18,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q162",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What areas is John particularly interested in for art appreciation?",
+   "gold": "education and infrastructure",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1012,
+   "retrieval_ms": 1.7210422083735466,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "relationship_to_john",
+     "activity_enjoys",
+     "award_received"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q60",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What are Maria's dogs' names?",
+   "gold": "Coco, Shadow",
+   "answer": "Shadow and Coco",
+   "correct": true,
+   "context_tokens": 1019,
+   "retrieval_ms": 2.041917061433196,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "pet_name",
+     "pet",
+     "pet_duration"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 5,
+     "graph": 19,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q69",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "What did Maria donate to a homeless shelter in December 2023?",
+   "gold": "old car",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1009,
+   "retrieval_ms": 1.7886250279843807,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "donation",
+     "volunteer_location",
+     "volunteered_at"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 6,
+     "graph": 18,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q54",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Maria take up community work with her church friends?",
+   "gold": "August 4, 2023",
+   "answer": "August 4, 2023",
+   "correct": true,
+   "context_tokens": 1003,
+   "retrieval_ms": 1.7214580439031124,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "met_person",
+     "shared_photo",
+     "wellness_practice"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 8,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q186",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What cause did the 5K charity run organized by Maria support?",
+   "gold": "veterans and their families",
+   "answer": "Homeless shelter",
+   "correct": true,
+   "context_tokens": 1019,
+   "retrieval_ms": 1.8997499719262123,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "donation",
+     "hosted_event",
+     "worked_with_organization"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 2,
+     "graph": 22,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q37",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "What events for veterans has John participated in?",
+   "gold": "Petition, march, party, visiting veterans hospital, 5K charity run",
+   "answer": "Marching event for veterans' rights.",
+   "correct": false,
+   "context_tokens": 1008,
+   "retrieval_ms": 1.5798329841345549,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "participated_in_event",
+     "camping_experience",
+     "trip_taken"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 10,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q145",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "How does John describe the camping trip with Max?",
+   "gold": "Peaceful and awesome",
+   "answer": "Hiked, swam, peaceful, awesome experience, great memories.",
+   "correct": true,
+   "context_tokens": 1023,
+   "retrieval_ms": 1.8009589985013008,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "travel_experience",
+     "event_planned",
+     "relationship_to_john"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q38",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did Maria get in a car accident?",
+   "gold": "July 2, 2023",
+   "answer": "2023-07-03",
+   "correct": false,
+   "context_tokens": 1021,
+   "retrieval_ms": 1.649457961320877,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "incident_occurred",
+     "car_breakdown",
+     "participated_in_event"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 1,
+     "graph": 23,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q175",
+   "system": "palimpsest",
+   "category": "adversarial",
+   "question": "What did Maria recently get promoted to?",
+   "gold": "assistant manager",
+   "answer": "NO_ANSWER",
+   "correct": true,
+   "context_tokens": 1009,
+   "retrieval_ms": 1.7160838469862938,
+   "adversarial": true,
+   "meta": {
+    "predicates": [
+     "received_support_from",
+     "previous_election_success",
+     "recent_event"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 3,
+     "graph": 21,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q62",
+   "system": "palimpsest",
+   "category": "multi_hop",
+   "question": "How many dogs has Maria adopted from the dog shelter she volunteers at?",
+   "gold": "two",
+   "answer": "One dog (Coco)",
+   "correct": false,
+   "context_tokens": 1018,
+   "retrieval_ms": 1.7305419314652681,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "pet",
+     "pet_name",
+     "volunteered_at"
+    ],
+    "entities": [
+     "maria"
+    ],
+    "tiers": {
+     "interval": 8,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q146",
+   "system": "palimpsest",
+   "category": "single_hop",
+   "question": "Why does John say he feels stuck and questioning his decisions and goals?",
+   "gold": "Not feeling like making much of an impact",
+   "answer": "He doesn't feel like he's making much of an impact.",
+   "correct": true,
+   "context_tokens": 1022,
+   "retrieval_ms": 1.6287090256810188,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_john",
+     "goal",
+     "experiencing_difficulty"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 20,
+     "hybrid": 40
+    }
+   }
+  },
+  {
+   "qid": "conv-41:q16",
+   "system": "palimpsest",
+   "category": "temporal",
+   "question": "When did John get his degree?",
+   "gold": "The week before 2 April 2023",
+   "answer": "NO_ANSWER",
+   "correct": false,
+   "context_tokens": 1012,
+   "retrieval_ms": 1.6707920003682375,
+   "adversarial": false,
+   "meta": {
+    "predicates": [
+     "relationship_to_john",
+     "previous_election_success",
+     "classes_attended"
+    ],
+    "entities": [
+     "john"
+    ],
+    "tiers": {
+     "interval": 4,
+     "graph": 20,
+     "hybrid": 40
+    }
+   }
+  }
+ ]
+}
