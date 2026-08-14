@@ -16,4 +16,9 @@ data/claims_cache/
 
 # Local scratch
 results/*.log
+
+# Pre-fix benchmark artifacts are not published. Only results/final/ ships —
+# every number in it was produced after the audit fixes landed.
+results/*.json
+!results/final/*.json
 scratch/

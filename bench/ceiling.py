@@ -18,7 +18,7 @@ import argparse
 from collections import defaultdict
 
 from bench.adapters.locomo import load_locomo
-from bench.extract_facts import load_cached
+from bench.extract_facts import content_fingerprint, load_cached
 
 SYSTEMS = {
     "palimpsest": ("bench.systems.palimpsest_sys", "PalimpsestSystem"),
@@ -52,7 +52,9 @@ def main() -> None:
     by_cat: dict[tuple[str, str], list[int]] = defaultdict(list)
 
     for ep in eps:
-        claims = load_cached(ep.episode_id) or []
+        claims = load_cached(
+            ep.episode_id, fingerprint=content_fingerprint(ep.messages)
+        ) or []
         print(f"{ep.episode_id}: {len(ep.messages)} msgs, {len(claims)} claims, "
               f"{len(ep.qa)} questions")
         for name in names:

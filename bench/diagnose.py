@@ -18,7 +18,7 @@ from collections import Counter
 from pathlib import Path
 
 from bench.adapters.locomo import load_locomo
-from bench.extract_facts import load_cached
+from bench.extract_facts import content_fingerprint, load_cached
 from bench.systems.bm25_rag import BM25RAG
 from bench.systems.palimpsest_sys import PalimpsestSystem
 
@@ -50,7 +50,9 @@ def main() -> None:
 
     # Rebuild one episode and inspect the losing contexts directly.
     ep = load_locomo()[0]
-    claims = load_cached(ep.episode_id) or []
+    claims = load_cached(
+            ep.episode_id, fingerprint=content_fingerprint(ep.messages)
+        ) or []
     print(f"\nrebuilding {ep.episode_id} with {len(claims)} claims ...")
 
     p = PalimpsestSystem(adjudicate=False)
