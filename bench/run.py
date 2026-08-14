@@ -180,6 +180,18 @@ def run(
     sys_stats: dict[str, dict] = defaultdict(dict)
     t_start = time.time()
 
+    # PHASE 1 — retrieval only. Collect every (system, question) context first,
+    # with no LLM in the loop.
+    #
+    # Answering used to happen inside the per-episode loop, which is fine for
+    # LoCoMo (100 questions per episode) and pathological for LongMemEval, where
+    # each episode carries exactly ONE question: complete_many() received a
+    # single-element list every time and the 8-way concurrency sat idle. Measured
+    # at 17 calls/min against a 64/min ceiling — a 500-question run would have
+    # taken four hours to do one hour of work.
+    pending: list[QARecord] = []
+    prompts: list[str] = []
+
     for ep in eps:
         pool = list(ep.qa)
         if categories:
@@ -188,10 +200,10 @@ def run(
         if not pool:
             continue
         qa = _stratified(pool, max_questions, rng)
-        print(f"\n=== {ep.episode_id}: {len(ep.messages)} msgs, {len(qa)} questions ===")
 
         claims, xstats = extract_episode(ep.episode_id, ep.messages, client, model=model)
-        print(f"  claims: {len(claims)} ({'cached' if xstats.get('cached') else 'fresh'})")
+        print(f"  {ep.episode_id}: {len(ep.messages)} msgs, {len(qa)} q, "
+              f"{len(claims)} claims{'' if xstats.get('cached') else ' (fresh)'}")
 
         for name, cls in built:
             system = cls()
@@ -200,39 +212,43 @@ def run(
             build_ms = (time.perf_counter() - t0) * 1000
 
             budget = SYSTEM_BUDGETS.get(name, token_budget)
-            pending: list[QARecord] = []
-            prompts: list[str] = []
             for item in qa:
                 res = system.query(
                     item.question, asked_at=item.asked_at, token_budget=budget
                 )
-                rec = QARecord(
-                    qid=item.qid,
-                    system=name,
-                    category=item.category,
-                    question=item.question,
-                    gold=item.gold_answer,
-                    context_tokens=res.n_tokens,
-                    retrieval_ms=res.latency_ms,
-                    adversarial=item.adversarial,
-                    meta=dict(res.meta or {}),
-                )
-                pending.append(rec)
+                pending.append(QARecord(
+                    qid=item.qid, system=name, category=item.category,
+                    question=item.question, gold=item.gold_answer,
+                    context_tokens=res.n_tokens, retrieval_ms=res.latency_ms,
+                    adversarial=item.adversarial, meta=dict(res.meta or {}),
+                ))
                 prompts.append(build_answer_prompt(res.context, item.question))
 
-            answers = client.complete_many(prompts, system=ANSWER_SYSTEM, progress=False)
-            for rec, ans in zip(pending, answers):
-                rec.answer = clean_answer(ans)
-
-            _judge(client, pending, batch=judge_batch)
-            records.extend(pending)
-
             stats = system.stats() if hasattr(system, "stats") else {}
-            sys_stats[name] = {**stats, "build_ms": build_ms, "token_budget": budget}
-            acc = _accuracy([r for r in pending if not r.adversarial])
-            print(f"  {name:14s} acc={acc:.3f}  "
-                  f"ctx_tok={_mean([r.context_tokens for r in pending]):6.0f}  "
-                  f"retr_ms={_mean([r.retrieval_ms for r in pending]):6.1f}")
+            prev = sys_stats.get(name, {})
+            sys_stats[name] = {
+                **stats,
+                "build_ms": prev.get("build_ms", 0.0) + build_ms,
+                "token_budget": budget,
+            }
+
+    # PHASE 2 — every answer in one wide batch.
+    print(f"\nanswering {len(prompts)} questions across "
+          f"{len({r.system for r in pending})} systems ...")
+    answers = client.complete_many(prompts, system=ANSWER_SYSTEM, progress=True)
+    for rec, ans in zip(pending, answers):
+        rec.answer = clean_answer(ans)
+
+    # PHASE 3 — judge, also batched.
+    print("judging ...")
+    _judge(client, pending, batch=judge_batch)
+    records.extend(pending)
+
+    for name in sorted({r.system for r in records}):
+        rows = [r for r in records if r.system == name and not r.adversarial]
+        print(f"  {name:14s} acc={_accuracy(rows):.3f}  "
+              f"ctx_tok={_mean([r.context_tokens for r in rows]):6.0f}  "
+              f"retr_ms={_mean([r.retrieval_ms for r in rows]):6.1f}")
 
     report = summarize(
         records, sys_stats,
