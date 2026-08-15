@@ -73,7 +73,14 @@ try:  # tiktoken is optional; fall back to a word-based estimate
     _ENC = tiktoken.get_encoding("cl100k_base")
 
     def count_tokens(text: str) -> int:
-        return len(_ENC.encode(text))
+        # `disallowed_special=()` is not optional. By default tiktoken RAISES on
+        # any text containing a special-token string such as "<|endoftext|>",
+        # which is a reasonable guard when you are building a prompt and a
+        # crash when you are measuring the length of somebody's chat log. A
+        # LongMemEval-S haystack contains one, and it took down a 500-question
+        # run at episode 80 after two hours of extraction. Counting the tokens
+        # in arbitrary user text must never be able to fail.
+        return len(_ENC.encode(text, disallowed_special=()))
 except Exception:  # pragma: no cover
 
     def count_tokens(text: str) -> int:
@@ -232,14 +239,18 @@ def render_context(
     if ref is not None:
         current = sorted(current, key=lambda r: r.fact.valid_from)
 
-    # Dated evidence for the computed block. Retrieved facts count whether or
-    # not their line survives the fact budget: a computed line is a two-number
-    # summary of dates the ledger holds, and dropping a date because its prose
-    # row did not fit would make the arithmetic depend on the packer.
+    # Dated evidence for the computed block. This used to include retrieved
+    # facts whether or not their line survived the fact budget, reasoning that
+    # the arithmetic should not depend on the packer. That was wrong in the way
+    # that matters: it let the block state a span between two records the model
+    # could not see, so a reader had no way to check the premise or to notice
+    # that the endpoints were the wrong pair. A computed line about invisible
+    # evidence is a number to trust rather than evidence to weigh.
+    #
+    # Now only facts that actually made it into the rendered context can define
+    # a span, and `_time_notes` names both endpoints.
     shown: list[tuple[datetime, str]] = []
-    if ref is not None:
-        for rf in selected[:MAX_DATED_ITEMS]:
-            shown.append((rf.fact.valid_from, f"{_pred(rf.fact.predicate)}: {rf.fact.value}"))
+    rendered_facts: list[RetrievedFact] = []
 
     def current_rows() -> list[str]:
         nonlocal used
@@ -251,6 +262,7 @@ def render_context(
             if used + count_tokens(line) > fact_budget:
                 break
             rows.append(line)
+            rendered_facts.append(rf)
             used += count_tokens(line)
         return rows
 
@@ -264,6 +276,7 @@ def render_context(
             if used + count_tokens(line) > fact_budget:
                 break
             rows.append(line)
+            rendered_facts.append(rf)
             used += count_tokens(line)
         return rows
 
@@ -294,6 +307,12 @@ def render_context(
                 sections.append(note)
                 used += count_tokens(note)
 
+    if ref is not None:
+        for rf in rendered_facts[:MAX_DATED_ITEMS]:
+            shown.append(
+                (rf.fact.valid_from, f"{_pred(rf.fact.predicate)}: {rf.fact.value}")
+            )
+
     body = "\n\n".join(sections)
     used = count_tokens(body)
 
@@ -321,7 +340,7 @@ def render_context(
             body = (body + "\n\n" + "\n".join(lines)).strip()
 
     if ref is not None:
-        notes = _time_notes(shown, selected, intent, ref)
+        notes = _time_notes(shown, rendered_facts, intent, ref)
         if notes:
             block = "\n".join(["COMPUTED FROM THE STORED DATES:", *notes])
             if count_tokens(body) + count_tokens(block) <= token_budget:
@@ -365,11 +384,18 @@ def _time_notes(
         (d0, l0), (d1, l1) = items[0], items[-1]
         span = day_offset(d0, d1)
         if intent.elapsed and span > 0:
+            # Both endpoints are named. Without the labels this line was a bare
+            # number attached to two dates, and a reader — or a model — had no
+            # way to notice that the oldest and newest records retrieved were
+            # not the two events the question was about. Naming them turns an
+            # unfalsifiable number into a premise that can be rejected, which is
+            # the difference between showing evidence and supplying an answer.
             notes.append(
-                f"  - Oldest dated record retrieved is {_fmt(d0)}, newest is {_fmt(d1)}: "
-                f"{humanize_days(span)} apart. Relative to the question they are "
-                f"{humanize_days(day_offset(d0, ref))} and "
-                f"{humanize_days(day_offset(d1, ref))} earlier."
+                f"  - Oldest dated record retrieved is {_fmt(d0)} ({l0}), newest is "
+                f"{_fmt(d1)} ({l1}): {humanize_days(span)} apart. Relative to the "
+                f"question they are {humanize_days(day_offset(d0, ref))} and "
+                f"{humanize_days(day_offset(d1, ref))} earlier. This is the span "
+                f"between those two records, which may not be the two the question asks about."
             )
         if intent.order:
             notes.append(

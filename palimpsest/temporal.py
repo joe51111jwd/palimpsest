@@ -49,7 +49,6 @@ __all__ = [
     "detect_intent",
     "day_offset",
     "humanize_days",
-    "offset_phrase",
     "parse_duration",
     "advance_duration",
     "long_date",
@@ -140,11 +139,6 @@ _NUMBER_WORDS = {
     "forty": 40, "fifty": 50, "sixty": 60, "half": 0.5, "couple": 2,
 }
 
-_DUR_RE = re.compile(
-    r"(?P<num>\d+(?:[.,]\d+)?|" + "|".join(sorted(_NUMBER_WORDS, key=len, reverse=True)) + r")"
-    r"[\s\-]*(?:of\s+)?(?P<unit>" + "|".join(_UNIT_DAYS) + r")s?\b",
-    re.I,
-)
 #: A value that is a duration is *only* a duration — "3 years" is, "moved here 3
 #: years ago after 2 jobs" is a sentence that happens to contain one. Anchoring
 #: arithmetic to a value that is really a narrative would produce confident
@@ -234,14 +228,6 @@ def _unit(value: float, name: str) -> str:
     approx = "" if abs(value - n) < 0.1 else "about "
     return f"{approx}{n} {name}" + ("" if n == 1 else "s")
 
-
-def offset_phrase(when: datetime, reference: datetime) -> str:
-    """``when`` expressed relative to ``reference``, e.g. "28 days before"."""
-    d = day_offset(when, reference)
-    if d == 0:
-        return "the same day as the question"
-    side = "before" if d > 0 else "after"
-    return f"{humanize_days(abs(d))} {side} the question"
 
 
 def advance_duration(stated_days: float, stated_on: datetime, reference: datetime) -> str | None:

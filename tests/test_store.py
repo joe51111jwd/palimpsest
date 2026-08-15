@@ -193,3 +193,26 @@ def test_stats_are_honest_about_size(mem):
     # the README must not claim otherwise.
     assert s.source_text_bytes > 0
     assert s.bytes_stored >= s.source_text_bytes
+
+
+def test_a_message_containing_a_special_token_string_does_not_crash(mem):
+    """Counting the tokens in arbitrary user text must never be able to fail.
+
+    tiktoken raises by default on any text containing "<|endoftext|>", which is
+    sensible when you are building a prompt and wrong when you are measuring the
+    length of somebody's chat log. A LongMemEval-S haystack contains one, and it
+    killed a 500-question run at episode 80 after two hours of extraction. Real
+    users paste model output into chats; this must be a string like any other.
+    """
+    from palimpsest.render import count_tokens
+
+    hostile = "Here is what it printed: <|endoftext|> <|fim_prefix|> weird huh"
+    assert count_tokens(hostile) > 0
+
+    mem.ingest([
+        Message(session_id="s", speaker="user", text=hostile,
+                timestamp=datetime(2023, 1, 2), msg_id="x1", role="user"),
+        Message(session_id="s", speaker="user", text="I live in Austin.",
+                timestamp=datetime(2023, 1, 3), msg_id="x2", role="user"),
+    ])
+    assert mem.recall("where do I live?").context

@@ -231,6 +231,23 @@ def _record_to_episode(record: dict[str, Any], variant: str) -> Episode:
         record.get("question_date"), where=f"longmemeval/{qid}/question_date"
     )
 
+    # A question dated before every session in its own haystack is a broken
+    # bound, and repairing it belongs HERE rather than in the engine.
+    #
+    # LongMemEval's `question_date` is not always consistent with its own
+    # session timestamps: for some questions it precedes the entire haystack. A
+    # store that honours the bound then correctly retrieves nothing and answers
+    # nothing, and scores zero on questions whose evidence is sitting right
+    # there. The tempting fix is to let retrieval ignore its own time bound when
+    # it comes up empty — and that is exactly wrong, because "show me what was
+    # known as of T" returning things learned after T destroys the one guarantee
+    # this store exists to make. The bug is in the data, so the repair is in the
+    # adapter: a bound that excludes the entire haystack is not a bound, it is a
+    # bad field, and we drop it and say so in meta.
+    bound_unusable = bool(sessions) and all(s[1] > asked_at for s in sessions)
+    if bound_unusable:
+        asked_at = max(s[1] for s in sessions)
+
     answer_sessions = [str(s) for s in (record.get("answer_session_ids") or [])]
     if flagged:
         evidence = flagged
@@ -270,6 +287,7 @@ def _record_to_episode(record: dict[str, Any], variant: str) -> Episode:
             "evidence_source": evidence_source,
             "asked_at": asked_at.isoformat(),
             "sessions_after_question_date": sum(1 for s in sessions if s[1] > asked_at),
+            "question_date_unusable": bound_unusable,
             "timestamp_nudges": nudges,
         },
     )

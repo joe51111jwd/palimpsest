@@ -322,23 +322,30 @@ class Retriever:
 
         hybrid_msgs = pack(with_cutoff=True)
 
-        # **A non-empty store never returns an empty context** (SPEC R2). The
-        # time bounds can legitimately exclude everything — an imported history
-        # whose clock is wrong, a question dated before the conversation it is
-        # about — and when they do, the honest answer is not silence. Silence is
-        # v1's abstain-by-empty bug wearing a bitemporal hat: it scores well on
-        # anything that rewards declining and zero on a user who wanted an
-        # answer. Measured on LongMemEval-oracle, 14 of 127 temporal-reasoning
-        # questions are dated before every session in their own haystack and got
-        # a context containing nothing but the header.
+        # There was a fallback here that re-packed WITHOUT the time cutoff when
+        # the bounded pass came back empty, on the reasoning that SPEC R2 says a
+        # non-empty store never returns an empty context, and that labelling the
+        # result made it honest. It is deleted, and the reasoning was wrong.
         #
-        # The fallback only fires when the bounded pass found NOTHING AT ALL, so
-        # it can never trade away a bounded answer for an unbounded one, and it
-        # cannot leak the future into a query that had any evidence of its own.
+        # `as_of` and `known_at` are the whole product. "What did I believe as of
+        # March?" answered with something learned in April is not a labelled
+        # approximation of the right answer, it is the specific failure this
+        # store was built to make impossible — and a caller who asked for a bound
+        # cannot be assumed to prefer a violated bound over an honest nothing.
+        # The label does not help either: the answering model is still told to
+        # answer from what it was given.
+        #
+        # It also could not keep its own promise. The bounded pass only inspects
+        # the top ~120 ranked candidates, so "nothing on record before this date"
+        # was sometimes simply false — older records existed, further down.
+        #
+        # What actually motivated it was real: 14 of 127 LongMemEval temporal
+        # questions are dated before every session in their own haystack. But
+        # that is a broken field in the dataset, not a case for weakening the
+        # engine, and it is now repaired where it belongs — in the adapter, which
+        # drops a bound that excludes the entire haystack and records that it
+        # did. See `bench/adapters/longmemeval.py`.
         fell_back = False
-        if not picked and not hybrid_msgs and ranked:
-            hybrid_msgs = pack(with_cutoff=False)
-            fell_back = bool(hybrid_msgs)
 
         # ``picked`` is already score-ordered and capped by ``take``.
 

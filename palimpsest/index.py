@@ -93,7 +93,11 @@ def _top_k(scores: np.ndarray, k: int) -> list[tuple[int, float]]:
     partition that silently dropped half of a tied block would be arbitrary.
     """
     n = scores.shape[0]
-    if n == 0:
+    if n == 0 or k <= 0:
+        # k == 0 must return nothing, not raise. The slice-based implementation
+        # this replaced did the right thing by accident; argpartition does not,
+        # and a caller asking for zero results is a legitimate degenerate case
+        # (an empty excerpt allowance) rather than a programming error.
         return []
     idx = np.arange(n)
     if n > k:

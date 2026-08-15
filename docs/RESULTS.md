@@ -54,8 +54,15 @@ is the number this project stands on.
 ¹ 32,000-token budget — 32x everyone else, and it comes last.
 
 **+9.7 points over BM25. +34.7 over full context, on 1/32 of the tokens.**
-Honest caveat: the interval overlaps `hybrid_rag`, so **the margin over the
-runner-up is not significant at n=72.** The margin over BM25 and below is.
+
+**Correction, 2026-08-15.** This table originally said the margin over BM25 and
+below *was* significant. That was wrong, and it was wrong because of the test
+used, not the data. Marginal 95% intervals treat two paired samples as
+independent; every system here answers the same 72 questions, so the right test
+is paired. Exact McNemar on this artifact gives **16 won / 9 lost, p = 0.23** —
+not significant either. The correct reading of this table is that Palimpsest
+ranks first and **no margin in it is significant at n=72**. See below for a
+later run where the BM25 margin does reach significance.
 
 #### Updated 2026-08-15 — two changes landed, and one of them is a bug fix in our own harness
 
@@ -359,15 +366,47 @@ costs a little retrieval recall.
 - **LongMemEval, all six categories, 470 questions: first at 0.589**, ahead of
   hybrid RAG (0.553) and of full context (0.536, at 5.7x the tokens), and first on
   four of six categories including the two hardest for everyone.
-- **LongMemEval-S knowledge-update, with realistic distractors: first at 0.736**,
-  +9.7 over BM25 and +34.7 over full context on 1/32 of the tokens. It is also the
-  system that degrades least when distractors are introduced (−1.4 points, against
-  hybrid RAG's −5.6 and full context's −29.2).
+- **LongMemEval-S knowledge-update, with realistic distractors: first at 0.819**
+  (0.736 in the original run; the increase is a harness bug fix plus engine
+  changes, split out above). It is also the system that degrades least when
+  distractors are introduced (−1.4 points, against hybrid RAG's −5.6 and full
+  context's −29.2).
 - **LoCoMo, all 10 conversations: full context wins at 23x the tokens**, and among
   budget-matched systems Palimpsest and BM25 are a statistical tie.
 
-In both interval-overlap cases the margin over the *runner-up* is not significant
-at these sample sizes, and that is stated wherever the number appears.
+The only margin anywhere in this document that reaches significance on a paired
+test is Palimpsest over BM25 on knowledge-update in the latest run (18/6,
+p = 0.023). Every other lead — including first place overall on LongMemEval — is
+a rank, not a demonstrated difference, and is labelled that way wherever it
+appears.
+
+### What is known to be wrong with these measurements
+
+Written down because an audit found them and because a results document that
+only lists its strengths is the thing this project was started to complain about.
+
+1. **Some shipped constants were chosen on the evaluation questions.**
+   `GRAPH_EXCERPT_SHARE`, `MAX_DATED_ITEMS` and the hybrid lexical weight were
+   each selected by sweeping on LoCoMo and LongMemEval proxies. LongMemEval's
+   `oracle` and `s` variants carry the *same 500 questions*, so a constant tuned
+   on oracle is tuned on the questions `s` is then scored on. This is test-set
+   tuning. It is milder than writing gold answers into a prompt, and it is the
+   same family of problem, and every p-value here is therefore post-selection
+   rather than confirmatory. A held-out split is the fix and has not been done.
+2. **The judge was batched, and batching made verdicts depend on other systems'
+   answers.** Eight (question, gold, answer) triples went into one judge call,
+   and the batches mixed systems — so changing one system's answer could flip a
+   *different* system's verdict on an unchanged answer. This is not theoretical:
+   two `hybrid_rag` questions with byte-identical answers were judged differently
+   across two of our runs, which accounts for its entire 0.708 → 0.736 movement.
+   Judging is now one question per call by default and the run records which mode
+   it used. **Every number in this document above the 2026-08-15 sections was
+   produced under batched judging** and carries that uncertainty; re-running them
+   independently is pending.
+3. **Result artifacts before 2026-08-15 record no provenance.** They carry no
+   commit, no claims manifest, and no judge-mode flag, so "the two runs saw
+   identical claims" was an assertion rather than something an auditor could
+   check. Runs now write all three.
 
 If your workload is factoid recall over a transcript and you can afford the
 tokens, put the transcript in the prompt. If your agent's problem is that it keeps

@@ -148,7 +148,7 @@ def run(
     token_budget: int = 1024,
     model: str = "haiku",
     concurrency: int = 8,
-    judge_batch: int = 8,
+    judge_batch: int = 1,
     out_path: str | None = None,
     variant: str = "s",
     max_questions: int | None = None,
@@ -180,6 +180,9 @@ def run(
     # absolute number is measured on incomplete memory, and a result that does
     # not say so is not reportable.
     degraded_eps: list[str] = list(pf.get("degraded_episodes", []))
+    #: episode_id -> digest of the exact claim list every system received, so
+    #: two runs can be shown to have had identical inputs rather than asserted to.
+    claim_digests: dict[str, str] = {}
 
     records: list[QARecord] = []
     rng = random.Random(0)
@@ -208,8 +211,16 @@ def run(
         qa = _stratified(pool, max_questions, rng)
 
         claims, xstats = extract_episode(ep.episode_id, ep.messages, client, model=model)
+        # The prefetch marks an episode degraded and leaves it uncached; the
+        # per-episode pass below then retries it. If that retry succeeded, the
+        # episode is whole and must come back OFF the list — otherwise the run
+        # reports "measured on partial memory" about an episode that was fully
+        # re-extracted, which is a false warning and false warnings get ignored.
         if xstats.get("degraded"):
             degraded_eps.append(ep.episode_id)
+        elif ep.episode_id in degraded_eps:
+            degraded_eps = [e for e in degraded_eps if e != ep.episode_id]
+        claim_digests[ep.episode_id] = _claims_digest(claims)
         print(f"  {ep.episode_id}: {len(ep.messages)} msgs, {len(qa)} q, "
               f"{len(claims)} claims{'' if xstats.get('cached') else ' (fresh)'}"
               f"{' [DEGRADED]' if xstats.get('degraded') else ''}")
@@ -271,6 +282,7 @@ def run(
         wall_s=time.time() - t_start,
     )
     report["degraded_episodes"] = sorted(set(degraded_eps))
+    report["provenance"] = _provenance(claim_digests, judge_batch)
     if degraded_eps:
         print(f"\n  !! {len(set(degraded_eps))} episodes were measured on PARTIAL memory "
               f"(extraction windows failed). Re-run to fill them before publishing.")
@@ -285,17 +297,89 @@ def run(
     return report
 
 
-def _judge(client, records: list[QARecord], *, batch: int = 8) -> None:
-    """Batched judging with a per-item fallback.
+def _claims_digest(claims) -> str:
+    """Order-independent digest of a claim list, so two runs can be compared."""
+    import hashlib
 
-    An unparseable batch is re-judged one question at a time rather than scored
-    zero — a parse failure is our bug, and silently counting it as a wrong answer
-    would understate every system by the same invisible amount.
+    rows = sorted(
+        f"{c.entity}|{c.predicate}|{c.value}|{c.polarity}|{c.source_id}" for c in claims
+    )
+    return hashlib.sha256("\n".join(rows).encode()).hexdigest()[:16]
+
+
+def _provenance(claim_digests: dict[str, str], judge_batch: int) -> dict:
+    """Enough to prove two runs saw the same inputs, which the artifacts did not.
+
+    Two result files that report different accuracies are only comparable if the
+    claims, the questions and the code were the same, and none of that was
+    recoverable from what we were committing — an auditor had to take "same
+    claims" on our word. The claims manifest is the important field: it is a
+    digest per episode of the exact claim list that every system was handed, so
+    a diff of two runs' manifests answers the question directly.
+    """
+    import hashlib
+    import subprocess
+
+    manifest = hashlib.sha256()
+    for episode_id in sorted(claim_digests):
+        manifest.update(f"{episode_id}:{claim_digests[episode_id]}\n".encode())
+
+    def git(*args: str) -> str:
+        try:
+            return subprocess.run(("git", *args), capture_output=True, text=True,
+                                  cwd=Path(__file__).parent.parent,
+                                  timeout=10).stdout.strip()
+        except Exception:  # pragma: no cover - provenance is best-effort
+            return ""
+
+    return {
+        "commit": git("rev-parse", "HEAD"),
+        "dirty": bool(git("status", "--porcelain", "--untracked-files=no")),
+        "claims_manifest": manifest.hexdigest()[:32],
+        "episodes_with_claims": len(claim_digests),
+        "judge_batch": judge_batch,
+        "judge_independent": judge_batch == 1,
+    }
+
+
+def _judge(client, records: list[QARecord], *, batch: int = 1) -> None:
+    """Judge each answer on its own, by default. Here is why that matters.
+
+    This used to batch eight (question, gold, answer) triples into one judge
+    call for throughput, and the batches were cut from a list ordered by episode
+    — so a single batch mixed several systems together. The LLM cache is keyed on
+    the whole prompt, which makes the consequence exact and ugly:
+
+        changing ONE system's answer changes the judge prompt that surrounds a
+        DIFFERENT system's unchanged answer, and can flip its verdict.
+
+    That is not a hypothetical. Comparing two of our own runs, `hybrid_rag`
+    produced byte-identical answer text, token counts and retrieval metadata for
+    two questions, and those two questions were judged wrong in one run and
+    correct in the other. Its entire 0.708 -> 0.736 movement was judge movement
+    in an untouched control system. A harness that does that cannot support a
+    three-question difference between revisions, which is exactly the size of
+    difference these comparisons turn on.
+
+    So the default is one question per call: every verdict depends only on that
+    question, its gold, and that system's answer. It costs about eight times as
+    many judge calls — twelve minutes on a 500-question, seven-system run — which
+    is a trivial price for the comparison meaning anything.
+
+    ``batch`` > 1 is kept for cheap iteration and warns that the run is not
+    comparison-grade. Groups are also built per system and sorted by question id
+    so that, even batched, one system's answers can never enter another's prompt.
     """
     from bench.judge import JUDGE_PROMPT, parse_single_judgement
 
     todo = [r for r in records if not r.adversarial]
-    groups = [todo[i : i + batch] for i in range(0, len(todo), batch)]
+    if batch > 1:
+        print(f"  !! judging in batches of {batch}: verdicts depend on batch "
+              f"composition, so this run is NOT comparable against another run")
+    groups: list[list[QARecord]] = []
+    for system in sorted({r.system for r in todo}):
+        rows = sorted((r for r in todo if r.system == system), key=lambda r: r.qid)
+        groups.extend(rows[i : i + batch] for i in range(0, len(rows), batch))
     prompts = [
         build_batch_judge_prompt([(r.question, r.gold, r.answer) for r in g]) for g in groups
     ]

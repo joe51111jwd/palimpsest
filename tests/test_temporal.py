@@ -182,12 +182,33 @@ TWO_FACTS = [
 
 def test_computed_block_states_the_span_between_dated_evidence():
     ctx, _ = render_context(
-        TWO_FACTS, [], as_of=ASKED,
+        TWO_FACTS, [], as_of=ASKED, token_budget=4096,
         query="How long had I been bird watching when I attended the workshop?",
     )
     assert "COMPUTED FROM THE STORED DATES" in ctx
     assert "59 days" in ctx  # 2023-02-25 -> 2023-04-25
     assert "2 months" in ctx
+    # Both endpoints named, so a wrong pair is visibly a wrong pair.
+    assert "hobby: bird watching" in ctx
+    assert "attended event: bird watching workshop" in ctx
+
+
+def test_a_fact_that_did_not_fit_cannot_define_a_span():
+    """The block may only compute over evidence the model can actually see.
+
+    It used to compute over everything *retrieved*, on the reasoning that the
+    arithmetic should not depend on the packer. The consequence was a stated
+    span between two records, one of which had been dropped from the context —
+    an unfalsifiable number, since nothing in what the model received disagreed
+    with it or even mentioned the missing endpoint. At a budget this tight only
+    the first fact survives, so there is no span to state.
+    """
+    ctx, _ = render_context(
+        TWO_FACTS, [], as_of=ASKED, token_budget=1024,
+        query="How long had I been bird watching when I attended the workshop?",
+    )
+    assert "bird watching workshop" not in ctx, "precondition: the second fact was dropped"
+    assert "apart" not in ctx, "a span was computed from a record the model never saw"
 
 
 def test_computed_block_is_absent_without_temporal_intent():
@@ -212,7 +233,7 @@ def test_span_ignores_evidence_dated_on_the_day_of_the_question():
     'today'."""
     facts = [*TWO_FACTS, _fact("birds_seen", "woodpeckers", ASKED)]
     ctx, _ = render_context(
-        facts, [], as_of=ASKED,
+        facts, [], as_of=ASKED, token_budget=4096,
         query="How long had I been bird watching when I attended the workshop?",
     )
     assert "59 days (about 8 weeks / 2 months) apart" in ctx
@@ -231,17 +252,27 @@ def test_duration_valued_fact_is_carried_forward_to_the_question_date():
 
 def test_ordering_question_reports_the_chronological_extremes():
     ctx, _ = render_context(
-        TWO_FACTS, [], as_of=ASKED,
+        TWO_FACTS, [], as_of=ASKED, token_budget=4096,
         query="Which did I do first, the hobby or the workshop?",
     )
     assert "In date order" in ctx
     assert "2023-02-25" in ctx
 
 
-def test_recall_never_returns_an_empty_context_when_the_store_is_not_empty():
-    """SPEC R2. A question dated before everything in the store — a mis-clocked
-    import, a backdated question — must not produce silence: that is v1's
-    abstain-by-empty bug with a bitemporal excuse."""
+def test_an_explicit_as_of_bound_is_honoured_even_when_it_returns_nothing():
+    """The inverse of what this test used to assert, and the inversion is the point.
+
+    It previously required that a question dated before everything in the store
+    still got an answer, on a reading of SPEC R2 ("a non-empty store never
+    returns an empty context") that put not-being-silent above not-being-wrong.
+    That is backwards for a bitemporal store. Asking what was known in 2020 and
+    receiving something learned in 2024 is not a degraded answer, it is the
+    failure the whole design exists to prevent, and no label on it makes the
+    answering model treat it as anything other than evidence.
+
+    SPEC R2 governs the case where retrieval fails to find things that ARE in
+    scope. It does not license answering outside the scope the caller asked for.
+    """
     from palimpsest.store import Memory
 
     mem = Memory()
@@ -258,9 +289,10 @@ def test_recall_never_returns_an_empty_context_when_the_store_is_not_empty():
     asked_before_anything = datetime(2020, 1, 1)
     rec = mem.recall("what is my dog called?", as_of=asked_before_anything,
                      known_at=asked_before_anything)
-    assert "Rex" in rec.context
-    assert rec.tier_counts.get("hybrid_unbounded")
-    assert "nothing on record before this date" in rec.context
+    assert "Rex" not in rec.context, "a 2024 memory answered a question asked as of 2020"
+
+    # ...and with no bound, the same store answers it.
+    assert "Rex" in mem.recall("what is my dog called?").context
 
 
 def test_unbounded_fallback_does_not_fire_when_bounded_evidence_exists():
