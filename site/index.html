@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Palimpsest — bitemporal claim-interval memory for AI agents</title>
+<meta name="description" content="An open-world bitemporal memory engine. A new value closes the previous interval instead of coexisting with it, so &quot;what is true now&quot; is a key lookup, not a similarity search.">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header" data-nav="closed">
+  <div class="wrap site-header__inner">
+    <a class="brand" href="index.html">
+      <span class="brand__name">Palimpsest</span>
+      <span class="brand__note">bitemporal claim-interval memory</span>
+    </a>
+
+    <nav class="nav" aria-label="Primary">
+      <ul class="nav-list">
+        <li><a href="how-it-works.html">How it works</a></li>
+        <li><a href="benchmarks.html">Benchmarks</a></li>
+        <li><a href="field.html">The field</a></li>
+        <li><a href="audit.html">Audit</a></li>
+        <li><a href="docs.html">Docs</a></li>
+        <li><a href="https://github.com/joe51111jwd/palimpsest">GitHub</a></li>
+      </ul>
+    </nav>
+
+    <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false">Menu</button>
+    <button class="theme-toggle" type="button" data-theme-toggle>Dark</button>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ============ Hero: the thesis, not a logo ============ -->
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Memory for AI agents</p>
+      <h1 class="hero__title">A new fact closes the old one instead of sitting next to it.</h1>
+      <p class="hero__lede">
+        Facts are stored as <span class="mono">(entity, predicate) → version chain</span>. Writing a new
+        value closes the previous interval, so <em>&ldquo;what is true now&rdquo;</em> is a key lookup rather
+        than a similarity search &mdash; and it cannot be wrong about which value is newer.
+      </p>
+      <div class="hero__actions">
+        <a class="btn" href="how-it-works.html">How it works</a>
+        <a class="btn btn--ghost" href="benchmarks.html">Benchmarks &amp; caveats</a>
+        <span class="meta">pip install palimpsest-memory &middot; Apache-2.0 &middot; CPU-only</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 01 The comparison ============ -->
+  <section class="section" id="comparison">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>01</b><span>The problem</span></div>
+
+      <div>
+        <h2>Ask &ldquo;where do I work?&rdquo; after two job changes.</h2>
+        <p class="lede mt-3">
+          The same three utterances are in both stores. On the left is what a vector store hands the
+          model. On the right is what Palimpsest hands it.
+        </p>
+
+        <div class="compare mt-5">
+
+          <!-- What a vector store returns -->
+          <div class="panel">
+            <div class="panel__head">
+              <span class="panel__title">Vector store &rarr; context</span>
+              <span class="pill">3 chunks</span>
+            </div>
+            <div class="panel__body">
+              <div class="chunk">
+                <span class="chunk__text">&ldquo;I just started at Initech.&rdquo;</span>
+                <span class="chunk__score">match</span>
+              </div>
+              <div class="chunk">
+                <span class="chunk__text">&ldquo;I work at Globex now.&rdquo;</span>
+                <span class="chunk__score">match</span>
+              </div>
+              <div class="chunk">
+                <span class="chunk__text">&ldquo;First week at Cyberdyne.&rdquo;</span>
+                <span class="chunk__score">match</span>
+              </div>
+            </div>
+            <div class="panel__foot">
+              Three contradictory employers, no ordering. Every one of them is an excellent semantic
+              match for the question, and nothing in the text marks any of them as expired. The model
+              picks one &mdash; often the wrong one. Bolting a timestamp onto a chunk does not fix this:
+              the stale chunk still scores well and still gets retrieved.
+            </div>
+          </div>
+
+          <!-- What Palimpsest returns -->
+          <div class="panel">
+            <div class="panel__head">
+              <span class="panel__title">Palimpsest &rarr; context</span>
+              <span class="pill pill--current">1 current value</span>
+            </div>
+            <div class="panel__body">
+              <div class="stratum">
+                <div class="stratum__key">
+                  <b>user</b> <span>&middot;</span> <b>employer</b>
+                  <span>&middot; version chain, valid time</span>
+                </div>
+                <div class="stratum__layers">
+                  <div class="stratum-layer is-current">
+                    <span class="stratum-layer__value">Cyberdyne</span>
+                    <span class="pill pill--current">current</span>
+                    <span class="stratum-layer__range">2024-01-08 &rarr; open</span>
+                  </div>
+                  <div class="stratum-layer is-superseded">
+                    <span class="stratum-layer__value">Globex</span>
+                    <span class="pill pill--superseded">superseded</span>
+                    <span class="stratum-layer__range">2022-08-15 &rarr; 2024-01-08</span>
+                  </div>
+                  <div class="stratum-layer is-superseded">
+                    <span class="stratum-layer__value">Initech</span>
+                    <span class="pill pill--superseded">superseded</span>
+                    <span class="stratum-layer__range">2021-03-02 &rarr; 2022-08-15</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="panel__foot">
+              One current value; the rest dated and labelled superseded. Nothing was deleted &mdash; the
+              earlier versions are still readable underneath, which is what makes
+              <span class="mono">as_of=</span> time travel possible. The engine did not need a model to
+              work out which one is newer.
+            </div>
+          </div>
+
+        </div>
+
+        <p class="figcaption">
+          Illustrative example data. The layout is the real component: current on top at full ink,
+          superseded layers stepped in beneath it in recovered-undertext amber.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 Mechanism ============ -->
+  <section class="section" id="mechanism">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>02</b><span>Mechanism</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>Store claims, not chunks, and put the validity interval in the primary key.</h2>
+          <p>
+            A new value <strong>closes</strong> the previous interval instead of coexisting with it.
+            Contradiction resolution costs no LLM call. Retrieval needs no LLM at all; one is used to
+            extract facts on write, and optionally to adjudicate predicates never seen before.
+          </p>
+        </div>
+
+        <div class="code">
+          <div class="code__label">The ledger</div>
+<pre><code>(entity, predicate) ──► version chain
+
+  (user, city): [ New York City | 2023-01-01 → 2023-04-11 ]
+                [ Austin        | 2023-04-11 → open       ]  <span class="c">← current</span></code></pre>
+        </div>
+
+        <div class="grid-2">
+          <div class="code">
+            <div class="code__label">python</div>
+<pre><code><span class="k">from</span> palimpsest <span class="k">import</span> Memory
+
+mem = Memory()
+mem.ingest(messages)
+
+mem.recall(<span class="s">"Where do I live?"</span>)
+<span class="c"># current value only</span>
+
+mem.recall(<span class="s">"Where did I live?"</span>, as_of=LAST_YEAR)
+<span class="c"># time travel</span>
+
+mem.timeline(<span class="s">"user"</span>, <span class="s">"city"</span>)
+<span class="c"># every version, in order</span></code></pre>
+          </div>
+
+          <div class="panel">
+            <div class="panel__head"><span class="panel__title">Two time axes, kept separate</span></div>
+            <div class="panel__body">
+              <dl class="dl-axes">
+                <dt>Valid time</dt>
+                <dd>When a fact was true <em>in the world</em>. Closed by a change &mdash;
+                  <span class="mono">&ldquo;I moved to Boston.&rdquo;</span> The past record stays true of
+                  the past.</dd>
+                <dt>Transaction time</dt>
+                <dd>When the store was <em>told</em>. Closed by a correction &mdash;
+                  <span class="mono">&ldquo;I was never at Globex, I misspoke.&rdquo;</span> It was never
+                  true at all.</dd>
+              </dl>
+              <p class="meta-note">
+                They are not the same fact and are not stored the same way. Nothing is ever deleted,
+                only closed.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="prose">
+          <h3>Why a cosine threshold cannot canonicalize predicates</h3>
+          <p>
+            The hard part is not the ledger. It is making <span class="mono">lives_in</span> and
+            <span class="mono">city</span> land on the same key, or supersession never fires. The
+            obvious fix &mdash; embed the predicate name, merge above a threshold &mdash; is measurably
+            backwards:
+          </p>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data">
+            <caption>Name-only cosine similarity between predicates</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">pair</th>
+                <th scope="col" class="num">cosine</th>
+                <th scope="col" class="wrap-cell">relationship</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row" class="mono wrap-cell">lives_in ~ city</th>
+                <td class="num">0.136</td>
+                <td class="wrap-cell">the same thing</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono wrap-cell">favorite_food ~ least_favorite_food</th>
+                <td class="num">0.842</td>
+                <td class="wrap-cell">opposite things</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono wrap-cell">birth_year ~ birth_city</th>
+                <td class="num">0.735</td>
+                <td class="wrap-cell">different things</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="prose">
+          <p>
+            The ordering is inverted: synonyms average <span class="num">0.287</span>, traps
+            <span class="num">0.495</span>, and all six trap pairs land in the top 3 of their
+            counterpart. Embedding the observed <em>values</em> flips the ordering (synonyms
+            <span class="num">0.302</span>, traps <span class="num">0.101</span>) but is still not
+            thresholdable. So similarity is used as a <strong>shortlist only</strong> &mdash; the correct
+            cluster is in the top-20 for 100% of predicates &mdash; an LLM adjudicates, and deterministic
+            guards (polarity, value-type, head-noun, role-suffix) hold a veto they can exercise but
+            never override.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 Result ============ -->
+  <section class="section" id="result">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>03</b><span>Measured</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>First overall on LongMemEval &mdash; and the margin over second place is not significant.</h2>
+          <p>
+            One process, one answering model, a judge separate from the answerer, the unmodified
+            standard Mem0 judge prompt, the same 1,024-token budget for every system, and the
+            identical extracted claims shared across every fact-based system.
+          </p>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data">
+            <caption>LongMemEval, all 6 categories, 470 questions, all judged, oracle haystack</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">system</th>
+                <th scope="col" class="num">accuracy</th>
+                <th scope="col" class="num">95% CI</th>
+                <th scope="col" class="num">tokens</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="is-ours">
+                <th scope="row" class="mono">palimpsest</th>
+                <td class="num">0.589</td>
+                <td class="num">[0.544, 0.633]</td>
+                <td class="num">949</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">hybrid_rag</th>
+                <td class="num">0.553</td>
+                <td class="num">[0.508, 0.598]</td>
+                <td class="num">936</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">full_context</th>
+                <td class="num">0.536</td>
+                <td class="num">[0.491, 0.581]</td>
+                <td class="num">5,442</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">bm25</th>
+                <td class="num">0.479</td>
+                <td class="num">[0.434, 0.524]</td>
+                <td class="num">882</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">vector_rag</th>
+                <td class="num">0.472</td>
+                <td class="num">[0.428, 0.518]</td>
+                <td class="num">960</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">zep_style</th>
+                <td class="num">0.387</td>
+                <td class="num">[0.344, 0.432]</td>
+                <td class="num">345</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">mem0_style</th>
+                <td class="num">0.360</td>
+                <td class="num">[0.317, 0.404]</td>
+                <td class="num">316</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout--caveat">
+          <p class="callout__title">Read this with the number</p>
+          <p>
+            In both LongMemEval tables the confidence interval <strong>overlaps the runner-up</strong>,
+            so the margin over second place is <strong>not statistically significant</strong>. The margin
+            over BM25 and below is. And we lose LoCoMo.
+          </p>
+        </div>
+
+        <div class="prose">
+          <h3>What holds up when the haystack is realistic</h3>
+          <p>
+            On LongMemEval-S knowledge-update &mdash; roughly 500 distractor sessions per question, 72
+            questions &mdash; Palimpsest scores <span class="num">0.736</span> against
+            <span class="num">0.708</span> for <span class="mono">hybrid_rag</span>,
+            <span class="num">0.639</span> for <span class="mono">bm25</span> and
+            <span class="num">0.389</span> for <span class="mono">full_context</span> at
+            <span class="num">31,998</span> tokens. The sharper finding is the delta when the
+            distractors are taken away and put back:
+          </p>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data">
+            <caption>Distractor robustness, oracle haystack &rarr; LongMemEval-S</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">system</th>
+                <th scope="col" class="num">change</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="is-ours">
+                <th scope="row" class="mono">palimpsest</th>
+                <td class="num pos">&minus;1.4</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">bm25</th>
+                <td class="num pos">&minus;1.4</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">hybrid_rag</th>
+                <td class="num">&minus;5.6</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">full_context</th>
+                <td class="num neg">&minus;29.2</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout--loss">
+          <p class="callout__title">Where it loses</p>
+          <p>
+            On LoCoMo, all 10 conversations, 468 questions: <span class="mono">full_context</span> wins
+            at <span class="num">0.549</span> on <span class="num">23,604</span> tokens.
+            <span class="mono">bm25</span> at <span class="num">0.417</span> and
+            <span class="mono">palimpsest</span> at <span class="num">0.408</span> are a statistical
+            tie. The fact-layer baselines &mdash; <span class="mono">mem0_style</span>
+            <span class="num">0.237</span> and <span class="mono">zep_style</span>
+            <span class="num">0.278</span> &mdash; sit about 17 points <em>below</em> plain BM25 on the
+            identical claims.
+          </p>
+        </div>
+
+        <p><a href="benchmarks.html">All tables, per-category scores and ablations &rarr;</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04 The field ============ -->
+  <section class="section" id="field">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>04</b><span>The field</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>Published numbers in agent memory do not reproduce.</h2>
+          <p>
+            This is verified from primary sources, and it is the reason every number above is stated
+            with its interval and its losses.
+          </p>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data">
+            <caption>Self-reported vs. independently measured, LongMemEval</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">system</th>
+                <th scope="col" class="num">self-reported</th>
+                <th scope="col" class="num">measured by third parties</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row" class="mono">Mem0</th>
+                <td class="num">94.4</td>
+                <td class="num">36&ndash;67</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">Supermemory</th>
+                <td class="num">95</td>
+                <td class="num">58.4</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">Zep</th>
+                <td class="num">90.2</td>
+                <td class="num">38&ndash;64</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">LightMem</th>
+                <td class="wrap-cell" colspan="2">the only system whose self-report reproduces</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="grid-3">
+          <div class="card">
+            <p class="card__title">An embedding swap erases the claim</p>
+            <p class="card__body">
+              MemDelta (arXiv 2606.29914): Mem0&rsquo;s advertised <span class="num">+11pp</span> over RAG
+              becomes <span class="num">&minus;1.2pp</span> when the RAG baseline gets a decent
+              embedding model.
+            </p>
+          </div>
+          <div class="card">
+            <p class="card__title">Construction can destroy accuracy</p>
+            <p class="card__body">
+              The LightMem reproduction (arXiv 2607.29104) held retrieval at oracle and found memory
+              construction cost <span class="num">11.3</span> points against naive RAG.
+            </p>
+          </div>
+          <div class="card">
+            <p class="card__title">The labels are wrong</p>
+            <p class="card__body">
+              The LoCoMo category labels used by the Mem0 &rarr; Memobase &rarr; Backboard lineage are
+              wrong on 3 of 4 categories.
+            </p>
+          </div>
+          <div class="card">
+            <p class="card__title">The cited release is deprecated</p>
+            <p class="card__body">
+              The LongMemEval release everyone cites was deprecated on 2025-09-19 and replaced with a
+              cleaned one.
+            </p>
+          </div>
+          <div class="card">
+            <p class="card__title">There is no leaderboard</p>
+            <p class="card__body">
+              No public leaderboard for agent memory exists anywhere. Every vendor publishes its own
+              number, measured its own way.
+            </p>
+          </div>
+          <div class="card">
+            <p class="card__title">Including against ourselves</p>
+            <p class="card__body">
+              Nine defects found in our own engine are published &mdash; including one where it could see
+              the future and inflate its own results, and one whose fix <em>lowered</em> our LoCoMo
+              score.
+            </p>
+          </div>
+        </div>
+
+        <p>
+          <a href="field.html">The reproducibility problem, with sources &rarr;</a>
+          &nbsp;&middot;&nbsp;
+          <a href="audit.html">All nine defects we found in our own engine &rarr;</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 05 Install ============ -->
+  <section class="section" id="install">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>05</b><span>Install</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>CPU-only, three dependencies, no service to run.</h2>
+          <p>
+            <span class="mono">numpy</span>, <span class="mono">model2vec</span>,
+            <span class="mono">tiktoken</span>. No torch, no GPU, no external service. SQLite storage
+            with a Postgres-portable schema; nothing is ever deleted, only closed.
+          </p>
+        </div>
+
+        <div class="code">
+          <div class="code__label">shell</div>
+<pre><code>pip install palimpsest-memory</code></pre>
+        </div>
+
+        <div class="grid-3">
+          <div class="stat stat--accent">
+            <span class="stat__value">320</span>
+            <span class="stat__label">tests, CI green on Python 3.11&ndash;3.13</span>
+          </div>
+          <div class="stat">
+            <span class="stat__value">3</span>
+            <span class="stat__label">runtime dependencies, none of them torch</span>
+          </div>
+          <div class="stat">
+            <span class="stat__value">949</span>
+            <span class="stat__label">mean context tokens on LongMemEval, against 5,442 for full context</span>
+          </div>
+        </div>
+
+        <div class="hero__actions mt-0">
+          <a class="btn" href="docs.html">Read the docs</a>
+          <a class="btn btn--ghost" href="https://github.com/joe51111jwd/palimpsest">Source on GitHub</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 06 Who ============ -->
+  <section class="section" id="who">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>06</b><span>Who built it</span></div>
+      <div class="prose">
+        <h2>A high-school sophomore in Las Vegas.</h2>
+        <p>
+          Not a company and not a team &mdash; one person, working in the open under Apache-2.0. That is
+          also why the losses, the overlapping confidence intervals and the nine self-found defects are
+          on the site instead of in a footnote. In a field where self-reported numbers do not survive
+          independent measurement, the only thing worth publishing is the measurement anyone else can
+          repeat.
+        </p>
+        <p><a href="about.html">More about the project &rarr;</a></p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap site-footer__grid">
+    <div>
+      <h2>Palimpsest</h2>
+      <p class="measure-short">
+        An open-world bitemporal claim-interval memory engine for AI agents. A palimpsest is a
+        manuscript scraped and rewritten, where the earlier text stays legible underneath. So is this.
+      </p>
+      <p class="meta mt-3">Apache-2.0 &middot; alpha &middot; the API may change</p>
+    </div>
+    <div>
+      <h2>Read</h2>
+      <ul>
+        <li><a href="how-it-works.html">How it works</a></li>
+        <li><a href="benchmarks.html">Benchmarks</a></li>
+        <li><a href="field.html">The field</a></li>
+        <li><a href="audit.html">Audit</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Use</h2>
+      <ul>
+        <li><a href="docs.html">Docs &amp; API</a></li>
+        <li><a href="https://github.com/joe51111jwd/palimpsest">GitHub</a></li>
+        <li><a href="https://pypi.org/project/palimpsest-memory/">PyPI</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -46,13 +46,14 @@
   /* Iron-gall ink, oxidised toward blue-black. */
   --c-ink:           #101821;
   --c-ink-2:         #33404f;
-  --c-ink-3:         #5d6b7a;
-  --c-ink-4:         #7f8c9a;
+  --c-ink-3:         #4e5c6a;
+  --c-ink-4:         #5a6775;
   --c-ink-inverse:   #f4f7fa;
 
   --c-border:        #c8d2dd;
   --c-border-soft:   #d9e1e9;
   --c-border-strong: #9fadbc;
+  --c-control-border: #6f7e8d;
 
   /* Recovered undertext. The only accent. */
   --c-accent:        #b8720c;
@@ -95,12 +96,13 @@
     --c-ink:           #dce4ec;
     --c-ink-2:         #adbac7;
     --c-ink-3:         #8695a4;
-    --c-ink-4:         #6b7a89;
+    --c-ink-4:         #7d8b99;
     --c-ink-inverse:   #0b1016;
 
     --c-border:        #26313d;
     --c-border-soft:   #1c2530;
     --c-border-strong: #3b4959;
+    --c-control-border: #6b7a89;
 
     --c-accent:        #f0b04a;
     --c-accent-text:   #f0b04a;
@@ -136,12 +138,13 @@
   --c-ink:           #dce4ec;
   --c-ink-2:         #adbac7;
   --c-ink-3:         #8695a4;
-  --c-ink-4:         #6b7a89;
+  --c-ink-4:         #7d8b99;
   --c-ink-inverse:   #0b1016;
 
   --c-border:        #26313d;
   --c-border-soft:   #1c2530;
   --c-border-strong: #3b4959;
+  --c-control-border: #6b7a89;
 
   --c-accent:        #f0b04a;
   --c-accent-text:   #f0b04a;
@@ -412,12 +415,12 @@ abbr[title] { text-decoration: underline dotted var(--c-border-strong); cursor: 
   text-transform: uppercase;
   background: transparent;
   color: var(--c-ink-2);
-  border: var(--hairline);
+  border: 1px solid var(--c-control-border);
   border-radius: var(--r-2);
   padding: var(--sp-2) var(--sp-3);
   cursor: pointer;
 }
-.nav-toggle:hover { border-color: var(--c-border-strong); color: var(--c-ink); }
+.nav-toggle:hover { border-color: var(--c-ink-3); color: var(--c-ink); }
 
 .nav { display: contents; }
 
@@ -451,13 +454,13 @@ abbr[title] { text-decoration: underline dotted var(--c-border-strong); cursor: 
   text-transform: uppercase;
   background: transparent;
   color: var(--c-ink-3);
-  border: var(--hairline);
+  border: 1px solid var(--c-control-border);
   border-radius: var(--r-2);
   padding: var(--sp-2) var(--sp-3);
   cursor: pointer;
   white-space: nowrap;
 }
-.theme-toggle:hover { color: var(--c-ink); border-color: var(--c-border-strong); }
+.theme-toggle:hover { color: var(--c-ink); border-color: var(--c-ink-3); }
 
 /* Mobile: nav collapses behind the toggle. */
 @media (max-width: 52rem) {
@@ -604,6 +607,7 @@ abbr[title] { text-decoration: underline dotted var(--c-border-strong); cursor: 
 .num, .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 
 .muted { color: var(--c-ink-3); }
+.meta-note { font-size: var(--fs-ui); color: var(--c-ink-3); }
 .pos { color: var(--c-pos); }
 .neg { color: var(--c-neg); }
 
@@ -870,6 +874,9 @@ table.data tr.is-ours td {
 table.data tr.is-ours th:first-child {
   box-shadow: inset 3px 0 0 var(--c-accent);
 }
+/* Signed-delta colours survive the highlighted row. */
+table.data tr.is-ours td.pos, table.data td.pos { color: var(--c-pos); }
+table.data tr.is-ours td.neg, table.data td.neg { color: var(--c-neg); }
 
 table.data td.wrap-cell,
 table.data th.wrap-cell { white-space: normal; min-width: 16rem; }
@@ -968,7 +975,7 @@ table.data th.wrap-cell { white-space: normal; min-width: 16rem; }
 .btn--ghost {
   background: transparent;
   color: var(--c-ink);
-  border-color: var(--c-border-strong);
+  border-color: var(--c-control-border);
 }
 .btn--ghost:hover { background: var(--c-surface-2); border-color: var(--c-ink-3); }
 
@@ -1053,6 +1060,16 @@ table.data th.wrap-cell { white-space: normal; min-width: 16rem; }
   border-radius: var(--r-1);
   padding: 0.15em 0.4em;
 }
+
+/* Spacing utilities — so page authors never need inline styles. */
+.mt-0 { margin-top: 0; }
+.mt-2 { margin-top: var(--sp-2); }
+.mt-3 { margin-top: var(--sp-3); }
+.mt-4 { margin-top: var(--sp-4); }
+.mt-5 { margin-top: var(--sp-5); }
+.mt-6 { margin-top: var(--sp-6); }
+.measure-short { max-width: 44ch; }
+.measure { max-width: var(--max-prose); }
 
 .visually-hidden {
   position: absolute;
