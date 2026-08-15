@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://palimpsest-memory.vercel.app/sitemap.xml

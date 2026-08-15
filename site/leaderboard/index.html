@@ -42,7 +42,7 @@
   <section class="hero">
     <div class="wrap">
       <p class="eyebrow">Leaderboard</p>
-      <h1 class="hero__title">There is no public leaderboard for agent memory. This is an attempt at one.</h1>
+      <h1 class="hero__title">Until recently there was no public leaderboard for agent memory. Now there is one &mdash; and this is a different thing.</h1>
       <p class="hero__lede">
         A row is admitted only if a stranger can re-run it: dataset file and its
         <span class="mono">sha256</span>, the denominator, the answering model, the judge model, the
@@ -59,7 +59,44 @@
   </section>
 
   <!-- ============ 01 Disclosure ============ -->
-  <section class="section" id="disclosure">
+  
+<section class="section" aria-labelledby="aml-heading">
+  <div class="section-rail"><span class="section-num">00</span></div>
+  <div class="section-body">
+    <h2 id="aml-heading">The one that already exists</h2>
+    <p>
+      The <a href="https://agentmemories.ai/">Agent Memory Leaderboard</a> launched on
+      29 July 2026 and is, as far as I can establish, the only live public ranking for
+      agent memory. It is run by researchers across more than twenty institutions, it
+      has real entries in both an academic and an industry division, and its benchmark
+      suite includes <code>longmemeval-s</code> and <code>locomo-refined</code>. It
+      settles the question of whether anything like this exists: it does, and it is
+      better resourced than anything I can run.
+    </p>
+    <p>
+      It is also independent corroboration of the argument on
+      <a href="../field.html">the field page</a>. Supermemory, which advertises 95 on
+      LongMemEval, sits fourteenth of fifteen there. Mem0, which advertises 94.4, sits
+      seventh. Those are not my measurements, and they say the same thing mine do.
+    </p>
+    <p>
+      So this page is not a competitor to it. AML evaluates through a closed box: you
+      expose an Add and a Search endpoint, they run the datasets, the answering model
+      and the judge, and you receive a score. That is the right design for making
+      vendors comparable, and it is why I am submitting to it. What it cannot give you
+      is the ability to re-run the evaluation yourself, because the harness and the
+      per-question records are theirs.
+    </p>
+    <p>
+      That is the gap this page fills. Every row below can be recomputed from published
+      JSON by someone who does not trust me, using a harness that is in the repository.
+      The two are complementary: theirs is the independent scoreboard, this is the
+      auditable one. Where our numbers eventually disagree, theirs is the one a stranger
+      should believe, and I will publish the disagreement here.
+    </p>
+  </div>
+</section>
+<section class="section" id="disclosure">
     <div class="wrap section-grid">
       <div class="section-rail"><b>01</b><span>Disclosure</span></div>
 
