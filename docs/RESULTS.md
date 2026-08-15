@@ -57,6 +57,43 @@ is the number this project stands on.
 Honest caveat: the interval overlaps `hybrid_rag`, so **the margin over the
 runner-up is not significant at n=72.** The margin over BM25 and below is.
 
+#### Updated 2026-08-15 — two changes landed, and one of them is a bug fix in our own harness
+
+Same command, same 72 questions, same shared claims. The harness is
+deterministic: an identical repeat run reproduced every figure below exactly, so
+none of this movement is sampling noise in the answering model.
+
+| | palimpsest | hybrid_rag | bm25 |
+|---|---:|---:|---:|
+| as published above | 0.736 | 0.708 | 0.639 |
+| + degraded extractions purged | 0.778 | 0.708 | 0.653 |
+| + engine changes (temporal, graph excerpts, index) | **0.819** | 0.736 | 0.653 |
+
+The first step is not an improvement to the system; it is us finding that two
+episodes had been cached with almost no claims after their extraction windows
+failed, and that the guard meant to catch exactly that was testing for *zero*
+claims rather than *too few*. Every system shares those claims, so the fix moved
+BM25 too. It is listed separately because rolling a harness fix into a
+system-improvement number is how benchmark results stop meaning anything.
+
+**What is and is not significant here**, by exact McNemar on the paired
+per-question outcomes — the correct test, since every system answers the same
+questions, and the marginal intervals above overlap almost by construction at
+n=72:
+
+| comparison | won | lost | p |
+|---|---:|---:|---:|
+| palimpsest vs bm25 | 18 | 6 | **0.023** |
+| palimpsest vs hybrid_rag | 13 | 7 | 0.26 |
+| the engine changes, palimpsest before → after | 6 | 3 | 0.51 |
+
+So: the win over BM25 is now statistically significant, and it was not before.
+**The lead over `hybrid_rag` still is not**, and the engine changes cannot be
+justified by this slice — they are justified by the large-n retrieval proxies
+below, where they move 20 questions of 439 and 19 of 1,524. Seventy-two
+questions cannot resolve a three-question difference and we are not going to
+pretend otherwise.
+
 ### LongMemEval-oracle — distractors removed (an upper bound, not a retrieval result)
 
 | system | accuracy | 95% CI | tokens |
@@ -185,6 +222,74 @@ not have existed* — a claim mislabelled `multi` skipped interval repair, and t
 resulting chaos happened to produce "EARLIER VALUES" blocks that flattered the
 temporal category. Part of the apparent advantage was an artifact of a broken
 ledger. The lower number is the true one.
+
+---
+
+## Retrieval proxies at large n — what justified the 2026-08-15 engine changes
+
+Judged runs cost an hour of LLM calls, which makes them a bad instrument for
+deciding whether a change is worth keeping. These are LLM-free proxies —
+**gold-answer-present-in-context**, and for LoCoMo also **annotated-evidence
+recall**. Both under-count us (a fact block paraphrases) and over-count short
+numeric golds that appear incidentally, so they are only ever used to compare
+two revisions of the *same* system under an identical normalization. They are
+not accuracy and are never reported as accuracy.
+
+Every figure below is `main` before vs after, same machine, same cached claims.
+
+| LoCoMo, all 10 conversations, 1,524 questions | before | after |
+|---|---:|---:|
+| gold-in-context | 428 (28.1%) | **447 (29.3%)** |
+| — temporal | 9.1% | **13.8%** |
+| — single-hop | 43.4% | 44.0% |
+| — multi-hop | 10.3% | 9.9% |
+| mean context tokens | 1,015 | 1,003 |
+
+| LongMemEval-oracle, 439 questions | before | after |
+|---|---:|---:|
+| overall | 186 (42.4%) | **206 (46.9%)** |
+| — temporal_reasoning | 21.3% | **37.0%** |
+| — knowledge_update | 73.6% | 75.0% |
+| — multi_session | 30.6% | 29.8% |
+
+Three things are worth saying plainly about these numbers.
+
+**The LoCoMo figure crosses BM25** (28.9%) on the corpus where our published
+*judged* result is a loss (0.408 vs 0.417). That is a proxy crossing a proxy. It
+is a reason to re-run the judge, not a reason to claim the loss is overturned,
+and the LoCoMo tables above stand until a judged run says otherwise.
+
+**The largest single contributor was a spec violation, not a feature.** Retrieval
+applies a time bound, and on 14 of 127 LongMemEval temporal questions the
+question's own date precedes every session in its haystack — so the bounded pass
+matched nothing and the model received a context containing only the header. A
+guaranteed zero, on 11% of the category, from the same failure shape as v1's
+abstain-by-empty bug. A non-empty store now never returns an empty context and
+says when it had to ignore the bound.
+
+**`single_session_preference` is 0.0% for every system on this proxy**, which is
+a property of the metric, not of any system: those golds are prose rubrics that
+never appear verbatim in any context. Ignore that row.
+
+## What we refused to merge
+
+Four changes were built in parallel, in isolated worktrees, against the same
+base, and each was re-measured by an independent verifier asked to find
+benchmark special-casing. Three were confirmed and are in. The fourth was an
+extraction-prompt rewrite that raised claim recall from 34% to 55% of messages —
+a large, real-looking gain.
+
+Its worked examples were verbatim turns from LoCoMo evaluation conversations,
+and the outputs shown as correct were those questions' gold answers. Eight such
+examples, across five conversations. The author had also narrowed a skip-list
+because it was excluding two specific gold strings.
+
+It was refused on that basis alone, and the recall number it produced is not
+reported anywhere as a property of this system. Whether the gain would have
+partly survived on clean episodes is beside the point: a prompt written against
+the answer key makes every number downstream of it unfalsifiable. It is also,
+for what it is worth, the exact failure this project was started to document in
+other people's benchmarks.
 
 ---
 
