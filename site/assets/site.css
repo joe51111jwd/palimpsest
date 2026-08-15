@@ -1,0 +1,1079 @@
+/* ==========================================================================
+   Palimpsest — site design system
+   One stylesheet. No build step, no imports, no external requests.
+
+   Concept: the site is the imaging apparatus; the data is the manuscript.
+   Cool plate-grey ground, iron-gall ink, recovered-text amber as the single
+   accent (amber == undertext recovered by multispectral imaging).
+
+   Contents
+     01  Tokens — colour (light)
+     02  Tokens — colour (dark)
+     03  Tokens — type, space, radius, motion
+     04  Reset + base elements
+     05  Layout: wrap, section, rail
+     06  Header / nav
+     07  Footer
+     08  Hero
+     09  Prose / article
+     10  Typographic utilities (eyebrow, lede, meta, num)
+     11  Stratum  <- the central component
+     12  Panels, cards, compare
+     13  Data tables
+     14  Code blocks
+     15  Callouts
+     16  Buttons
+     17  Pills / badges
+     18  Stats
+     19  Misc utilities
+   ========================================================================== */
+
+/* -- 01  Tokens — colour (light) -------------------------------------------
+   The complete palette lives here on bare :root. Dark mode only REDEFINES
+   these names; no colour is ever declared for the first time in a media
+   query. --------------------------------------------------------------- */
+
+:root {
+  color-scheme: light;
+
+  /* Ground: a cool plate grey, blue-biased. Never white, never cream. */
+  --c-bg:            #e9edf2;
+  --c-bg-sunken:     #dfe5ec;
+  --c-surface:       #f4f7fa;
+  --c-surface-2:     #fbfcfe;
+  --c-surface-inset: #e3e9f0;
+
+  /* Iron-gall ink, oxidised toward blue-black. */
+  --c-ink:           #101821;
+  --c-ink-2:         #33404f;
+  --c-ink-3:         #5d6b7a;
+  --c-ink-4:         #7f8c9a;
+  --c-ink-inverse:   #f4f7fa;
+
+  --c-border:        #c8d2dd;
+  --c-border-soft:   #d9e1e9;
+  --c-border-strong: #9fadbc;
+
+  /* Recovered undertext. The only accent. */
+  --c-accent:        #b8720c;
+  --c-accent-text:   #8a5300;
+  --c-accent-strong: #6d4200;
+  --c-accent-soft:   #f2e6d1;
+  --c-accent-line:   #d9b479;
+
+  --c-focus:         #8a5300;
+
+  /* Reserved for signed deltas in result tables. Used nowhere else. */
+  --c-pos:           #0f5c4a;
+  --c-neg:           #8c2f28;
+
+  --c-selection-bg:  #d9b479;
+  --c-selection-fg:  #101821;
+
+  /* Erasure wash laid over superseded strata. */
+  --tint-erasure:    rgba(16, 24, 33, 0.045);
+  --tint-glow:       rgba(184, 114, 12, 0.10);
+
+  --shadow-1: 0 1px 0 rgba(16, 24, 33, 0.05);
+  --shadow-2: 0 1px 2px rgba(16, 24, 33, 0.08), 0 6px 16px -8px rgba(16, 24, 33, 0.16);
+}
+
+/* -- 02  Tokens — colour (dark) --------------------------------------------
+   The multispectral plate itself: deep, cool, and the undertext glows.
+   Both the system-preference branch and the explicit toggle branch. ------ */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --c-bg:            #0b1016;
+    --c-bg-sunken:     #070b10;
+    --c-surface:       #121a23;
+    --c-surface-2:     #18222d;
+    --c-surface-inset: #0e151d;
+
+    --c-ink:           #dce4ec;
+    --c-ink-2:         #adbac7;
+    --c-ink-3:         #8695a4;
+    --c-ink-4:         #6b7a89;
+    --c-ink-inverse:   #0b1016;
+
+    --c-border:        #26313d;
+    --c-border-soft:   #1c2530;
+    --c-border-strong: #3b4959;
+
+    --c-accent:        #f0b04a;
+    --c-accent-text:   #f0b04a;
+    --c-accent-strong: #f7c877;
+    --c-accent-soft:   #2a2113;
+    --c-accent-line:   #6d5323;
+
+    --c-focus:         #f0b04a;
+
+    --c-pos:           #5cc3a8;
+    --c-neg:           #e08a83;
+
+    --c-selection-bg:  #6d5323;
+    --c-selection-fg:  #f7f0e2;
+
+    --tint-erasure:    rgba(220, 228, 236, 0.05);
+    --tint-glow:       rgba(240, 176, 74, 0.12);
+
+    --shadow-1: 0 1px 0 rgba(0, 0, 0, 0.4);
+    --shadow-2: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 20px -10px rgba(0, 0, 0, 0.7);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --c-bg:            #0b1016;
+  --c-bg-sunken:     #070b10;
+  --c-surface:       #121a23;
+  --c-surface-2:     #18222d;
+  --c-surface-inset: #0e151d;
+
+  --c-ink:           #dce4ec;
+  --c-ink-2:         #adbac7;
+  --c-ink-3:         #8695a4;
+  --c-ink-4:         #6b7a89;
+  --c-ink-inverse:   #0b1016;
+
+  --c-border:        #26313d;
+  --c-border-soft:   #1c2530;
+  --c-border-strong: #3b4959;
+
+  --c-accent:        #f0b04a;
+  --c-accent-text:   #f0b04a;
+  --c-accent-strong: #f7c877;
+  --c-accent-soft:   #2a2113;
+  --c-accent-line:   #6d5323;
+
+  --c-focus:         #f0b04a;
+
+  --c-pos:           #5cc3a8;
+  --c-neg:           #e08a83;
+
+  --c-selection-bg:  #6d5323;
+  --c-selection-fg:  #f7f0e2;
+
+  --tint-erasure:    rgba(220, 228, 236, 0.05);
+  --tint-glow:       rgba(240, 176, 74, 0.12);
+
+  --shadow-1: 0 1px 0 rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 20px -10px rgba(0, 0, 0, 0.7);
+}
+
+/* -- 03  Tokens — type, space, radius --------------------------------------
+   System stacks only. Pairing: a system sans for prose and headings, a
+   system mono for the "apparatus" — labels, dates, table headers, badges,
+   code. Nothing is loaded over the network. ----------------------------- */
+
+:root {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               "Helvetica Neue", "Noto Sans", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+               "Roboto Mono", "Liberation Mono", monospace;
+
+  --fs-2xs:  0.6875rem;   /* 11 — plate labels only */
+  --fs-xs:   0.75rem;     /* 12 */
+  --fs-sm:   0.8125rem;   /* 13 */
+  --fs-ui:   0.875rem;    /* 14 — nav, table cells */
+  --fs-base: 1rem;        /* 16 */
+  --fs-md:   1.0625rem;   /* 17 — body prose */
+  --fs-lg:   clamp(1.125rem, 0.35vw + 1.05rem, 1.25rem);
+  --fs-xl:   clamp(1.3125rem, 0.6vw + 1.15rem, 1.5rem);
+  --fs-2xl:  clamp(1.5rem, 1vw + 1.25rem, 1.875rem);
+  --fs-3xl:  clamp(1.875rem, 1.8vw + 1.4rem, 2.5rem);
+  --fs-4xl:  clamp(2.125rem, 3.2vw + 1.4rem, 3.25rem);
+
+  --lh-tight: 1.15;
+  --lh-snug:  1.3;
+  --lh-body:  1.62;
+
+  --tr-tight: -0.021em;
+  --tr-label:  0.09em;
+
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 2.75rem;
+  --sp-8: 3.5rem;
+  --sp-9: 5rem;
+  --sp-10: 7rem;
+
+  --r-1: 2px;
+  --r-2: 3px;
+  --r-3: 5px;
+
+  --max-page: 76rem;
+  --max-prose: 68ch;
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+  --rail-w: 11rem;
+  --header-h: 3.5rem;
+
+  --hairline: 1px solid var(--c-border);
+  --hairline-soft: 1px solid var(--c-border-soft);
+}
+
+/* -- 04  Reset + base ---------------------------------------------------- */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--header-h) + var(--sp-5));
+}
+
+body {
+  margin: 0;
+  background-color: var(--c-bg);
+  color: var(--c-ink);
+  font-family: var(--font-sans);
+  font-size: var(--fs-md);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection { background: var(--c-selection-bg); color: var(--c-selection-fg); }
+
+h1, h2, h3, h4, h5, h6 { margin: 0; font-weight: 620; line-height: var(--lh-snug); }
+h1 { font-size: var(--fs-4xl); line-height: var(--lh-tight); letter-spacing: var(--tr-tight); }
+h2 { font-size: var(--fs-2xl); letter-spacing: var(--tr-tight); }
+h3 { font-size: var(--fs-lg); letter-spacing: -0.012em; }
+h4 { font-size: var(--fs-base); }
+
+p, ul, ol, dl, figure, table, pre, blockquote { margin: 0; }
+
+a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--c-accent-line);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+a:hover { text-decoration-color: var(--c-accent); }
+
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--c-focus);
+  outline-offset: 2px;
+  border-radius: var(--r-1);
+}
+
+img, svg, video { max-width: 100%; height: auto; }
+
+hr {
+  border: 0;
+  border-top: var(--hairline);
+  margin: var(--sp-7) 0;
+}
+
+small { font-size: var(--fs-sm); }
+
+abbr[title] { text-decoration: underline dotted var(--c-border-strong); cursor: help; }
+
+/* -- 05  Layout ---------------------------------------------------------- */
+
+.wrap {
+  width: 100%;
+  max-width: var(--max-page);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.wrap--narrow { max-width: 58rem; }
+
+.section {
+  padding-block: var(--sp-8);
+  border-top: var(--hairline);
+}
+.section--flush { border-top: 0; }
+.section--sunken { background: var(--c-bg-sunken); }
+
+/* Two-column: a narrow left "apparatus rail" carrying the section number and
+   label, content to its right. Collapses to one column on small screens. */
+.section-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-4);
+}
+
+@media (min-width: 62rem) {
+  .section-grid {
+    grid-template-columns: var(--rail-w) minmax(0, 1fr);
+    gap: var(--sp-6);
+  }
+  .section-rail {
+    position: sticky;
+    top: calc(var(--header-h) + var(--sp-5));
+    align-self: start;
+  }
+}
+
+.section-rail {
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-ink-3);
+  border-top: 2px solid var(--c-ink-3);
+  padding-top: var(--sp-2);
+}
+.section-rail b { display: block; font-weight: 700; color: var(--c-ink-2); }
+.section-rail span { display: block; margin-top: var(--sp-1); letter-spacing: 0.04em; text-transform: none; }
+
+.stack > * + * { margin-top: var(--sp-4); }
+.stack-lg > * + * { margin-top: var(--sp-6); }
+.stack-sm > * + * { margin-top: var(--sp-2); }
+
+.grid-2 {
+  display: grid;
+  gap: var(--sp-4);
+  grid-template-columns: minmax(0, 1fr);
+}
+.grid-3 {
+  display: grid;
+  gap: var(--sp-4);
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 48rem) {
+  .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 68rem) {
+  .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* -- 06  Header / nav ---------------------------------------------------- */
+
+.skip-link {
+  position: absolute;
+  left: var(--sp-2);
+  top: -4rem;
+  z-index: 100;
+  background: var(--c-surface-2);
+  color: var(--c-ink);
+  border: var(--hairline);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-2);
+  font-size: var(--fs-ui);
+}
+.skip-link:focus { top: var(--sp-2); }
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--c-bg);
+  border-bottom: var(--hairline);
+}
+
+.site-header__inner {
+  min-height: var(--header-h);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  text-decoration: none;
+  margin-right: auto;
+}
+.brand__name {
+  font-family: var(--font-mono);
+  font-size: var(--fs-ui);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-ink);
+}
+.brand__note {
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.06em;
+  color: var(--c-ink-4);
+}
+@media (max-width: 34rem) { .brand__note { display: none; } }
+
+.nav-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: transparent;
+  color: var(--c-ink-2);
+  border: var(--hairline);
+  border-radius: var(--r-2);
+  padding: var(--sp-2) var(--sp-3);
+  cursor: pointer;
+}
+.nav-toggle:hover { border-color: var(--c-border-strong); color: var(--c-ink); }
+
+.nav { display: contents; }
+
+.nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+}
+
+.nav-list a {
+  font-size: var(--fs-ui);
+  color: var(--c-ink-2);
+  text-decoration: none;
+  padding-block: var(--sp-2);
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+.nav-list a:hover { color: var(--c-ink); border-bottom-color: var(--c-border-strong); }
+.nav-list a[aria-current="page"] {
+  color: var(--c-ink);
+  border-bottom-color: var(--c-accent);
+}
+
+.theme-toggle {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: transparent;
+  color: var(--c-ink-3);
+  border: var(--hairline);
+  border-radius: var(--r-2);
+  padding: var(--sp-2) var(--sp-3);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.theme-toggle:hover { color: var(--c-ink); border-color: var(--c-border-strong); }
+
+/* Mobile: nav collapses behind the toggle. */
+@media (max-width: 52rem) {
+  .site-header__inner { flex-wrap: wrap; padding-block: var(--sp-2); }
+  .nav-toggle { order: 3; }
+  .nav-list {
+    order: 4;
+    flex-basis: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    border-top: var(--hairline);
+    margin-top: var(--sp-2);
+    padding-bottom: var(--sp-2);
+  }
+  .nav-list a {
+    display: block;
+    padding: var(--sp-3) 0;
+    border-bottom: var(--hairline-soft);
+  }
+  .nav-list a[aria-current="page"] { border-bottom-color: var(--c-accent); }
+  .site-header[data-nav="closed"] .nav-list { display: none; }
+}
+
+@media (min-width: 52.0625rem) {
+  .nav-toggle { display: none; }
+}
+
+/* -- 07  Footer ---------------------------------------------------------- */
+
+.site-footer {
+  border-top: var(--hairline);
+  background: var(--c-bg-sunken);
+  padding-block: var(--sp-7);
+  margin-top: var(--sp-8);
+  font-size: var(--fs-ui);
+  color: var(--c-ink-3);
+}
+.site-footer__grid {
+  display: grid;
+  gap: var(--sp-5);
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 48rem) {
+  .site-footer__grid { grid-template-columns: 2fr 1fr 1fr; }
+}
+.site-footer h2 {
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-ink-4);
+  margin-bottom: var(--sp-3);
+}
+.site-footer ul { list-style: none; margin: 0; padding: 0; }
+.site-footer li + li { margin-top: var(--sp-2); }
+.site-footer a { color: var(--c-ink-2); }
+
+/* -- 08  Hero ------------------------------------------------------------ */
+
+.hero {
+  padding-block: var(--sp-8) var(--sp-7);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Plate scan lines: a static, almost-invisible texture. No gradient wash. */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--tint-erasure) 0 1px,
+    transparent 1px 7px
+  );
+  opacity: 0.5;
+}
+.hero > * { position: relative; }
+
+.hero__title { max-width: 22ch; }
+.hero__lede {
+  margin-top: var(--sp-5);
+  max-width: 60ch;
+  font-size: var(--fs-lg);
+  color: var(--c-ink-2);
+}
+.hero__actions {
+  margin-top: var(--sp-6);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  align-items: center;
+}
+
+/* -- 09  Prose ----------------------------------------------------------- */
+
+.prose { max-width: var(--max-prose); }
+.prose > * + * { margin-top: var(--sp-4); }
+.prose > h2 { margin-top: var(--sp-7); }
+.prose > h3 { margin-top: var(--sp-6); }
+.prose > h2 + *, .prose > h3 + * { margin-top: var(--sp-3); }
+.prose ul, .prose ol { padding-left: 1.15em; }
+.prose li + li { margin-top: var(--sp-2); }
+.prose li::marker { color: var(--c-ink-4); }
+.prose strong { font-weight: 660; color: var(--c-ink); }
+.prose blockquote {
+  border-left: 2px solid var(--c-accent-line);
+  padding-left: var(--sp-4);
+  color: var(--c-ink-2);
+}
+.prose :not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--c-surface-inset);
+  border: var(--hairline-soft);
+  border-radius: var(--r-1);
+  padding: 0.1em 0.32em;
+}
+
+/* -- 10  Typographic utilities ------------------------------------------- */
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-ink-3);
+  margin-bottom: var(--sp-3);
+}
+
+.lede { font-size: var(--fs-lg); color: var(--c-ink-2); max-width: 62ch; }
+
+.meta {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--c-ink-3);
+  letter-spacing: 0.02em;
+}
+
+.num, .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+.muted { color: var(--c-ink-3); }
+.pos { color: var(--c-pos); }
+.neg { color: var(--c-neg); }
+
+.figcaption, figcaption {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--c-ink-3);
+  margin-top: var(--sp-3);
+  line-height: 1.5;
+}
+
+/* -- 11  Stratum ---------------------------------------------------------
+   The central metaphor as a component. The current value sits on top at full
+   ink; superseded values render beneath it, stepped in, washed with the
+   erasure tint, their values glowing in recovered-text amber. Put the
+   current layer FIRST in the DOM; superseded layers follow, newest first.
+   Depth is handled by sibling chaining — three legible layers of undertext,
+   which is all any real chain needs to show. ------------------------------ */
+
+.stratum {
+  border: var(--hairline);
+  border-radius: var(--r-3);
+  background: var(--c-surface);
+  overflow: hidden;
+}
+
+.stratum__key {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: var(--hairline);
+  background: var(--c-surface-inset);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--c-ink-3);
+}
+.stratum__key b { color: var(--c-ink-2); font-weight: 700; }
+
+.stratum__layers { display: block; }
+
+.stratum-layer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-2) var(--sp-4);
+  padding: var(--sp-3) var(--sp-4);
+  border-top: var(--hairline-soft);
+  position: relative;
+}
+.stratum__layers > .stratum-layer:first-child { border-top: 0; }
+
+.stratum-layer__value {
+  font-family: var(--font-mono);
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: var(--c-ink);
+  margin-right: auto;
+}
+
+.stratum-layer__range {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--c-ink-3);
+  white-space: nowrap;
+}
+
+/* Current: full ink, a solid amber tick at the left edge. */
+.stratum-layer.is-current {
+  background: var(--c-surface-2);
+  box-shadow: inset 3px 0 0 var(--c-accent);
+}
+
+/* Superseded: scraped but legible — the undertext. */
+.stratum-layer.is-superseded {
+  background-image: repeating-linear-gradient(
+    -8deg,
+    var(--tint-erasure) 0 2px,
+    transparent 2px 9px
+  );
+  color: var(--c-ink-3);
+}
+.stratum-layer.is-superseded .stratum-layer__value {
+  color: var(--c-accent-text);
+  font-weight: 500;
+  opacity: 0.92;
+}
+.stratum-layer.is-superseded .stratum-layer__range { color: var(--c-ink-4); }
+
+/* Stepped depth: each further-down layer is inset and fainter. */
+.is-superseded ~ .is-superseded { padding-left: calc(var(--sp-4) + var(--sp-3)); opacity: 0.88; }
+.is-superseded ~ .is-superseded ~ .is-superseded { padding-left: calc(var(--sp-4) + var(--sp-6)); opacity: 0.76; }
+.is-superseded ~ .is-superseded ~ .is-superseded ~ .is-superseded { padding-left: calc(var(--sp-4) + var(--sp-7)); opacity: 0.66; }
+
+/* Corrected: struck from the record entirely (transaction-time close). */
+.stratum-layer.is-corrected .stratum-layer__value {
+  text-decoration: line-through;
+  text-decoration-color: var(--c-neg);
+  color: var(--c-ink-4);
+}
+
+.stratum__note {
+  padding: var(--sp-3) var(--sp-4);
+  border-top: var(--hairline);
+  background: var(--c-surface-inset);
+  font-size: var(--fs-sm);
+  color: var(--c-ink-3);
+}
+
+/* -- 12  Panels, cards, compare ------------------------------------------ */
+
+.panel {
+  border: var(--hairline);
+  border-radius: var(--r-3);
+  background: var(--c-surface);
+}
+.panel__head {
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: var(--hairline);
+  background: var(--c-surface-inset);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  align-items: baseline;
+}
+.panel__title {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c-ink-2);
+  margin-right: auto;
+}
+.panel__body { padding: var(--sp-4); }
+.panel__body > * + * { margin-top: var(--sp-3); }
+.panel__foot {
+  padding: var(--sp-3) var(--sp-4);
+  border-top: var(--hairline);
+  font-size: var(--fs-sm);
+  color: var(--c-ink-3);
+}
+
+/* The side-by-side. Equal columns, no winner styling beyond the content. */
+.compare {
+  display: grid;
+  gap: var(--sp-4);
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+@media (min-width: 56rem) {
+  .compare { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-5); }
+}
+
+.card {
+  border: var(--hairline);
+  border-top: 2px solid var(--c-border-strong);
+  border-radius: var(--r-2);
+  background: var(--c-surface);
+  padding: var(--sp-4);
+}
+.card > * + * { margin-top: var(--sp-2); }
+.card__title { font-size: var(--fs-base); font-weight: 640; }
+.card__body { font-size: var(--fs-ui); color: var(--c-ink-2); line-height: 1.55; }
+a.card { text-decoration: none; display: block; }
+a.card:hover { border-top-color: var(--c-accent); background: var(--c-surface-2); }
+
+/* A retrieved chunk, as a vector store would hand it over. */
+.chunk {
+  border: var(--hairline-soft);
+  border-radius: var(--r-2);
+  background: var(--c-surface-2);
+  padding: var(--sp-3);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-3);
+  align-items: baseline;
+}
+.chunk__text { margin-right: auto; font-size: var(--fs-ui); }
+.chunk__score {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--c-ink-3);
+}
+
+/* -- 13  Data tables ------------------------------------------------------
+   Always wrap a table in .table-wrap. It scrolls on its own; the page never
+   scrolls sideways. Give the wrapper tabindex="0" so it is keyboard
+   scrollable, and a role/label so screen readers announce it. ------------- */
+
+.table-wrap {
+  overflow-x: auto;
+  border: var(--hairline);
+  border-radius: var(--r-3);
+  background: var(--c-surface);
+  -webkit-overflow-scrolling: touch;
+}
+.table-wrap:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-ui);
+  font-variant-numeric: tabular-nums;
+}
+
+table.data caption {
+  text-align: left;
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: var(--hairline);
+  background: var(--c-surface-inset);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--c-ink-3);
+  letter-spacing: 0.02em;
+}
+
+table.data th,
+table.data td {
+  padding: var(--sp-2) var(--sp-4);
+  border-bottom: var(--hairline-soft);
+  text-align: left;
+  vertical-align: baseline;
+  white-space: nowrap;
+}
+
+table.data thead th {
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-ink-3);
+  border-bottom: 1px solid var(--c-border-strong);
+  background: var(--c-surface);
+  position: sticky;
+  top: 0;
+}
+
+table.data tbody tr:last-child th,
+table.data tbody tr:last-child td { border-bottom: 0; }
+
+table.data tbody tr:hover { background: var(--c-surface-2); }
+
+/* Numeric columns: right-aligned, tabular, mono. */
+table.data .num,
+table.data th.num,
+table.data td.num {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The row that is ours. Marked, not celebrated. */
+table.data tr.is-ours th,
+table.data tr.is-ours td {
+  background: var(--tint-glow);
+  font-weight: 640;
+  color: var(--c-ink);
+}
+table.data tr.is-ours th:first-child {
+  box-shadow: inset 3px 0 0 var(--c-accent);
+}
+
+table.data td.wrap-cell,
+table.data th.wrap-cell { white-space: normal; min-width: 16rem; }
+
+/* -- 14  Code ------------------------------------------------------------ */
+
+.code {
+  border: var(--hairline);
+  border-radius: var(--r-3);
+  background: var(--c-surface-inset);
+  overflow: hidden;
+}
+.code__label {
+  padding: var(--sp-2) var(--sp-4);
+  border-bottom: var(--hairline-soft);
+  background: var(--c-surface);
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-ink-3);
+}
+.code pre {
+  margin: 0;
+  padding: var(--sp-4);
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  line-height: 1.65;
+  color: var(--c-ink);
+  tab-size: 2;
+}
+.code pre:focus-visible { outline: 2px solid var(--c-focus); outline-offset: -2px; }
+.code code { font: inherit; color: inherit; background: none; border: 0; padding: 0; }
+
+/* Minimal, hand-applied highlighting. No highlighter library. */
+.code .c { color: var(--c-ink-4); }              /* comment */
+.code .k { color: var(--c-ink-2); font-weight: 640; } /* keyword */
+.code .s { color: var(--c-accent-text); }        /* string / recovered value */
+
+.code--inline-fill { background: var(--c-surface); }
+
+/* -- 15  Callouts -------------------------------------------------------- */
+
+.callout {
+  border: var(--hairline);
+  border-left: 3px solid var(--c-border-strong);
+  border-radius: var(--r-2);
+  background: var(--c-surface);
+  padding: var(--sp-4);
+  font-size: var(--fs-ui);
+  line-height: 1.6;
+  color: var(--c-ink-2);
+}
+.callout > * + * { margin-top: var(--sp-2); }
+.callout__title {
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-ink-3);
+}
+.callout strong { color: var(--c-ink); }
+
+/* The mandatory-caveat variant. It is the one thing amber may shout. */
+.callout--caveat {
+  border-left-color: var(--c-accent);
+  background: var(--c-accent-soft);
+}
+.callout--caveat .callout__title { color: var(--c-accent-text); }
+
+.callout--loss { border-left-color: var(--c-neg); }
+.callout--note { border-left-color: var(--c-border-strong); }
+
+/* -- 16  Buttons --------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-ui);
+  letter-spacing: 0.02em;
+  line-height: 1;
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--c-ink);
+  border-radius: var(--r-2);
+  background: var(--c-ink);
+  color: var(--c-ink-inverse);
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn:hover { background: var(--c-ink-2); border-color: var(--c-ink-2); }
+
+.btn--ghost {
+  background: transparent;
+  color: var(--c-ink);
+  border-color: var(--c-border-strong);
+}
+.btn--ghost:hover { background: var(--c-surface-2); border-color: var(--c-ink-3); }
+
+.btn--sm { padding: var(--sp-2) var(--sp-3); font-size: var(--fs-xs); }
+
+/* -- 17  Pills / badges -------------------------------------------------- */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  line-height: 1;
+  padding: 0.3em 0.55em;
+  border: var(--hairline);
+  border-radius: var(--r-1);
+  color: var(--c-ink-3);
+  background: var(--c-surface-2);
+  white-space: nowrap;
+}
+.pill--current {
+  color: var(--c-ink);
+  border-color: var(--c-ink-3);
+  background: transparent;
+}
+.pill--superseded {
+  color: var(--c-accent-text);
+  border-color: var(--c-accent-line);
+  background: var(--c-accent-soft);
+}
+.pill--corrected { color: var(--c-neg); border-color: var(--c-neg); background: transparent; }
+.pill--accent { color: var(--c-accent-text); border-color: var(--c-accent-line); }
+
+/* -- 18  Stats ----------------------------------------------------------- */
+
+.stat { border-top: 2px solid var(--c-border-strong); padding-top: var(--sp-3); }
+.stat--accent { border-top-color: var(--c-accent); }
+.stat__value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-2xl);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  display: block;
+}
+.stat__label {
+  display: block;
+  margin-top: var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--c-ink-3);
+  line-height: 1.45;
+}
+
+/* -- 19  Misc ------------------------------------------------------------ */
+
+.dl-axes { margin: 0; }
+.dl-axes dt {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c-ink-3);
+  border-top: var(--hairline);
+  padding-top: var(--sp-2);
+  margin-top: var(--sp-3);
+}
+.dl-axes dd { margin: var(--sp-1) 0 0; color: var(--c-ink-2); }
+
+.list-plain { list-style: none; margin: 0; padding: 0; }
+.list-plain li + li { margin-top: var(--sp-3); }
+
+.todo {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--c-neg);
+  border: 1px dashed var(--c-neg);
+  border-radius: var(--r-1);
+  padding: 0.15em 0.4em;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  .site-header, .site-footer, .nav-toggle, .theme-toggle, .skip-link { display: none; }
+  body { background: #fff; color: #000; }
+}

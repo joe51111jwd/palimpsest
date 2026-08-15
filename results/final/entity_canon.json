@@ -1,0 +1,193 @@
+{
+ "probes": {
+  "probes": [
+   {
+    "probe": "first-person collapses",
+    "pass": false,
+    "detail": [
+     "SPLIT ['user', 'I', 'me', 'myself', 'my'] -> [0, 0, 0, 0, 1]"
+    ],
+    "is_trap": false
+   },
+   {
+    "probe": "name containment merges one person",
+    "pass": true,
+    "detail": [],
+    "is_trap": false
+   },
+   {
+    "probe": "TRAP: two different people sharing a first name",
+    "pass": true,
+    "detail": [],
+    "is_trap": true
+   },
+   {
+    "probe": "TRAP: a shared first name and a bare mention",
+    "pass": true,
+    "detail": [],
+    "is_trap": true
+   },
+   {
+    "probe": "TRAP: relation words are not people",
+    "pass": true,
+    "detail": [],
+    "is_trap": true
+   },
+   {
+    "probe": "TRAP: similar but distinct names",
+    "pass": true,
+    "detail": [],
+    "is_trap": true
+   },
+   {
+    "probe": "TRAP: a person and an organisation",
+    "pass": false,
+    "detail": [
+     "MERGED 'Melanie' with \"Melanie's employer\"",
+     "TRAP FIRED: 'Melanie' == \"Melanie's employer\""
+    ],
+    "is_trap": true
+   },
+   {
+    "probe": "unrelated people stay apart",
+    "pass": true,
+    "detail": [],
+    "is_trap": true
+   }
+  ]
+ },
+ "corpus": {
+  "surface_forms": 325,
+  "canonical_entities": 278,
+  "compression": 1.169064748201439,
+  "merged_clusters": {
+   "user's sister's son": [
+    "user",
+    "user's brother",
+    "user's dad",
+    "user's father",
+    "user's friend",
+    "user's girlfriend",
+    "user's grandma",
+    "user's grandmother",
+    "user's mom",
+    "user's mother",
+    "user's niece",
+    "user's sister",
+    "user's sister's son",
+    "user's student"
+   ],
+   "john abrams": [
+    "John",
+    "John Abrams",
+    "John Smith"
+   ],
+   "maria's cousin": [
+    "Maria",
+    "Maria's cousin"
+   ],
+   "melanie's son": [
+    "Melanie",
+    "Melanie's son"
+   ],
+   "jolene's partner": [
+    "Jolene",
+    "Jolene's partner"
+   ],
+   "james's mother's friend": [
+    "James",
+    "James's mother's friend"
+   ],
+   "deborah's mom": [
+    "Deborah",
+    "Deborah's mom"
+   ],
+   "evan's son": [
+    "Evan",
+    "Evan's son"
+   ],
+   "rachel michelle": [
+    "Rachel",
+    "Rachel Lee",
+    "Rachel Michelle",
+    "Rachel Smith"
+   ],
+   "alex chen": [
+    "Alex",
+    "Alex Chen"
+   ],
+   "emily patel": [
+    "Emily",
+    "Emily Patel"
+   ],
+   "emma taylor": [
+    "Emma",
+    "Emma Taylor"
+   ],
+   "david bowie": [
+    "David",
+    "David Bowie"
+   ],
+   "jack nicklaus": [
+    "Jack",
+    "Jack Nicklaus"
+   ],
+   "liam dawson": [
+    "Liam",
+    "Liam Dawson"
+   ],
+   "a perfect dutchess (us)": [
+    "A",
+    "A Perfect Dutchess (US)",
+    "A. G. M. Michell"
+   ],
+   "jean-michel basquiat": [
+    "Jean",
+    "Jean-Michel Basquiat"
+   ],
+   "jeremy's grandfather": [
+    "Jeremy",
+    "Jeremy's aunt",
+    "Jeremy's father",
+    "Jeremy's grandfather",
+    "Jeremy's mother",
+    "Jeremy's uncle"
+   ],
+   "samuel gordalina": [
+    "Samuel",
+    "Samuel Gordalina"
+   ],
+   "christine chenitz": [
+    "Christine",
+    "Christine Chenitz"
+   ],
+   "thomas raith": [
+    "Thomas",
+    "Thomas Raith"
+   ],
+   "alexander shelstrop": [
+    "Alexander",
+    "Alexander Shelstrop"
+   ],
+   "michael carpenter": [
+    "Michael",
+    "Michael Carpenter"
+   ],
+   "alaric's sister": [
+    "Alaric",
+    "Alaric's father",
+    "Alaric's mother",
+    "Alaric's sister"
+   ],
+   "joy luck club members": [
+    "Joy Luck Club",
+    "Joy Luck Club members"
+   ]
+  },
+  "largest_cluster": 14
+ },
+ "probes_passed": 6,
+ "traps_held": 5,
+ "n_probes": 8,
+ "n_traps": 6
+}

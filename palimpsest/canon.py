@@ -279,6 +279,19 @@ def _role_suffix_conflict(a: str, b: str) -> bool:
     return bool(tail) and any(t in _ROLE_SUFFIXES for t in tail)
 
 
+_POSSESSIVE_RE = re.compile(r"(?:'s\b|s'\b|\bof\b)", re.I)
+
+
+def _is_possessive(name: str) -> bool:
+    """True for "Melanie's son", "user's brother", "father of James".
+
+    A possessive names someone RELATED to the possessor, never the possessor.
+    Treating the two as the same entity merges every relative a person has into
+    that person — measured at 14 people collapsed into one on real data.
+    """
+    return bool(_POSSESSIVE_RE.search(name))
+
+
 def humanize(raw: str) -> str:
     """``lives_in`` -> ``lives in`` — embeddings are trained on prose, not snake_case."""
     return raw.replace("_", " ").replace("-", " ").strip().lower()
@@ -437,7 +450,7 @@ class Canonicalizer:
         "cousin", "nephew", "niece", "doctor", "therapist", "landlord",
     }
 
-    SELF_ALIASES = {"user", "i", "me", "myself", "you", "self"}
+    SELF_ALIASES = {"user", "i", "me", "my", "mine", "myself", "you", "self"}
 
     def __init__(
         self,
@@ -679,24 +692,74 @@ class Canonicalizer:
         return self._mint_entity(low, self.embedder.embed_one(low))
 
     def _name_containment(self, low: str) -> int | None:
-        toks = set(tokens(low))
-        if not toks or low in self.RELATIONAL:
+        """Merge "Maria" into "Maria Santos" — and nothing else.
+
+        Token-subset containment alone is catastrophically wrong, and measuring it
+        on real extractions (``bench/entity_eval.py``) showed exactly how: since
+        {user} is a subset of {user, s, brother}, "user's brother" merged into
+        "user", and then so did "user's dad", "user's grandmother", "user's
+        friend", "user's girlfriend" — **fourteen distinct people collapsed into
+        one entity**, with every fact about them overwriting each other through
+        supersession. Merging two people is the single most destructive thing
+        this module can do, and it was doing it wholesale.
+
+        A possessive names a DIFFERENT person from its possessor. "Melanie's son"
+        is not Melanie; "Jeremy's aunt" is not Jeremy. So containment now merges
+        only when neither side is possessive and the shorter side is a genuine
+        name prefix of the longer — the first-name/full-name case it exists for.
+        """
+        toks = tokens(low)
+        if not toks or low in self.RELATIONAL or _is_possessive(low):
             return None
-        best: tuple[int, int] | None = None
+        # A single token that is one character ("A") is not a name to match on.
+        if len(toks) == 1 and len(toks[0]) < 2:
+            return None
+        tokset = set(toks)
+        candidates: list[int] = []
         for ent in self.entities:
             for alias in ent.aliases:
-                if alias in self.RELATIONAL:
+                if alias in self.RELATIONAL or _is_possessive(alias):
                     continue
-                atoks = set(tokens(alias))
+                atoks = tokens(alias)
                 if not atoks:
                     continue
-                if toks == atoks:
+                aset = set(atoks)
+                if tokset == aset:
                     continue
-                if toks < atoks or atoks < toks:
-                    overlap = len(toks & atoks)
-                    if best is None or overlap > best[1]:
-                        best = (ent.cid, overlap)
-        return best[0] if best else None
+                if not (tokset < aset or aset < tokset):
+                    continue
+                shorter, longer = (toks, atoks) if len(toks) < len(atoks) else (atoks, toks)
+                # Require a real name expansion: the short form must be a PREFIX
+                # of the long one ("maria" -> "maria santos"), not merely
+                # contained anywhere in it.
+                if longer[: len(shorter)] != shorter:
+                    continue
+                # Only a BARE first name may expand. Two multi-token names never
+                # merge into each other: "Rachel Lee" and "Rachel Smith" share a
+                # prefix and are two people.
+                if len(shorter) != 1:
+                    continue
+                # And an entity that already carries a full name will not accept a
+                # DIFFERENT full name. Without this, "Rachel" absorbs "Rachel Lee"
+                # and then stays the unique prefix match for "Rachel Smith" and
+                # "Rachel Michelle", quietly fusing three people one at a time.
+                if len(toks) > 1:
+                    existing_full = [
+                        a for a in ent.aliases
+                        if len(tokens(a)) > 1 and tokens(a) != toks
+                    ]
+                    if existing_full:
+                        continue
+                candidates.append(ent.cid)
+
+        # A bare first name that matches SEVERAL full names is ambiguous, and
+        # merging it into any of them would transitively merge them all — which
+        # is how "Rachel" pulled Rachel Lee, Rachel Michelle and Rachel Smith
+        # into one person on real data. Ambiguous means do not merge.
+        unique = set(candidates)
+        if len(unique) != 1:
+            return None
+        return candidates[0]
 
     def _mint_entity(self, low: str, vec: np.ndarray) -> MergeDecision:
         ce = CanonicalEntity(cid=len(self.entities), name=low)

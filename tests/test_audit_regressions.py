@@ -260,3 +260,58 @@ def test_wilson_interval_matches_reference_values(k, n, lo, hi):
     got_lo, got_hi = _wilson(k, n)
     assert got_lo == pytest.approx(lo, abs=0.02)
     assert got_hi == pytest.approx(hi, abs=0.02)
+
+
+# --------------------------------------------------------------------------- #
+# Entity canonicalization — the destructive half, found by bench/entity_eval.py
+# --------------------------------------------------------------------------- #
+def test_a_possessive_is_a_different_person_from_its_possessor():
+    """Measured on real extractions: token-subset containment merged "user's
+    brother", "user's dad", "user's grandmother", "user's friend" and ten more
+    into a single entity, because {user} is a subset of {user, s, brother}.
+    Fourteen people fused into one, every fact about them overwriting the rest.
+    """
+    canon = Canonicalizer()
+    user = canon.canonicalize_entity("user").canonical_id
+    brother = canon.canonicalize_entity("user's brother").canonical_id
+    dad = canon.canonicalize_entity("user's dad").canonical_id
+    gran = canon.canonicalize_entity("user's grandmother").canonical_id
+
+    assert len({user, brother, dad, gran}) == 4, (
+        "possessive relatives collapsed into their possessor or each other"
+    )
+
+
+def test_a_bare_first_name_expands_to_exactly_one_full_name():
+    canon = Canonicalizer()
+    maria = canon.canonicalize_entity("Maria").canonical_id
+    santos = canon.canonicalize_entity("Maria Santos").canonical_id
+    assert maria == santos, "a first name should join its full name"
+
+
+def test_two_people_sharing_a_first_name_never_fuse():
+    """`Rachel` absorbed `Rachel Lee`, then stayed the unique prefix match for
+    `Rachel Smith` and `Rachel Michelle`, fusing three people one at a time."""
+    canon = Canonicalizer()
+    canon.canonicalize_entity("Rachel")
+    lee = canon.canonicalize_entity("Rachel Lee").canonical_id
+    smith = canon.canonicalize_entity("Rachel Smith").canonical_id
+    michelle = canon.canonicalize_entity("Rachel Michelle").canonical_id
+    assert len({lee, smith, michelle}) == 3, "distinct people merged on a shared first name"
+
+
+def test_facts_about_relatives_stay_separate_end_to_end():
+    """The consequence, through the public API: one person's job must not
+    supersede another's."""
+    mem = Memory(adjudicator=StaticAdjudicator())
+    mem.ingest(
+        [msg(1, "My brother is a chef and my dad is a pilot.", 0)],
+        claims=[
+            Claim(entity="user's brother", predicate="job_title", value="chef",
+                  source_text="My brother is a chef.", source_id="m1"),
+            Claim(entity="user's dad", predicate="job_title", value="pilot",
+                  source_text="My dad is a pilot.", source_id="m1"),
+        ],
+    )
+    values = {f.value for f in mem.facts() if f.is_current}
+    assert values == {"chef", "pilot"}, f"one relative's job overwrote another's: {values}"
