@@ -382,7 +382,7 @@ class HybridRAG:
 
         dense_bytes = self.index.index_bytes()
         vocab_bytes = sum(len(t.encode("utf-8")) + 4 for t in self.index._df)
-        posting_bytes = sum(len(d.tf) * 8 for d in self.index.docs)
+        posting_bytes = sum(d.n_terms * 8 for d in self.index.docs)
         lexical_bytes = vocab_bytes + posting_bytes
 
         return {

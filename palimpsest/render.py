@@ -27,15 +27,41 @@ So the rules now are:
 3. **Per-predicate caps** so one multi-valued predicate cannot flood the block.
 4. **Pack, don't stop.** Skip an oversized excerpt and keep going; unused budget
    is unused evidence.
+
+**v3: dates were shown but never computed with.** Every fact line already
+carried an ISO date and every excerpt line already carried its timestamp, and
+temporal-reasoning was still the worst category in the benchmark for every
+system tested. Showing "2023-02-26" and "2023-03-19" to a model asked how many
+days passed between them is asking it to do calendar subtraction, which it is
+bad at, while the store holds both datetimes and could just subtract them. So
+when — and only when — the question carries temporal intent, a short
+``COMPUTED FROM THE STORED DATES`` block states the span between the oldest and
+newest dated evidence, the chronological extremes, and any duration-valued fact
+carried forward from the day it was stated. See ``palimpsest/temporal.py``.
+
+Two cheaper-looking variants were tried first and both LOST on the proxy, so
+neither is here: tagging every fact line and every excerpt line with its offset
+from the question date. The information is right but the tokens come out of the
+excerpt budget, and one displaced excerpt costs more than the tags gain.
 """
 
 from __future__ import annotations
 
+import os
 import re
 from collections.abc import Sequence
 from datetime import datetime
 from typing import TYPE_CHECKING
 
+from .temporal import (
+    TemporalIntent,
+    advance_duration,
+    day_offset,
+    detect_intent,
+    humanize_days,
+    long_date,
+    parse_duration,
+)
 from .types import Message, RetrievedFact
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -71,6 +97,24 @@ MAX_PER_PREDICATE = 3
 #: A fact must share at least this much lexical signal with the query, unless it
 #: came from an exact interval lookup for a resolved predicate.
 MIN_FACT_RELEVANCE = 0.08
+#: Share of the budget the computed-time block may take, and only on a question
+#: with temporal intent. Every token here is an excerpt not shown, so it is a
+#: slice rather than an open tab.
+TIME_BUDGET_FRACTION = 0.09
+#: Most computed lines emitted at once — enough for a span, the two extremes and
+#: a carried-forward duration, not enough to become the context.
+MAX_TIME_NOTES = 5
+#: Retrieved facts whose dates may define an interval. The span is between the
+#: oldest and newest of these, so a wide pool mostly buys extra chances for a
+#: loosely-matched fact to define an endpoint. Swept over 2..24 on the
+#: LongMemEval temporal proxy: flat at 45-47/127 throughout, so this is picked
+#: on the argument rather than on a peak.
+MAX_DATED_ITEMS = 4
+
+#: ``PALIMPSEST_ABLATE_TEMPORAL=all`` switches the computed-time block off and
+#: reproduces the rendering that preceded it. Kept because every claim made about
+#: that block is a before/after number, and the "before" has to stay runnable.
+_ABLATE = {p.strip() for p in os.environ.get("PALIMPSEST_ABLATE_TEMPORAL", "").split(",") if p.strip()}
 
 _TOKEN_RE = re.compile(r"[a-z0-9']+")
 _STOP = frozenset("""
@@ -139,10 +183,18 @@ def render_context(
     token_budget: int = 1024,
     as_of: datetime | None = None,
     query: str = "",
+    unbounded: bool = False,
 ) -> tuple[str, int]:
     """Build the prompt-ready block. Returns ``(context, n_tokens)``."""
     query = query or (plan.query if plan is not None else "")
     selected = _select_facts(facts, query, plan)
+
+    # Temporal intent is read off the question itself rather than off the plan,
+    # so the renderer stays usable standalone and the two signals stay
+    # independent: `plan.temporal` decides which *slice of time* to retrieve,
+    # this decides whether to do arithmetic on what came back.
+    intent = detect_intent(query)
+    ref = as_of if (intent and as_of is not None and "all" not in _ABLATE) else None
 
     confident = plan is not None and plan.predicate_confidence >= CONFIDENT_RESOLUTION
     fraction = FACT_BUDGET_FRACTION if confident else FACT_BUDGET_FRACTION_UNSURE
@@ -152,6 +204,12 @@ def render_context(
 
     if as_of is not None:
         head = f"[Memory as of {_fmt(as_of)}]"
+        if ref is not None:
+            head = f"[Memory as of {_fmt(as_of)} — the question was asked on {long_date(as_of)}]"
+        if unbounded:
+            # Say it rather than imply it: nothing in the store predates the
+            # question, so what follows is dated after it.
+            head += " (nothing on record before this date; showing later records)"
         sections.append(head)
         used += count_tokens(head)
 
@@ -167,6 +225,21 @@ def render_context(
         used += count_tokens(block)
 
     historical = plan is not None and (plan.temporal or plan.wants_count)
+
+    # On a time question the ledger's own ordering is part of the answer, so the
+    # rows come out oldest-first rather than by relevance score. This is free:
+    # it permutes lines that were being emitted anyway.
+    if ref is not None:
+        current = sorted(current, key=lambda r: r.fact.valid_from)
+
+    # Dated evidence for the computed block. Retrieved facts count whether or
+    # not their line survives the fact budget: a computed line is a two-number
+    # summary of dates the ledger holds, and dropping a date because its prose
+    # row did not fit would make the arithmetic depend on the packer.
+    shown: list[tuple[datetime, str]] = []
+    if ref is not None:
+        for rf in selected[:MAX_DATED_ITEMS]:
+            shown.append((rf.fact.valid_from, f"{_pred(rf.fact.predicate)}: {rf.fact.value}"))
 
     def current_rows() -> list[str]:
         nonlocal used
@@ -224,6 +297,11 @@ def render_context(
     body = "\n\n".join(sections)
     used = count_tokens(body)
 
+    # The computed block is reserved for *before* the excerpts are packed, so a
+    # long excerpt cannot starve the one section that exists to answer the
+    # question being asked.
+    time_reserve = int(token_budget * TIME_BUDGET_FRACTION) if ref is not None else 0
+
     if messages:
         header = "RELEVANT CONVERSATION EXCERPTS:"
         lines = [header]
@@ -231,20 +309,100 @@ def render_context(
         for msg, _ in messages:
             line = f"  [{_fmt(msg.timestamp)}] {msg.speaker}: {msg.text}"
             cost = count_tokens(line)
-            if used + cost > token_budget:
+            if used + cost > token_budget - time_reserve:
                 # Skip this one and try the next: a single long message must not
                 # end the packing loop while budget remains.
                 continue
             lines.append(line)
             used += cost
+            if ref is not None:
+                shown.append((msg.timestamp, _snippet(msg.text)))
         if len(lines) > 1:
             body = (body + "\n\n" + "\n".join(lines)).strip()
+
+    if ref is not None:
+        notes = _time_notes(shown, selected, intent, ref)
+        if notes:
+            block = "\n".join(["COMPUTED FROM THE STORED DATES:", *notes])
+            if count_tokens(body) + count_tokens(block) <= token_budget:
+                body = (body + "\n\n" + block).strip()
 
     total = count_tokens(body)
     if total > token_budget:  # defensive: never exceed, whatever the estimate said
         body = _trim(body, token_budget)
         total = count_tokens(body)
     return body, total
+
+
+def _snippet(text: str, words: int = 9) -> str:
+    parts = text.split()
+    out = " ".join(parts[:words])
+    return out + ("…" if len(parts) > words else "")
+
+
+def _time_notes(
+    shown: Sequence[tuple[datetime, str]],
+    selected: Sequence[RetrievedFact],
+    intent: TemporalIntent,
+    ref: datetime,
+) -> list[str]:
+    """The arithmetic the model would otherwise have to do in its head.
+
+    Every line here is derived only from stored timestamps and the question's
+    own date, and every line says what it is derived from, so a wrong retrieval
+    produces a visibly wrong premise rather than a confident invented answer.
+    """
+    notes: list[str] = []
+    # Evidence dated on the question's own day is almost always the session the
+    # question is embedded in rather than a separate event, and including it
+    # pins one end of every span to "today" — which turned "how long had I been
+    # bird watching when I attended the workshop" (Feb 25 -> Apr 25, two months)
+    # into a three-month span ending at the question. A same-day item still
+    # appears in the excerpt block; it just does not get to define an interval.
+    items = sorted({(d, lbl) for d, lbl in shown if d is not None and d.date() < ref.date()})
+
+    if len(items) >= 2:
+        (d0, l0), (d1, l1) = items[0], items[-1]
+        span = day_offset(d0, d1)
+        if intent.elapsed and span > 0:
+            notes.append(
+                f"  - Oldest dated record retrieved is {_fmt(d0)}, newest is {_fmt(d1)}: "
+                f"{humanize_days(span)} apart. Relative to the question they are "
+                f"{humanize_days(day_offset(d0, ref))} and "
+                f"{humanize_days(day_offset(d1, ref))} earlier."
+            )
+        if intent.order:
+            notes.append(
+                f"  - In date order, oldest first: {_fmt(d0)} ({l0}) … "
+                f"{_fmt(d1)} ({l1})."
+            )
+
+    seen_dur = 0
+    for rf in selected:
+        if seen_dur >= 2:
+            break
+        days = parse_duration(rf.fact.value)
+        if days is None:
+            continue
+        advanced = advance_duration(days, rf.fact.valid_from, ref)
+        if advanced is None:
+            continue
+        seen_dur += 1
+        notes.append(
+            f'  - "{rf.fact.value}" ({_pred(rf.fact.predicate)}) was stated on '
+            f"{_fmt(rf.fact.valid_from)}, "
+            f"{humanize_days(day_offset(rf.fact.valid_from, ref))} before the question; "
+            f"counting forward from that date it is {advanced} by the question date."
+        )
+
+    if intent.date and selected:
+        f = selected[0].fact
+        notes.append(
+            f"  - Date on record for {_pred(f.predicate)} ({f.value}): "
+            f"{long_date(f.valid_from)}."
+        )
+
+    return notes[:MAX_TIME_NOTES]
 
 
 def _trim(text: str, budget: int) -> str:

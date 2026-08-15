@@ -164,6 +164,10 @@ class SQLiteStore:
         canon.predicates.clear()
         canon._ent_alias.clear()
         canon._pred_alias.clear()
+        canon._ent_by_token.clear()
+        canon._ent_untokenized.clear()
+        canon._pred_matrix_cache = None
+        canon._pred_matrix_n = -1
 
         for row in cur.execute("SELECT * FROM entities ORDER BY id"):
             ent = CanonicalEntity(cid=row["id"], name=row["name"])
@@ -171,6 +175,7 @@ class SQLiteStore:
             canon.entities.append(ent)
             for alias in ent.aliases:
                 canon._ent_alias[alias] = ent.cid
+                canon._register_alias(alias, ent.cid)
 
         for row in cur.execute("SELECT * FROM predicates ORDER BY id"):
             pred = CanonicalPredicate(cid=row["id"], name=row["name"])
@@ -183,6 +188,10 @@ class SQLiteStore:
         ledger = memory.ledger
         ledger.atoms.clear()
         ledger._chains.clear()
+        ledger._keys_by_entity.clear()
+        ledger._sourced_by_predicate.clear()
+        ledger._atoms_by_source.clear()
+        ledger.max_valid_from = None
         for row in cur.execute("SELECT * FROM atoms ORDER BY id"):
             atom = Atom(
                 idx=row["id"],
@@ -204,7 +213,7 @@ class SQLiteStore:
                 predecessor=row["predecessor"],
             )
             ledger.atoms.append(atom)
-            ledger._chains.setdefault(atom.key, _new_chain()).add(atom.valid_from, atom.idx)
+            ledger._register_atom(atom)
 
         for row in cur.execute("SELECT * FROM messages ORDER BY timestamp"):
             msg = Message(
@@ -224,7 +233,3 @@ class SQLiteStore:
         self.conn.close()
 
 
-def _new_chain():
-    from .ledger import _Chain
-
-    return _Chain()

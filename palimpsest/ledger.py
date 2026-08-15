@@ -29,7 +29,8 @@ same way.
 
 from __future__ import annotations
 
-from bisect import insort
+import sys
+from bisect import bisect_right, insort
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -43,12 +44,21 @@ class _Chain:
     """All atoms for one (entity, predicate) key, kept sorted by valid_from."""
 
     order: list[tuple[datetime, int]] = field(default_factory=list)
+    #: value id -> atom indices carrying it, so "have we already stored this
+    #: value?" does not walk the whole chain on every multi-valued write
+    by_value: dict[int, list[int]] = field(default_factory=dict)
 
-    def add(self, valid_from: datetime, idx: int) -> None:
+    def add(self, valid_from: datetime, idx: int, value_id: int | None = None) -> None:
         insort(self.order, (valid_from, idx))
+        if value_id is not None:
+            self.by_value.setdefault(value_id, []).append(idx)
 
     def indices(self) -> list[int]:
         return [idx for _, idx in self.order]
+
+    def position_after(self, valid_from: datetime) -> int:
+        """Index of the first entry strictly later than ``valid_from``."""
+        return bisect_right(self.order, (valid_from, sys.maxsize))
 
 
 class Ledger:
@@ -58,6 +68,16 @@ class Ledger:
         self.canon = canonicalizer or Canonicalizer()
         self.atoms: list[Atom] = []
         self._chains: dict[tuple[int, int], _Chain] = {}
+        #: entity id -> its keys, so the graph tier does not scan every chain
+        self._keys_by_entity: dict[int, list[tuple[int, int]]] = {}
+        #: predicate id -> indices of source-bearing atoms, so ``stale_sources``
+        #: does not scan the whole ledger for a query about three predicates
+        self._sourced_by_predicate: dict[int, list[int]] = {}
+        #: source message id -> the atoms extracted from it, which turns "is this
+        #: excerpt stale?" into a lookup instead of a scan
+        self._atoms_by_source: dict[str, list[int]] = {}
+        #: latest valid_from seen, maintained on write instead of recomputed
+        self.max_valid_from: datetime | None = None
         self._value_ids: dict[str, int] = {}
         #: per-key cardinality votes and the decision derived from them
         self._cardinality_votes: dict[tuple[int, int], dict[str, int]] = {}
@@ -94,7 +114,7 @@ class Ledger:
             self.stats["retracted"] += 1
             return None
 
-        chain = self._chains.setdefault(key, _Chain())
+        chain = self._chain_for(key)
         value_id = self._value_id(claim.value)
 
         # Cardinality belongs to the KEY, not to the claim.
@@ -136,6 +156,22 @@ class Ledger:
             return None
 
         return self._insert(key, claim, value_id, valid_from, tx_time, value_type, "single")
+
+    def _chain_for(self, key: tuple[int, int]) -> _Chain:
+        chain = self._chains.get(key)
+        if chain is None:
+            chain = self._chains[key] = _Chain()
+            self._keys_by_entity.setdefault(key[0], []).append(key)
+        return chain
+
+    def _register_atom(self, atom: Atom) -> None:
+        """Index a freshly appended atom. Every write path goes through here."""
+        self._chain_for(atom.key).add(atom.valid_from, atom.idx, atom.value_id)
+        if atom.source_id:
+            self._sourced_by_predicate.setdefault(atom.predicate_id, []).append(atom.idx)
+            self._atoms_by_source.setdefault(atom.source_id, []).append(atom.idx)
+        if self.max_valid_from is None or atom.valid_from > self.max_valid_from:
+            self.max_valid_from = atom.valid_from
 
     def effective_cardinality(self, key: tuple[int, int]) -> Cardinality:
         votes = self._cardinality_votes.get(key)
@@ -184,7 +220,6 @@ class Ledger:
         value_type,
         cardinality: Cardinality,
     ) -> Atom:
-        chain = self._chains.setdefault(key, _Chain())
         atom = Atom(
             idx=len(self.atoms),
             entity_id=key[0],
@@ -204,7 +239,7 @@ class Ledger:
             confidence=claim.confidence,
         )
         self.atoms.append(atom)
-        chain.add(valid_from, atom.idx)
+        self._register_atom(atom)
         self.stats["created"] += 1
 
         if cardinality == "single":
@@ -216,22 +251,33 @@ class Ledger:
 
         Handles the in-order case (close the previous head) and the retroactive
         case (splice into the middle of an existing chain) with the same code.
+
+        Found by binary search rather than by scanning the chain: the chain is
+        already sorted by ``(valid_from, idx)``, so the neighbours are the first
+        believed atom on either side of the ``valid_from`` block this atom joins.
+        A scan made every write O(chain), and a long-lived attribute — a store
+        that has watched one person move house for ten years — is exactly where
+        that bites.
         """
         chain = self._chains[key]
-        believed = [
-            self.atoms[i]
-            for i in chain.indices()
-            if self.atoms[i].is_believed and self.atoms[i].idx != atom.idx
-        ]
+        order = chain.order
+        after = chain.position_after(atom.valid_from)
+
         prev = None
+        for i in range(after - 1, -1, -1):
+            other = self.atoms[order[i][1]]
+            if other.idx == atom.idx or not other.is_believed:
+                continue
+            prev = other
+            break
+
         nxt = None
-        for other in believed:
-            if other.valid_from <= atom.valid_from:
-                if prev is None or other.valid_from >= prev.valid_from:
-                    prev = other
-            else:
-                if nxt is None or other.valid_from < nxt.valid_from:
-                    nxt = other
+        for i in range(after, len(order)):
+            other = self.atoms[order[i][1]]
+            if other.idx == atom.idx or not other.is_believed:
+                continue
+            nxt = other
+            break
 
         if prev is not None:
             if prev.valid_from == atom.valid_from:
@@ -273,11 +319,9 @@ class Ledger:
             # cannot match must retract nothing rather than everything.
             self.stats["retract_unmatched"] = self.stats.get("retract_unmatched", 0) + 1
             return
-        for idx in chain.indices():
+        for idx in chain.by_value.get(value_id, ()):
             atom = self.atoms[idx]
             if not atom.is_believed or not atom.is_open:
-                continue
-            if atom.value_id != value_id:
                 continue
             atom.valid_to = when
             atom.closed_tx = when
@@ -345,7 +389,10 @@ class Ledger:
         if chain is None:
             return []
         out = []
-        for i in chain.indices():
+        # Nothing that starts after ``when`` can be valid at it, and the chain is
+        # sorted by valid_from — so a decade of an attribute's future history is
+        # skipped rather than tested atom by atom.
+        for _, i in chain.order[: chain.position_after(when)]:
             atom = self.atoms[i]
             if not atom.is_believed or not atom.valid_at(when, known_at):
                 continue
@@ -358,11 +405,18 @@ class Ledger:
         chain = self._chains.get((entity_id, predicate_id))
         if chain is None:
             return []
-        out = [self.atoms[i] for i in chain.indices()]
+        out = [self.atoms[i] for _, i in chain.order]
         return [a for a in out if a.is_believed] if believed_only else out
 
-    def keys_for_entity(self, entity_id: int) -> list[tuple[int, int]]:
-        return [k for k in self._chains if k[0] == entity_id]
+    def keys_for_entity(self, entity_id: int) -> tuple[tuple[int, int], ...]:
+        """A snapshot, not the ledger's live list.
+
+        Returning the internal list made every caller a latent aliasing bug: the
+        retriever iterates this while the walk it feeds can, in principle, record
+        new atoms, and a caller that appended to what it got back would be
+        mutating the entity index in place.
+        """
+        return tuple(self._keys_by_entity.get(entity_id, ()))
 
     def stale_sources(
         self,
@@ -382,23 +436,63 @@ class Ledger:
 
         Restricted to ``predicate_ids`` when the query resolved to specific
         attributes, so a stale employer mention does not suppress an excerpt that
-        was retrieved for some unrelated detail.
+        was retrieved for some unrelated detail. That restriction is also what
+        keeps this off the critical path as the ledger grows: with a predicate
+        filter it visits the atoms on those predicates, not every atom ever
+        written.
         """
         wanted = set(predicate_ids) if predicate_ids else None
+        if wanted is None:
+            candidates = self.atoms
+        else:
+            candidates = [
+                self.atoms[i]
+                for pred in wanted
+                for i in self._sourced_by_predicate.get(pred, ())
+            ]
         out: set[str] = set()
-        for atom in self.atoms:
-            if not atom.source_id or not atom.is_believed:
-                continue
-            if atom.valid_at(when, known_at):
-                continue
-            if known_at is not None and atom.tx_from is not None and atom.tx_from > known_at:
-                # We had not learned this supersession yet, so it cannot be used
-                # to suppress evidence at this point in time.
-                continue
-            if wanted is not None and atom.predicate_id not in wanted:
-                continue
-            out.add(atom.source_id)
+        for atom in candidates:
+            if self._is_stale(atom, when, wanted, known_at):
+                out.add(atom.source_id)
         return out
+
+    def _is_stale(
+        self,
+        atom: Atom,
+        when: datetime,
+        wanted: set[int] | None,
+        known_at: datetime | None,
+    ) -> bool:
+        if not atom.source_id or not atom.is_believed:
+            return False
+        if atom.valid_at(when, known_at):
+            return False
+        if known_at is not None and atom.tx_from is not None and atom.tx_from > known_at:
+            # We had not learned this supersession yet, so it cannot be used to
+            # suppress evidence at this point in time.
+            return False
+        return wanted is None or atom.predicate_id in wanted
+
+    def is_stale_source(
+        self,
+        source_id: str,
+        when: datetime,
+        *,
+        predicate_ids: Sequence[int] | None = None,
+        known_at: datetime | None = None,
+    ) -> bool:
+        """Has this one message been overtaken? Same test as ``stale_sources``.
+
+        Retrieval only ever asks about the few dozen excerpts it is considering,
+        so asking per excerpt costs O(atoms extracted from that message) instead
+        of building the whole stale set, which is O(atoms on the predicate) and
+        grows without bound as an attribute accumulates history.
+        """
+        idxs = self._atoms_by_source.get(source_id)
+        if not idxs:
+            return False
+        wanted = set(predicate_ids) if predicate_ids else None
+        return any(self._is_stale(self.atoms[i], when, wanted, known_at) for i in idxs)
 
     def all_current(self, when: datetime | None = None) -> list[Atom]:
         out: list[Atom] = []
@@ -443,10 +537,7 @@ class Ledger:
         return None
 
     def _has_value(self, chain: _Chain, value_id: int) -> bool:
-        return any(
-            self.atoms[i].value_id == value_id and self.atoms[i].is_believed
-            for i in chain.indices()
-        )
+        return any(self.atoms[i].is_believed for i in chain.by_value.get(value_id, ()))
 
     def _value_id(self, value: str) -> int:
         low = value.lower()

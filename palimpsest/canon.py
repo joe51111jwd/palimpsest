@@ -473,6 +473,14 @@ class Canonicalizer:
         self.entities: list[CanonicalEntity] = []
         self._pred_alias: dict[str, int] = {}
         self._ent_alias: dict[str, int] = {}
+        #: alias token -> entity ids, so resolving a question against the entity
+        #: vocabulary does not scan every alias of every entity
+        self._ent_by_token: dict[str, set[int]] = {}
+        self._ent_untokenized: set[int] = set()
+        #: cached name-centroid matrix; name centroids are fixed once observed,
+        #: so this only has to be rebuilt when a predicate is minted
+        self._pred_matrix_cache: np.ndarray | None = None
+        self._pred_matrix_n: int = -1
         #: relation surface ("sister") -> canonical entity id, learned from
         #: "my sister Maria" style bindings.
         self._relation_binding: dict[str, int] = {}
@@ -652,20 +660,20 @@ class Canonicalizer:
             # "my sister" -> whoever sister is bound to, else a relation entity.
             bound = self._relation_binding.get(stripped)
             if bound is not None:
-                self.entities[bound].observe(stripped, self.embedder.embed_one(stripped))
+                self._observe_entity(self.entities[bound], stripped, self.embedder.embed_one(stripped))
                 return MergeDecision(canonical_id=bound, minted=False, matched=stripped)
             low, surface = stripped, stripped
 
         hit = self._ent_alias.get(low)
         if hit is not None:
-            self.entities[hit].observe(low, self.embedder.embed_one(low))
+            self._observe_entity(self.entities[hit], low, self.embedder.embed_one(low))
             return MergeDecision(canonical_id=hit, minted=False, similarity=1.0, matched=low)
 
         # Name-containment: "Maria" and "Maria Santos" are the same person when
         # one is a token-subset of the other and both look like names.
         contained = self._name_containment(low)
         if contained is not None:
-            self.entities[contained].observe(low, self.embedder.embed_one(low))
+            self._observe_entity(self.entities[contained], low, self.embedder.embed_one(low))
             self._ent_alias[low] = contained
             return MergeDecision(canonical_id=contained, minted=False, similarity=1.0)
 
@@ -678,7 +686,7 @@ class Canonicalizer:
                 if low not in self.RELATIONAL and not any(
                     a in self.RELATIONAL for a in self.entities[idx].aliases
                 ):
-                    self.entities[idx].observe(low, vec)
+                    self._observe_entity(self.entities[idx], low, vec)
                     self._ent_alias[low] = self.entities[idx].cid
                     return MergeDecision(
                         canonical_id=self.entities[idx].cid, minted=False, similarity=sim
@@ -690,6 +698,54 @@ class Canonicalizer:
         if hit is not None:
             return MergeDecision(canonical_id=hit, minted=False, similarity=1.0)
         return self._mint_entity(low, self.embedder.embed_one(low))
+
+    def _observe_entity(self, ent: CanonicalEntity, raw: str, vec: np.ndarray) -> None:
+        ent.observe(raw, vec)
+        self._register_alias(raw, ent.cid)
+
+    def _register_alias(self, alias: str, cid: int) -> None:
+        """Index an entity surface form by its tokens.
+
+        Both alias uses — "does this question name an entity?" and name
+        containment ("Maria" vs "Maria Santos") — require the candidate to share
+        a token with the probe. Without this index both are a scan over every
+        alias of every entity, which is O(entities) per query and O(entities^2)
+        over an ingest.
+        """
+        toks = tokens(alias)
+        if not toks:
+            # No word tokens to index on (punctuation-only or non-latin script):
+            # keep it on a small always-checked list rather than lose the match.
+            self._ent_untokenized.add(cid)
+            return
+        for tok in toks:
+            bucket = self._ent_by_token.get(tok)
+            if bucket is None:
+                self._ent_by_token[tok] = {cid}
+            else:
+                bucket.add(cid)
+
+    def entity_candidates(self, text: str) -> list[int]:
+        """Entity ids whose aliases share a word with ``text``.
+
+        A superset of the entities that can possibly match — the caller still
+        confirms with a word-boundary search — returned in canonical-id order so
+        callers see the same sequence a full scan would give.
+
+        The text is tokenized here, with the same function that indexed the
+        aliases, deliberately: a caller that tokenized the question itself got
+        this subtly wrong (an apostrophe-keeping split makes "Caroline's" a
+        token that never equals the alias "caroline", so a fifth of LoCoMo's
+        questions silently stopped resolving their entity). One tokenizer, one
+        place.
+        """
+        cids: set[int] = set(self._ent_untokenized)
+        by_token = self._ent_by_token
+        for tok in set(tokens(text)):
+            bucket = by_token.get(tok)
+            if bucket:
+                cids |= bucket
+        return sorted(cids)
 
     def _name_containment(self, low: str) -> int | None:
         """Merge "Maria" into "Maria Santos" — and nothing else.
@@ -716,7 +772,11 @@ class Canonicalizer:
             return None
         tokset = set(toks)
         candidates: list[int] = []
-        for ent in self.entities:
+        # Containment in either direction implies a shared token, so the inverted
+        # index is a safe superset of the old full scan — same answer, without
+        # walking every entity on every resolve.
+        for cid in self.entity_candidates(low):
+            ent = self.entities[cid]
             for alias in ent.aliases:
                 if alias in self.RELATIONAL or _is_possessive(alias):
                     continue
@@ -764,6 +824,7 @@ class Canonicalizer:
     def _mint_entity(self, low: str, vec: np.ndarray) -> MergeDecision:
         ce = CanonicalEntity(cid=len(self.entities), name=low)
         ce.observe(low, vec)
+        self._register_alias(low, ce.cid)
         self.entities.append(ce)
         self._ent_alias[low] = ce.cid
         return MergeDecision(canonical_id=ce.cid, minted=True)
@@ -781,6 +842,7 @@ class Canonicalizer:
         self._relation_binding[relation] = decision.canonical_id
         self._ent_alias[relation] = decision.canonical_id
         self.entities[decision.canonical_id].aliases.add(relation)
+        self._register_alias(relation, decision.canonical_id)
 
     # ------------------------------------------------------------------ #
     # lookup helpers (used by retrieval)
@@ -791,9 +853,17 @@ class Canonicalizer:
         Query resolution defaults to names: a user asking "where do I work?" is
         naming an attribute, and matching that against a profile dominated by
         values ("employer: Globex, Pied Piper") measurably fails to resolve.
+
+        The ``by_name`` matrix is cached: a name centroid is written once, when
+        the predicate is first observed, and never moves after that — so the only
+        thing that can invalidate it is a newly minted predicate. Rebuilding it
+        per query put an O(predicates * dim) stack on every retrieval.
         """
         if not self.predicates:
             return np.zeros((0, self.embedder.dim), dtype=np.float32)
+        if by_name and self._pred_matrix_n == len(self.predicates):
+            assert self._pred_matrix_cache is not None
+            return self._pred_matrix_cache
         zero = np.zeros(self.embedder.dim, dtype=np.float32)
         rows = []
         for p in self.predicates:
@@ -802,7 +872,11 @@ class Canonicalizer:
             else:
                 vec = p.centroid
             rows.append(vec if vec is not None else zero)
-        return np.stack(rows).astype(np.float32)
+        matrix = np.stack(rows).astype(np.float32)
+        if by_name and all(p.name_centroid is not None for p in self.predicates):
+            self._pred_matrix_cache = matrix
+            self._pred_matrix_n = len(self.predicates)
+        return matrix
 
     def entity_matrix(self) -> np.ndarray:
         if not self.entities:
@@ -821,6 +895,32 @@ class Canonicalizer:
 
     def lookup_entity(self, raw: str) -> int | None:
         return self._ent_alias.get(raw.strip().lower())
+
+    def entities_in(self, text: str, *, max_gram: int = 3, min_len: int = 3) -> list[int]:
+        """Canonical entities *named inside* a piece of text.
+
+        A fact's VALUE is frequently another node: "sister -> Maria", "employer
+        -> Pied Piper". Resolving those turns a flat attribute list into an
+        actual graph, which is what makes the second hop of a multi-hop question
+        reachable at all. Matching is whole-token n-gram against the alias table,
+        so it is exact rather than similarity-based — a wrong entity link is far
+        more expensive than a missed one.
+        """
+        toks = tokens(text)
+        if not toks:
+            return []
+        out: list[int] = []
+        seen: set[int] = set()
+        for n in range(min(max_gram, len(toks)), 0, -1):
+            for i in range(len(toks) - n + 1):
+                gram = " ".join(toks[i : i + n])
+                if len(gram) < min_len:
+                    continue
+                cid = self._ent_alias.get(gram)
+                if cid is not None and cid not in seen:
+                    seen.add(cid)
+                    out.append(cid)
+        return out
 
     @staticmethod
     def _ranked(vec: np.ndarray, centroids: list[np.ndarray | None]) -> list[tuple[int, float]]:

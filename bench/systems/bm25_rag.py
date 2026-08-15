@@ -366,7 +366,7 @@ class BM25RAG:
         would this cost on disk" measure used for a dense matrix's ``nbytes``.
         """
         df = self._index._df
-        n_postings = sum(len(doc.tf) for doc in self._index.docs)
+        n_postings = sum(doc.n_terms for doc in self._index.docs)
         vocab_bytes = sum(len(term.encode("utf-8")) + 4 for term in df)
         index_bytes = vocab_bytes + n_postings * 8 + len(self._index.docs) * 4
         return {
