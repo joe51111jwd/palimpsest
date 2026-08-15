@@ -175,6 +175,12 @@ def run(
         print(f"  prefetched {pf['claims']} claims from {pf['windows']} windows; "
               f"{pf.get('empty_episodes', 0)} episodes still empty")
 
+    # Episodes whose extraction came back partial. Every system in the run is
+    # handed the same partial claims, so the comparison stays fair — but the
+    # absolute number is measured on incomplete memory, and a result that does
+    # not say so is not reportable.
+    degraded_eps: list[str] = list(pf.get("degraded_episodes", []))
+
     records: list[QARecord] = []
     rng = random.Random(0)
     sys_stats: dict[str, dict] = defaultdict(dict)
@@ -202,8 +208,11 @@ def run(
         qa = _stratified(pool, max_questions, rng)
 
         claims, xstats = extract_episode(ep.episode_id, ep.messages, client, model=model)
+        if xstats.get("degraded"):
+            degraded_eps.append(ep.episode_id)
         print(f"  {ep.episode_id}: {len(ep.messages)} msgs, {len(qa)} q, "
-              f"{len(claims)} claims{'' if xstats.get('cached') else ' (fresh)'}")
+              f"{len(claims)} claims{'' if xstats.get('cached') else ' (fresh)'}"
+              f"{' [DEGRADED]' if xstats.get('degraded') else ''}")
 
         for name, cls in built:
             system = cls()
@@ -261,6 +270,11 @@ def run(
         judge_prompt="mem0-standard-unmodified",
         wall_s=time.time() - t_start,
     )
+    report["degraded_episodes"] = sorted(set(degraded_eps))
+    if degraded_eps:
+        print(f"\n  !! {len(set(degraded_eps))} episodes were measured on PARTIAL memory "
+              f"(extraction windows failed). Re-run to fill them before publishing.")
+
     path = Path(out_path) if out_path else RESULTS_DIR / f"{dataset}_{int(time.time())}.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(

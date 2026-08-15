@@ -25,6 +25,27 @@ from palimpsest.types import Claim, Message
 
 CACHE_DIR = Path(__file__).parent.parent / "data" / "claims_cache"
 
+#: Fraction of an episode's windows that may fail before the extraction is
+#: considered degraded and refused the cache. A failed window loses ~12 messages
+#: of facts outright, so this is deliberately tight.
+MAX_WINDOW_FAILURE_RATE = 0.10
+
+
+def _degraded(windows: int, failures: int) -> bool:
+    """Did enough windows fail that this extraction is not the episode?
+
+    The empty-extraction guard below stops one step short of the real failure
+    mode. Under LLM saturation an episode rarely returns *zero* claims — it
+    returns almost zero, because a handful of windows survived. `if claims:` is
+    truthiness, so 2 claims from a 474-message haystack passes the guard and is
+    written to disk forever. Two such episodes were found in a 282-episode run
+    (2 and 16 claims against a mean of 231), sitting in the cache looking exactly
+    like conversations that happened to state very little.
+    """
+    if windows <= 0:
+        return False
+    return failures > max(1, int(MAX_WINDOW_FAILURE_RATE * windows))
+
 
 def content_fingerprint(messages: Sequence[Message]) -> str:
     """Stable digest of the exact messages an episode contains.
@@ -133,24 +154,41 @@ def prefetch_episodes(
 
     n_claims = 0
     empty = 0
+    degraded: list[str] = []
     for ep, ex, wins, lo, hi in plans:
         # Replay the pre-fetched payloads. round_size is widened to cover the
         # whole episode so extract_many makes exactly one _complete call and the
         # slice lines up with its windows.
         ex.round_size = max(1, len(wins))
-        ex._complete = lambda ps, _p=payloads[lo:hi]: _p
+        mine = payloads[lo:hi]
+        ex._complete = lambda ps, _p=mine: _p
         claims = ex.extract_many(ep.messages)
+
+        # A prefetch spanning 20k windows runs for hours, and a rate limit
+        # partway through takes out a contiguous span of them. Those windows come
+        # back None, and the episodes they belong to would otherwise be cached
+        # as permanently fact-poor. Leave them uncached so the per-episode pass
+        # re-extracts them.
+        failures = sum(1 for p in mine if p is None)
+        if _degraded(len(mine), failures):
+            degraded.append(ep.episode_id)
+            print(f"    [degraded] {ep.episode_id}: {failures}/{len(mine)} windows failed, "
+                  f"{len(claims)} claims — not cached")
+            continue
         if claims:
             save_cached(ep.episode_id, claims, window=window, overlap=overlap,
                         model=model, fingerprint=content_fingerprint(ep.messages))
             n_claims += len(claims)
         else:
             empty += 1
+    if degraded:
+        print(f"  prefetch: {len(degraded)} degraded episodes left uncached")
     return {
         "episodes": len(todo),
         "windows": len(prompts),
         "claims": n_claims,
         "empty_episodes": empty,
+        "degraded_episodes": degraded,
     }
 
 
@@ -167,7 +205,7 @@ def extract_episode(
 ) -> tuple[list[Claim], dict]:
     """Return (claims, stats). Uses the disk cache unless ``force``.
 
-    **An empty extraction is never cached.** This cost a whole benchmark run
+    **A degraded extraction is never cached.** This cost a whole benchmark run
     once: under LLM saturation some windows time out and return None, the
     episode yields zero claims, and the empty list gets written to disk — where
     every later run loads it as a legitimate cached result. 20 of 81 episodes
@@ -176,9 +214,15 @@ def extract_episode(
     where a quarter of the episodes have no memory at all is not a measurement
     of the memory system.
 
-    So: retry the whole episode while it comes back empty, and if it is still
-    empty after ``max_attempts``, return it WITHOUT caching so the next run tries
-    again rather than inheriting the failure.
+    Guarding on emptiness alone turned out to be the wrong line, though —
+    saturation usually leaves a few windows alive, so the episode returns *almost*
+    nothing and sails past a truthiness check. The real signal is the share of
+    windows that failed, which is what is checked here.
+
+    So: retry the whole episode while it comes back degraded, and if it still is
+    after ``max_attempts``, return the claims so the run can proceed but do NOT
+    cache them, and say so in the stats — a caller that reports a number must be
+    able to say which episodes were measured on partial memory.
     """
     fingerprint = content_fingerprint(messages)
     if not force:
@@ -194,20 +238,24 @@ def extract_episode(
 
     stats: dict = {}
     claims: list[Claim] = []
+    bad = True
     for attempt in range(1, max_attempts + 1):
         extractor = LLMExtractor(complete_json_many, window_size=window, overlap=overlap)
         claims = extractor.extract_many(messages)
         stats = {"cached": False, "claims": len(claims), "attempts": attempt, **extractor.stats}
-        if claims:
+        bad = not claims or _degraded(extractor.stats["windows"],
+                                      extractor.stats["parse_failures"])
+        if not bad:
             break
         if messages:
-            print(f"    [retry {attempt}/{max_attempts}] {episode_id}: 0 claims from "
+            print(f"    [retry {attempt}/{max_attempts}] {episode_id}: {len(claims)} claims from "
                   f"{extractor.stats['windows']} windows, "
                   f"{extractor.stats['parse_failures']} parse failures")
 
-    if claims:
+    if not bad:
         save_cached(episode_id, claims, window=window, overlap=overlap, model=model,
                     fingerprint=fingerprint)
     else:
-        stats["uncached_empty"] = True
+        stats["degraded"] = True
+        stats["uncached_empty"] = not claims
     return claims, stats
