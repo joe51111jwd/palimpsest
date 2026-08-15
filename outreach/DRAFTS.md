@@ -32,6 +32,7 @@ Ground rules baked into every draft, do not edit them out:
 
 | # | Person | Route | Why them | The one ask |
 |---|---|---|---|---|
+| **0** | **Agent Memory Leaderboard (AML)** | `contact@agentmemories.ai` (listed on their site) | **SEND FIRST.** They run the only live public leaderboard for agent memory, and its suite already includes `longmemeval-s` and `locomo-refined`. Round 1 closed 2026-08-07; whether a submission now is evaluated or queues is unverified, and the answer decides whether to spend on a full extraction run | Is the academic board evaluating requests now, or queuing for a round 2? |
 | 1 | **Di Wu** (UCLA, LongMemEval author) | `xiaowu200031@gmail.com` | He deprecated the dataset version most vendors still report on; his issue tracker is full of incomparable claimed scores | Name the file third parties should run (cleaned vs. V2) |
 | 2 | **Shuai Wang** (ielab, UQ) | `shuai.wang2@uq.edu.au`, cc Zuccon / Koopman / Zhou | Reproducing LightMem found retriever sensitivity; this harness holds extraction fixed instead | Is there a design choice that disqualifies it as a reproduction substrate? |
 | 3 | **Guido Zuccon** (ielab lead) | `g.zuccon@uq.edu.au` | **FALLBACK for #2 only** — do not send both at once | Would ielab want a third-party harness as an artifact? |
@@ -46,6 +47,48 @@ Sending order and spacing are in `SENDING_CHECKLIST.md`. #3 is conditional. #8 a
 are not email and are shorter by necessity.
 
 ---
+
+## 0. Agent Memory Leaderboard — `contact@agentmemories.ai`
+
+**Subject:** Academic board — evaluated now, or queued for round 2?
+
+> Hi,
+>
+> I've built an open-source memory engine and I'd like to submit it to the academic
+> board. One thing I couldn't answer from the docs or the issue tracker first: round 1
+> closed on 7 August, so is the academic board evaluating new requests now, or queuing
+> them for a second cycle?
+>
+> I ask because the write path costs API calls I pay for myself, so I'd rather run
+> against a live cycle than into a queue.
+>
+> The system is Palimpsest (github.com/joe51111jwd/palimpsest, Apache-2.0). It stores
+> facts as interval-keyed claims, so a new value closes the previous one rather than
+> sitting beside it — Search returns records labelled with whether they are still true
+> and when they stopped being true. Add/Search are implemented against your API guide,
+> with tests for the synchronous-write and sample-isolation requirements.
+>
+> One disclosure up front, because it changes how a result should be read: on the Docker
+> route the container has no LLM available, which leaves the fact ledger empty and
+> reduces the system to plain hybrid retrieval. If I submit that way I'd want it labelled
+> as the reduced configuration rather than as the engine.
+>
+> I'm a high-school student working on this alone, so I'd rather ask than waste a cycle.
+>
+> Thanks,
+> James
+
+**Why this goes first.** Every other decision depends on the answer — whether to spend on
+a full extraction run, whether to host or ship an image, when to publish. It is one
+question and it is cheap for them to answer.
+
+**Before sending:** confirm `contact@agentmemories.ai` is still the address listed at
+agentmemories.ai (it was on 2026-08-14), and check whether AML GitHub issue #5
+("agent memory challenge 2nd?") has been answered since — if it has, read that first and
+skip this email if it already resolves the question.
+
+---
+
 
 ## 1. Di Wu — `xiaowu200031@gmail.com`
 

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About — Palimpsest</title>
+<meta name="description" content="Who built Palimpsest, what state it is in, and what the site does with numbers. One person, a high-school sophomore in Las Vegas, working in the open under Apache-2.0.">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header" data-nav="closed">
+  <div class="wrap site-header__inner">
+    <a class="brand" href="index.html">
+      <span class="brand__name">Palimpsest</span>
+      <span class="brand__note">bitemporal claim-interval memory</span>
+    </a>
+
+    <nav class="nav" aria-label="Primary">
+      <ul class="nav-list">
+        <li><a href="how-it-works.html">How it works</a></li>
+        <li><a href="benchmarks/index.html">Benchmarks</a></li>
+        <li><a href="leaderboard/index.html">Leaderboard</a></li>
+        <li><a href="field.html">The field</a></li>
+        <li><a href="audit/index.html">Audit</a></li>
+        <li><a href="docs/index.html">Docs</a></li>
+        <li><a href="https://github.com/joe51111jwd/palimpsest">GitHub</a></li>
+      </ul>
+    </nav>
+
+    <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false">Menu</button>
+    <button class="theme-toggle" type="button" data-theme-toggle>Dark</button>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">About</p>
+      <h1 class="hero__title">A high-school sophomore in Las Vegas built this.</h1>
+      <p class="hero__lede">
+        Not a company, not a team, not a startup in stealth. One person, working in the open under
+        Apache-2.0. That is stated here because the alternative &mdash; letting the plural pronouns
+        on a project site imply an organisation &mdash; would be the first dishonest thing on a site
+        whose entire argument is that this field&rsquo;s published numbers cannot be trusted.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ 01 The project ============ -->
+  <section class="section" id="project">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>01</b><span>The project</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>What it is.</h2>
+          <p>
+            Palimpsest is an open-world bitemporal claim-interval memory engine for AI agents.
+            Facts are stored as <span class="mono">(entity, predicate) &rarr; version chain</span>,
+            and a new value closes the previous interval instead of coexisting with it, so
+            &ldquo;what is true now&rdquo; is a key lookup rather than a similarity search. Two time
+            axes are kept apart: valid time, closed by a change, and transaction time, closed by a
+            correction.
+          </p>
+          <p>
+            A palimpsest is a manuscript that was scraped and rewritten, where the earlier text
+            stays legible underneath. The way palimpsests are actually read is multispectral
+            imaging: light the sheet at wavelengths the eye cannot use, and the erased undertext
+            comes back. That is the same operation as
+            <code>timeline()</code> &mdash; nothing here is deleted, only closed, and the earlier
+            versions stay readable beneath the current one.
+          </p>
+        </div>
+
+        <div class="grid-3">
+          <div class="stat stat--accent">
+            <span class="stat__value">320</span>
+            <span class="stat__label">tests, CI green on Python 3.11&ndash;3.13</span>
+          </div>
+          <div class="stat">
+            <span class="stat__value">3</span>
+            <span class="stat__label">runtime dependencies &mdash; numpy, model2vec, tiktoken</span>
+          </div>
+          <div class="stat">
+            <span class="stat__value">0</span>
+            <span class="stat__label">GPUs, external services or network calls at read time</span>
+          </div>
+        </div>
+
+        <div class="code">
+          <div class="code__label">shell</div>
+<pre><code>pip install palimpsest-memory</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 Status ============ -->
+  <section class="section" id="status">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>02</b><span>Status</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>Alpha. The API may change.</h2>
+          <p>
+            The test suite is green on Python 3.11 through 3.13 and the stored schema is
+            SQLite with a Postgres-portable shape, but this is an alpha and the public surface is
+            not frozen. If you build on it, pin the version.
+          </p>
+          <ul>
+            <li><strong>Licence:</strong> Apache-2.0, for the code and for everything on this site.</li>
+            <li><strong>Distribution:</strong> <a href="https://pypi.org/project/palimpsest-memory/">PyPI</a>, source on <a href="https://github.com/joe51111jwd/palimpsest">GitHub</a>.</li>
+            <li><strong>Support:</strong> GitHub issues. There is no support contract and no company behind one.</li>
+            <li><strong>Funding:</strong> none. Nothing on this site is sponsored and no result on it was paid for.</li>
+          </ul>
+        </div>
+
+        <div class="prose">
+          <h3>What it is not</h3>
+          <p>
+            It is not a hosted service, it is not a vector database replacement for general
+            document retrieval, and it is not a system that will beat a strong retriever on
+            questions that have no assertable fact in them. The limits are enumerated on the
+            <a href="docs/index.html">docs page</a>, and the benchmark it loses is on the front of
+            the <a href="benchmarks/index.html">benchmarks page</a> rather than at the bottom.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 Numbers ============ -->
+  <section class="section" id="numbers">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>03</b><span>Numbers</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>How this site handles its own results.</h2>
+          <p>
+            In a field where self-reported scores do not survive independent measurement, the only
+            thing worth publishing is the measurement somebody else can repeat. So every number on
+            this site is printed with the scope of the run that produced it, and the raw
+            per-question records for each one are in the repository.
+          </p>
+          <ul>
+            <li>One process, one answering model, one judge that is not the answering model, the
+              unmodified standard Mem0 judge prompt, the same 1,024-token budget for every system,
+              and the identical extracted claims shared across every fact-based system.</li>
+            <li>Confidence intervals are printed next to the accuracy, not omitted when they are
+              inconvenient.</li>
+            <li>The benchmark this engine loses gets a section of its own, and the categories it
+              loses inside benchmarks it wins are named.</li>
+            <li>Numbers measured before a bug was fixed are withdrawn rather than kept because they
+              were higher.</li>
+          </ul>
+        </div>
+
+        <div class="callout callout--caveat">
+          <p class="callout__title">Read this with the number</p>
+          <p>
+            On LongMemEval this engine is first overall in our harness &mdash;
+            <span class="num">0.589</span>, <span class="num">[0.544, 0.633]</span>, against
+            <span class="num">0.553</span> for <span class="mono">hybrid_rag</span> &mdash; but in
+            both LongMemEval tables the confidence interval <strong>overlaps the
+            runner-up</strong>, so the margin over second place is <strong>not statistically
+            significant</strong>. The margin over BM25 and below is. And we lose LoCoMo.
+          </p>
+        </div>
+
+        <div class="callout callout--loss">
+          <p class="callout__title">Where it loses</p>
+          <p>
+            On LoCoMo, all 10 conversations, 468 questions: <span class="mono">full_context</span>
+            wins at <span class="num">0.549</span> on <span class="num">23,604</span> tokens.
+            <span class="mono">bm25</span> at <span class="num">0.417</span> and
+            <span class="mono">palimpsest</span> at <span class="num">0.408</span> are a statistical
+            tie.
+          </p>
+        </div>
+
+        <div class="prose">
+          <p>
+            Nine defects found in this engine&rsquo;s own audit are published, including one where
+            it could see the future and inflate its own results, and one whose fix
+            <em>lowered</em> the LoCoMo score. The lower number is the one reported.
+            <a href="audit/index.html">The audit is here</a>, and the reason all of this is
+            necessary is on <a href="field.html">the field page</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04 Why ============ -->
+  <section class="section" id="why">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>04</b><span>Why</span></div>
+
+      <div class="prose">
+        <h2>Why a student built this rather than a lab.</h2>
+        <p>
+          The idea is not novel. Bitemporal modelling is decades old in databases, and the
+          contribution here is narrow: applying it to agent memory as the primary key rather than as
+          an audit log, and doing the open-world predicate canonicalization that has to work before
+          any of it fires. That is a small enough problem for one person to actually finish, and
+          finishing it honestly is the part that turned out to be scarce.
+        </p>
+        <p>
+          Being one person is a real limitation and it is not being dressed up as an advantage. No
+          second pair of eyes reviews the code by default, so the audit was run adversarially
+          instead, with agents whose job was to refute each other. No organisation stands behind
+          the numbers, so the raw per-question records are published for every table. The
+          confidence intervals overlap, so the site says the margin is not significant instead of
+          rounding the claim up.
+        </p>
+        <p>
+          If a number here is wrong, the fastest way to prove it is to run the harness. Everything
+          needed to do that &mdash; the datasets, the seeds, the prompts and the commands &mdash; is
+          in the <a href="benchmarks/methodology.html#reproduce">methodology</a>, and corrections
+          are welcome as issues on
+          <a href="https://github.com/joe51111jwd/palimpsest">GitHub</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap site-footer__grid">
+    <div>
+      <h2>Palimpsest</h2>
+      <p class="measure-short">
+        An open-world bitemporal claim-interval memory engine for AI agents. A palimpsest is a
+        manuscript scraped and rewritten, where the earlier text stays legible underneath. So is this.
+      </p>
+      <p class="meta mt-3">Apache-2.0 &middot; alpha &middot; the API may change</p>
+    </div>
+    <div>
+      <h2>Read</h2>
+      <ul>
+        <li><a href="how-it-works.html">How it works</a></li>
+        <li><a href="benchmarks/index.html">Benchmarks</a></li>
+        <li><a href="leaderboard/index.html">Leaderboard</a></li>
+        <li><a href="field.html">The field</a></li>
+        <li><a href="audit/index.html">Audit</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Use</h2>
+      <ul>
+        <li><a href="docs/index.html">Docs &amp; API</a></li>
+        <li><a href="https://github.com/joe51111jwd/palimpsest">GitHub</a></li>
+        <li><a href="https://pypi.org/project/palimpsest-memory/">PyPI</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

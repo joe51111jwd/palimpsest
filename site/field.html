@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The field — why agent-memory numbers do not reproduce — Palimpsest</title>
+<meta name="description" content="Verified from primary sources: self-reported agent-memory scores do not survive independent measurement, the cited dataset release is deprecated, the LoCoMo category labels are wrong, and there is no public leaderboard.">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header" data-nav="closed">
+  <div class="wrap site-header__inner">
+    <a class="brand" href="index.html">
+      <span class="brand__name">Palimpsest</span>
+      <span class="brand__note">bitemporal claim-interval memory</span>
+    </a>
+
+    <nav class="nav" aria-label="Primary">
+      <ul class="nav-list">
+        <li><a href="how-it-works.html">How it works</a></li>
+        <li><a href="benchmarks/index.html">Benchmarks</a></li>
+        <li><a href="leaderboard/index.html">Leaderboard</a></li>
+        <li><a href="field.html" aria-current="page">The field</a></li>
+        <li><a href="audit/index.html">Audit</a></li>
+        <li><a href="docs/index.html">Docs</a></li>
+        <li><a href="https://github.com/joe51111jwd/palimpsest">GitHub</a></li>
+      </ul>
+    </nav>
+
+    <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false">Menu</button>
+    <button class="theme-toggle" type="button" data-theme-toggle>Dark</button>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">The field</p>
+      <h1 class="hero__title">Published numbers in agent memory do not reproduce.</h1>
+      <p class="hero__lede">
+        Compiled from primary sources &mdash; arXiv full texts, vendors&rsquo; own harnesses and
+        committed raw results, the dataset files themselves, and the benchmark repositories&rsquo;
+        issue threads. Every claim on this page was checked against an artifact rather than
+        against vendor prose. This is the context any new number has to be read in, including the
+        ones on this site.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ 01 Self-reported vs measured ============ -->
+  <section class="section" id="reported">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>01</b><span>Self-reported</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>Self-reported scores do not survive independent measurement.</h2>
+          <p>
+            LongMemEval, judged accuracy. &ldquo;Measured by third parties&rdquo; means somebody
+            other than the vendor ran the system and published the result.
+          </p>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data">
+            <caption>Self-reported vs. independently measured, LongMemEval</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">system</th>
+                <th scope="col" class="num">self-reported</th>
+                <th scope="col" class="num">measured by third parties</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row" class="mono">Mem0</th>
+                <td class="num">94.4</td>
+                <td class="num">36&ndash;67</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">Supermemory</th>
+                <td class="num">95</td>
+                <td class="num">58.4</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">Zep</th>
+                <td class="num">90.2</td>
+                <td class="num">38&ndash;64</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">LightMem</th>
+                <td class="wrap-cell" colspan="2">the only system whose self-report reproduces</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="prose">
+          <p>
+            The individual third-party figures behind those ranges, in the order they were
+            published: Mem0 <span class="num">66.4</span>, <span class="num">64.96</span>,
+            <span class="num">62.6</span>, <span class="num">59.8</span>,
+            <span class="num">53.6</span>, <span class="num">42.8</span>,
+            <span class="num">36.0</span>; Zep <span class="num">63.8</span>,
+            <span class="num">58.6</span>, <span class="num">38.3</span>; Supermemory
+            <span class="num">58.4</span>. Mem0&rsquo;s headline is roughly
+            <span class="num">2.6&times;</span> its median independent score.
+          </p>
+          <p>
+            LightMem is the exception and deserves to be named as one: its self-report reproduces
+            cleanly under third-party measurement. The point of this page is not that everyone is
+            dishonest. It is that a self-reported score in this field carries almost no
+            information, and there is currently no mechanism that would tell you which ones to
+            trust.
+          </p>
+        </div>
+
+        <p class="meta-note">
+          Sources: MemTensor/MemOS_eval_result (cross-vendor re-runs); arXiv 2601.02845,
+          2511.01448, 2601.02553, 2510.18866, 2605.29640, 2507.05257, 2606.00619, 2602.11182,
+          2608.03463. Vendor papers: Mem0 arXiv 2504.19413, Zep arXiv 2501.13956.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 Two results ============ -->
+  <section class="section" id="baselines">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>02</b><span>Baselines</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>Two results that question whether memory systems beat tuned RAG at all.</h2>
+          <p>
+            Neither of these is a vendor&rsquo;s paper, and between them they are the reason this
+            project&rsquo;s harness runs a hybrid BM25 + dense baseline as a first-class competitor
+            rather than as a strawman.
+          </p>
+
+          <h3>An embedding swap erases the claim &mdash; MemDelta, arXiv 2606.29914</h3>
+          <p>
+            MemDelta rebuilt the baselines Mem0 compared itself against and found the ladder was
+            almost entirely an artifact of baseline quality. Mem0&rsquo;s advertised
+            <span class="num">+11pp</span> over RAG becomes <span class="num">&minus;1.2pp</span>
+            once the RAG baseline is given a decent embedding model. Nothing about the memory
+            system changed.
+          </p>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data">
+            <caption>MemDelta (arXiv 2606.29914), baseline reconstruction</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">configuration</th>
+                <th scope="col" class="num">score</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row" class="wrap-cell">No memory</th>
+                <td class="num">2.2</td>
+              </tr>
+              <tr>
+                <th scope="row" class="wrap-cell">Random RAG</th>
+                <td class="num">3.2</td>
+              </tr>
+              <tr>
+                <th scope="row" class="wrap-cell">Verbatim RAG, MiniLM embeddings</th>
+                <td class="num">47.2</td>
+              </tr>
+              <tr>
+                <th scope="row" class="wrap-cell">Full context</th>
+                <td class="num">49.8</td>
+              </tr>
+              <tr>
+                <th scope="row" class="wrap-cell">Verbatim RAG, cloud embeddings</th>
+                <td class="num">53.4</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="meta-note">
+          The gap between the two verbatim-RAG rows is significant at
+          <span class="mono">p = .004</span>. Neither row is a memory system.
+        </p>
+
+        <div class="prose">
+          <h3>Construction can destroy accuracy &mdash; the LightMem reproduction, arXiv 2607.29104</h3>
+          <p>
+            This reproduction held retrieval fixed at oracle and compared building a memory against
+            not building one: <strong>naive RAG <span class="num">89.0</span> against LightMem
+            <span class="num">77.7</span></strong>. Memory construction cost
+            <span class="num">11.3</span> points. Break-even against the cost of building the memory
+            arrives at roughly <span class="num">321</span> questions.
+          </p>
+          <p>
+            Independent failure analyses (MemTrace, arXiv 2606.17328; Regimes, arXiv 2606.10241)
+            point the same direction: errors are around <span class="num">10&times;</span> more often
+            retrievable-but-unused evidence than genuinely unreachable evidence. The bottleneck is
+            what gets presented to the reader, not what got stored.
+          </p>
+          <p>
+            The conclusion this project adopts from both: a memory system must be measured against a
+            <em>well-tuned</em> RAG baseline or the comparison is worthless, and it has to justify
+            its construction cost. If the baseline wins a category, that gets published &mdash;
+            which is what happened on <a href="benchmarks/index.html#locomo">LoCoMo</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 The dataset ============ -->
+  <section class="section" id="dataset">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>03</b><span>The dataset</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>The release everyone cites was deprecated.</h2>
+          <p>
+            <code>xiaowu0162/longmemeval</code> was marked deprecated and replaced by
+            <code>longmemeval-cleaned</code> on <strong>2025-09-19</strong>, which &ldquo;removes
+            noisy history sessions that interfere with the answer correctness&rdquo;. The
+            <span class="mono">_s</span> split changes size; the oracle split is byte-identical.
+            Some vendors report on the cleaned data and some on the deprecated original, and almost
+            nobody states which. Those numbers are not comparable.
+          </p>
+          <p>
+            Known-bad gold answers survive into the cleaned data. Question
+            <span class="mono">370a8ff4</span> has a gold answer of &ldquo;15 weeks&rdquo; where the
+            evidence supports 11.57; it was reported independently by three groups across five
+            months and is still wrong. Annotation issues remain open on the benchmark repository.
+          </p>
+          <p>
+            Two eval-code bugs are confirmed. One made <span class="mono">recall@all</span> come out
+            at <span class="num">1.0</span> because <span class="mono">correct_docs</span> was
+            empty, which invalidates every retrieval number published before the fix. Another, still
+            open, silently drops items during expansion resolution. The official tooling also uses
+            two different denominators in two different scripts &mdash; one skips 30 abstention
+            items, the other averages over 500.
+          </p>
+        </div>
+
+        <div class="callout callout--note">
+          <p class="callout__title">What this project uses</p>
+          <p>
+            The <strong>cleaned</strong> dataset, <strong>micro</strong> averaging, a judge that is
+            <strong>not</strong> the answering model, and the <strong>unmodified</strong> standard
+            Mem0 judge prompt. The dataset file and its hash, the denominator, both models, the
+            prompt and the token budget are printed beside every table on the
+            <a href="benchmarks/index.html">benchmarks page</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04 Labels ============ -->
+  <section class="section" id="labels">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>04</b><span>Labels</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>The published LoCoMo category labels are wrong on three of four.</h2>
+          <p>
+            The mapping is stated in the LoCoMo authors&rsquo; own evaluation code, and it is
+            confirmed empirically by the shape of the data &mdash; how many evidence items a
+            question needs, and how often that evidence spans more than one session.
+          </p>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data">
+            <caption>LoCoMo categories, from the authors&rsquo; evaluation code and the data itself</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="num">cat</th>
+                <th scope="col" class="num">n</th>
+                <th scope="col" class="num">mean evidence items</th>
+                <th scope="col" class="num">evidence spanning &gt;1 session</th>
+                <th scope="col" class="wrap-cell">true label</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row" class="num">1</th>
+                <td class="num">282</td>
+                <td class="num">3.13</td>
+                <td class="num">95.4%</td>
+                <td class="wrap-cell">multi-hop</td>
+              </tr>
+              <tr>
+                <th scope="row" class="num">2</th>
+                <td class="num">321</td>
+                <td class="num">1.17</td>
+                <td class="num">8.7%</td>
+                <td class="wrap-cell">temporal</td>
+              </tr>
+              <tr>
+                <th scope="row" class="num">3</th>
+                <td class="num">96</td>
+                <td class="num">2.08</td>
+                <td class="num">32.3%</td>
+                <td class="wrap-cell">open-domain</td>
+              </tr>
+              <tr>
+                <th scope="row" class="num">4</th>
+                <td class="num">841</td>
+                <td class="num">1.07</td>
+                <td class="num">0.1%</td>
+                <td class="wrap-cell">single-hop</td>
+              </tr>
+              <tr>
+                <th scope="row" class="num">5</th>
+                <td class="num">446</td>
+                <td class="num">1.03</td>
+                <td class="num">0.0%</td>
+                <td class="wrap-cell">adversarial</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="prose">
+          <p>
+            The <strong>Mem0 &rarr; Memobase &rarr; Backboard</strong> lineage uses
+            <span class="mono">1 = single_hop, 2 = temporal, 3 = multi_hop, 4 = open_domain</span>
+            &mdash; wrong on three of four. What that lineage reports as &ldquo;single-hop&rdquo; is
+            the 282-question multi-hop set; what it reports as &ldquo;open domain&rdquo; is the
+            841-question single-hop set, which is the largest and easiest bucket in the benchmark.
+            Supermemory&rsquo;s <span class="mono">memorybench</span> uses a third mapping and Dakera
+            a fourth. No two vendors&rsquo; per-category rows are comparable to each other, and none
+            of them are comparable to the paper.
+          </p>
+          <p>
+            This site reports the authors&rsquo; mapping. Where a competitor&rsquo;s per-category
+            number is quoted it is relabelled into that scheme and the relabelling is stated. The
+            evidence, with the counts, is repeated in the
+            <a href="benchmarks/methodology.html#labels">benchmark methodology</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 05 Free parameters ============ -->
+  <section class="section" id="parameters">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>05</b><span>Free parameters</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>Choices that move a score more than any architecture does.</h2>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <p class="card__title">Micro vs. macro averaging</p>
+            <p class="card__body">
+              Worth up to about six points on identical data, and almost nobody states which they
+              used. MemOS is <span class="num">77.8</span> micro against
+              <span class="num">80.45</span> macro. Mastra&rsquo;s headline
+              <span class="num">94.87</span> is a macro mean; its micro figure is
+              <span class="num">93.60</span>.
+            </p>
+          </div>
+          <div class="card">
+            <p class="card__title">The long-context baseline</p>
+            <p class="card__body">
+              Spans <span class="num">14.0</span> to <span class="num">82.40</span> across papers,
+              driven by truncation policy, judge, and model-specific refusal behaviour at long
+              inputs. Any &ldquo;beats long context by X&rdquo; claim is unusable without the
+              baseline&rsquo;s prompt and judge.
+            </p>
+          </div>
+          <div class="card">
+            <p class="card__title">Who judges</p>
+            <p class="card__body">
+              Several systems are judged by the same model that answered. The highest verified score
+              in the field, LeanMem <span class="num">91.80</span>, is self-judged. This site&rsquo;s
+              judge is a separate call and the prompt is the unmodified standard one.
+            </p>
+          </div>
+          <div class="card">
+            <p class="card__title">The denominator</p>
+            <p class="card__body">
+              Papers report n = 500, 470, 444, 367, 300, 282, 266, 150, 88, 50 and 15 &mdash; all of
+              them called &ldquo;LongMemEval&rdquo;. Some published arithmetic does not reconcile
+              with any denominator at all.
+            </p>
+          </div>
+        </div>
+
+        <div class="prose">
+          <p>
+            None of these are exotic. They are the ordinary knobs of running an evaluation, and each
+            one is large enough to manufacture a ranking on its own. That is what makes the
+            field&rsquo;s numbers incommensurable rather than merely noisy: they are not measuring
+            the same quantity, and stacking them into a comparison table produces a result that
+            means nothing.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 06 No leaderboard ============ -->
+  <section class="section" id="leaderboard">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>06</b><span>No leaderboard</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>There is no public leaderboard for agent memory anywhere.</h2>
+          <p>
+            Every vendor publishes its own number, measured its own way, on a dataset version it
+            usually does not name, judged by a model it often does not disclose. There is no neutral
+            board that would make two of those numbers comparable, and no submission standard that
+            would let a stranger re-run either one.
+          </p>
+          <p>
+            That absence is the reason this project publishes its harness, its raw per-question
+            records, its losses and its own defects rather than a single headline figure &mdash; and
+            it is the reason for the <a href="leaderboard/index.html">leaderboard on this site</a>,
+            which admits a row only if it carries the dataset file and hash, the denominator, both
+            models, the judge prompt, the averaging, the token budget, and the raw per-question
+            results. That rule is applied to this project&rsquo;s own rows first, and they are marked
+            as the maintainer&rsquo;s.
+          </p>
+        </div>
+
+        <div class="callout callout--caveat">
+          <p class="callout__title">Read this with the number</p>
+          <p>
+            The same standard applies here. On LongMemEval this engine is first overall in our
+            harness &mdash; <span class="num">0.589</span>, <span class="num">[0.544, 0.633]</span>
+            &mdash; but in both LongMemEval tables the confidence interval <strong>overlaps the
+            runner-up</strong>, so the margin over second place is <strong>not statistically
+            significant</strong>. The margin over BM25 and below is. And we lose LoCoMo:
+            <span class="mono">full_context</span> <span class="num">0.549</span>,
+            <span class="mono">bm25</span> <span class="num">0.417</span>,
+            <span class="mono">palimpsest</span> <span class="num">0.408</span>.
+          </p>
+        </div>
+
+        <div class="prose">
+          <p>
+            Nine defects found in this engine&rsquo;s own audit are published as well, including one
+            where it could see the future and inflate its own results, and one whose fix
+            <em>lowered</em> the LoCoMo score. <a href="audit/index.html">The audit is here.</a>
+          </p>
+        </div>
+
+        <p class="meta-note">
+          Original benchmark: Wu et al., ICLR 2025, arXiv 2410.10813. Critiques: arXiv 2606.29914
+          (MemDelta), 2607.29104 (LightMem reproduction), 2605.24060 (TIAP), 2606.17328 (MemTrace),
+          2606.10241 (Regimes). Cross-vendor re-runs: MemTensor/MemOS_eval_result; arXiv 2603.15599
+          Table 7, the best-controlled comparison in the field. LoCoMo labels: the authors&rsquo;
+          <span class="mono">task_eval/evaluation.py</span>, checked against the data.
+        </p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap site-footer__grid">
+    <div>
+      <h2>Palimpsest</h2>
+      <p class="measure-short">
+        An open-world bitemporal claim-interval memory engine for AI agents. A palimpsest is a
+        manuscript scraped and rewritten, where the earlier text stays legible underneath. So is this.
+      </p>
+      <p class="meta mt-3">Apache-2.0 &middot; alpha &middot; the API may change</p>
+    </div>
+    <div>
+      <h2>Read</h2>
+      <ul>
+        <li><a href="how-it-works.html">How it works</a></li>
+        <li><a href="benchmarks/index.html">Benchmarks</a></li>
+        <li><a href="leaderboard/index.html">Leaderboard</a></li>
+        <li><a href="field.html">The field</a></li>
+        <li><a href="audit/index.html">Audit</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Use</h2>
+      <ul>
+        <li><a href="docs/index.html">Docs &amp; API</a></li>
+        <li><a href="https://github.com/joe51111jwd/palimpsest">GitHub</a></li>
+        <li><a href="https://pypi.org/project/palimpsest-memory/">PyPI</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

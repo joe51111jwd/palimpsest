@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>API reference — Palimpsest</title>
-<meta name="description" content="Every public symbol in palimpsest: Memory and its six methods, the recall parameters including the as_of / known_at distinction, all seven dataclasses, and SQLiteStore.">
+<meta name="description" content="Every public symbol in palimpsest: Memory and its six methods, the recall parameters including the as_of / known_at distinction, all eight dataclasses, and SQLiteStore.">
 <link rel="stylesheet" href="../assets/site.css">
 <script src="../assets/site.js"></script>
 </head>
@@ -23,6 +23,7 @@
       <ul class="nav-list">
         <li><a href="../how-it-works.html">How it works</a></li>
         <li><a href="../benchmarks/index.html">Benchmarks</a></li>
+        <li><a href="../leaderboard/index.html">Leaderboard</a></li>
         <li><a href="../field.html">The field</a></li>
         <li><a href="../audit/index.html">Audit</a></li>
         <li><a href="index.html" aria-current="page">Docs</a></li>
@@ -43,7 +44,7 @@
       <p class="eyebrow">API reference &middot; v0.1.0</p>
       <h1 class="hero__title">Every public symbol, with a real signature and an example that runs.</h1>
       <p class="hero__lede">
-        Six methods on <span class="mono">Memory</span>, seven dataclasses, one store. The one part
+        Six methods on <span class="mono">Memory</span>, eight dataclasses, one store. The one part
         worth reading slowly is <a href="#asof">&sect;05, <span class="mono">as_of</span> versus
         <span class="mono">known_at</span></a> &mdash; they answer different questions, and
         conflating them leaks the future.
@@ -124,7 +125,7 @@ palimpsest.__version__          <span class="c"># '0.1.0'</span></code></pre>
 )</code></pre>
         </div>
 
-        <div class="table-wrap">
+        <div class="table-wrap" tabindex="0">
           <table class="data">
             <caption>Constructor parameters &mdash; all keyword-only</caption>
             <thead>
@@ -294,7 +295,7 @@ print(mem.ingest(messages, claims=claims))
 ) -&gt; Recall</code></pre>
         </div>
 
-        <div class="table-wrap">
+        <div class="table-wrap" tabindex="0">
           <table class="data">
             <caption><code>recall()</code> parameters</caption>
             <thead>
@@ -555,7 +556,7 @@ r = mem.recall(question.text, as_of=asked_at, known_at=asked_at)</code></pre>
 ) -&gt; list[Fact]</code></pre>
         </div>
 
-        <div class="table-wrap">
+        <div class="table-wrap" tabindex="0">
           <table class="data">
             <caption><code>facts()</code> parameters</caption>
             <thead>
@@ -777,7 +778,7 @@ mem.correct(<span class="s">"user"</span>, <span class="s">"employer"</span>, <s
 <span class="c">#       source_text_bytes=119)</span></code></pre>
         </div>
 
-        <div class="table-wrap">
+        <div class="table-wrap" tabindex="0">
           <table class="data">
             <caption><code>Stats</code> fields</caption>
             <thead>
@@ -811,7 +812,9 @@ mem.correct(<span class="s">"user"</span>, <span class="s">"employer"</span>, <s
         <div class="prose">
           <h2>The value objects.</h2>
           <p>
-            All in <code>palimpsest.types</code>. <code>Message</code>, <code>Claim</code> and
+            All eight live in <code>palimpsest.types</code>; seven are below and the eighth,
+            <code>Stats</code>, is in <a href="#stats">&sect;09</a>. <code>Message</code>,
+            <code>Claim</code> and
             <code>Fact</code> are frozen; the rest are plain dataclasses. Three type aliases are
             exported alongside them:
             <span class="mono">Polarity = "positive" | "negative"</span>,
@@ -1144,7 +1147,7 @@ store.close()</code></pre>
           <p>The implementations that ship:</p>
         </div>
 
-        <div class="table-wrap">
+        <div class="table-wrap" tabindex="0">
           <table class="data">
             <caption>Shipped implementations, under <code>palimpsest.extract</code></caption>
             <thead>
@@ -1242,7 +1245,7 @@ mem.ingest(messages)          <span class="c"># no claims= — the extractor pro
           </p>
         </div>
 
-        <div class="table-wrap">
+        <div class="table-wrap" tabindex="0">
           <table class="data">
             <caption>Composed objects and the reads worth knowing</caption>
             <thead>
@@ -1349,6 +1352,7 @@ print(mem.ledger.stats)
       <ul>
         <li><a href="../how-it-works.html">How it works</a></li>
         <li><a href="../benchmarks/index.html">Benchmarks</a></li>
+        <li><a href="../leaderboard/index.html">Leaderboard</a></li>
         <li><a href="../field.html">The field</a></li>
         <li><a href="../audit/index.html">Audit</a></li>
       </ul>

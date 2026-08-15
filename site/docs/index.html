@@ -23,6 +23,7 @@
       <ul class="nav-list">
         <li><a href="../how-it-works.html">How it works</a></li>
         <li><a href="../benchmarks/index.html">Benchmarks</a></li>
+        <li><a href="../leaderboard/index.html">Leaderboard</a></li>
         <li><a href="../field.html">The field</a></li>
         <li><a href="../audit/index.html">Audit</a></li>
         <li><a href="index.html" aria-current="page">Docs</a></li>
@@ -554,7 +555,7 @@ mem.ingest(messages, claims=claims)
           </p>
         </div>
 
-        <div class="table-wrap">
+        <div class="table-wrap" tabindex="0">
           <table class="data">
             <caption>Name-only cosine similarity between predicates</caption>
             <thead>
@@ -608,8 +609,9 @@ mem.ingest(messages, claims=claims)
           <div class="card">
             <p class="card__title">2 &mdash; Shortlist</p>
             <p class="card__body">
-              Top-k canonical predicates by embedding rank, no threshold. Measured on a 60-predicate
-              vocabulary, the correct cluster is in the top-20 for 100% of predicates.
+              Top-k canonical predicates by embedding rank, no threshold. Measured on the
+              70-predicate open-world vocabulary in <span class="mono">bench/canon_probe.py</span>,
+              the correct cluster is in the top-20 for 100% of predicates.
             </p>
           </div>
           <div class="card">
@@ -709,7 +711,7 @@ mem = Memory(adjudicator=LLMAdjudicator(client.complete_json))</code></pre>
           </p>
         </div>
 
-        <div class="table-wrap">
+        <div class="table-wrap" tabindex="0">
           <table class="data">
             <caption>The three retrieval tiers, in the order they contribute</caption>
             <thead>
@@ -883,7 +885,7 @@ print(r.tier_counts)            <span class="c"># {'interval': 2, 'graph': 1, 'h
           <p>
             The API reference covers <code>Memory</code> and its six methods, the full
             <code>recall()</code> parameter list including the
-            <code>as_of</code> / <code>known_at</code> distinction, all seven dataclasses, and
+            <code>as_of</code> / <code>known_at</code> distinction, all eight dataclasses, and
             <code>SQLiteStore</code>.
           </p>
         </div>
@@ -912,6 +914,7 @@ print(r.tier_counts)            <span class="c"># {'interval': 2, 'graph': 1, 'h
       <ul>
         <li><a href="../how-it-works.html">How it works</a></li>
         <li><a href="../benchmarks/index.html">Benchmarks</a></li>
+        <li><a href="../leaderboard/index.html">Leaderboard</a></li>
         <li><a href="../field.html">The field</a></li>
         <li><a href="../audit/index.html">Audit</a></li>
       </ul>

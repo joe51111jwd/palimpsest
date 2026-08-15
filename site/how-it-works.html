@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How it works — Palimpsest</title>
+<meta name="description" content="Claims instead of chunks, the validity interval in the primary key, valid time and transaction time kept apart, and why a cosine threshold cannot canonicalize predicates.">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header" data-nav="closed">
+  <div class="wrap site-header__inner">
+    <a class="brand" href="index.html">
+      <span class="brand__name">Palimpsest</span>
+      <span class="brand__note">bitemporal claim-interval memory</span>
+    </a>
+
+    <nav class="nav" aria-label="Primary">
+      <ul class="nav-list">
+        <li><a href="how-it-works.html" aria-current="page">How it works</a></li>
+        <li><a href="benchmarks/index.html">Benchmarks</a></li>
+        <li><a href="leaderboard/index.html">Leaderboard</a></li>
+        <li><a href="field.html">The field</a></li>
+        <li><a href="audit/index.html">Audit</a></li>
+        <li><a href="docs/index.html">Docs</a></li>
+        <li><a href="https://github.com/joe51111jwd/palimpsest">GitHub</a></li>
+      </ul>
+    </nav>
+
+    <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false">Menu</button>
+    <button class="theme-toggle" type="button" data-theme-toggle>Dark</button>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Mechanism</p>
+      <h1 class="hero__title">Put the validity interval in the primary key and supersession stops being a retrieval problem.</h1>
+      <p class="hero__lede">
+        Nothing here is clever. A fact is stored under
+        <span class="mono">(entity, predicate)</span>, a new value closes the previous interval
+        instead of coexisting with it, and both of the two time axes are kept separately rather
+        than collapsed into one timestamp. What follows is what that buys, and what it costs.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ 01 The ledger ============ -->
+  <section class="section" id="ledger">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>01</b><span>The ledger</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>Claims, not chunks.</h2>
+          <p>
+            A chunk store keeps the sentence. A claim store keeps the assertion the sentence made:
+            an entity, a predicate, a value, and the interval over which that value held. The
+            interval is not metadata bolted onto a record &mdash; it is part of the key, which is
+            what lets a write <em>close</em> something instead of merely being added next to it.
+          </p>
+          <p>
+            The consequence is worth stating flatly, because it is the whole design: asking
+            &ldquo;what is true now?&rdquo; is a key lookup. It is not a similarity search, it does
+            not consult a model, and it cannot be wrong about which of two values is newer.
+          </p>
+        </div>
+
+        <div class="code">
+          <div class="code__label">The ledger</div>
+<pre><code>(entity, predicate) ──► version chain
+
+  (user, city): [ New York City | 2023-01-01 → 2023-04-11 ]
+                [ Austin        | 2023-04-11 → open       ]  <span class="c">← current</span></code></pre>
+        </div>
+
+        <div class="prose">
+          <p>
+            Nothing is ever deleted. The earlier versions stay in the chain, closed and dated,
+            which is what makes <code>as_of=</code> time travel possible at all &mdash; and what
+            makes the store auditable, since a value that changed leaves the record of what it
+            changed from.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 Supersession ============ -->
+  <section class="section" id="supersession">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>02</b><span>Supersession</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>The failure a similarity search cannot fix from inside.</h2>
+          <p>
+            Take three utterances, months apart: <span class="mono">&ldquo;I just started at
+            Initech&rdquo;</span>, <span class="mono">&ldquo;I work at Globex now&rdquo;</span>,
+            <span class="mono">&ldquo;first week at Cyberdyne&rdquo;</span>. Ask where the user
+            works. Every one of the three is an excellent semantic match, and nothing in the text
+            of the stale ones marks them expired &mdash; being wrong does not make a sentence less
+            similar to the question.
+          </p>
+          <p>
+            Attaching a timestamp to each chunk does not repair this. The stale chunk still scores
+            well, still gets retrieved, and still arrives in the context window alongside the
+            current one; the model is then asked to work out the ordering from three dated
+            fragments, which is exactly the inference that should not be left to inference.
+          </p>
+        </div>
+
+        <div class="stratum">
+          <div class="stratum__key">
+            <b>user</b> <span>&middot;</span> <b>employer</b>
+            <span>&middot; version chain, valid time</span>
+          </div>
+          <div class="stratum__layers">
+            <div class="stratum-layer is-current">
+              <span class="stratum-layer__value">Cyberdyne</span>
+              <span class="pill pill--current">current</span>
+              <span class="stratum-layer__range">2024-01-08 &rarr; open</span>
+            </div>
+            <div class="stratum-layer is-superseded">
+              <span class="stratum-layer__value">Globex</span>
+              <span class="pill pill--superseded">superseded</span>
+              <span class="stratum-layer__range">2022-08-15 &rarr; 2024-01-08</span>
+            </div>
+            <div class="stratum-layer is-superseded">
+              <span class="stratum-layer__value">Initech</span>
+              <span class="pill pill--superseded">superseded</span>
+              <span class="stratum-layer__range">2021-03-02 &rarr; 2022-08-15</span>
+            </div>
+          </div>
+          <div class="stratum__note">
+            Illustrative example data. One current value; the rest dated and labelled. Resolving
+            which is newer cost no model call, because the write that added Cyberdyne is the same
+            operation that closed Globex.
+          </div>
+        </div>
+
+        <div class="prose">
+          <p>
+            The reader still sees the history when the history is what was asked for. A
+            present-tense question drops the closed layers; a historical one is answered out of
+            them. That is a filter on a chain the store already knows the shape of, not a
+            re-ranking heuristic.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 Two axes ============ -->
+  <section class="section" id="axes">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>03</b><span>Two axes</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>A change and a correction are not the same edit.</h2>
+          <p>
+            Bitemporal means two clocks, kept apart on purpose. Collapsing them into one
+            <span class="mono">updated_at</span> column is the usual shortcut, and it destroys the
+            distinction between &ldquo;this used to be true&rdquo; and &ldquo;this was never
+            true&rdquo;.
+          </p>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel__head"><span class="panel__title">Two time axes, kept separate</span></div>
+            <div class="panel__body">
+              <dl class="dl-axes">
+                <dt>Valid time</dt>
+                <dd>When a fact was true <em>in the world</em>. Closed by a change &mdash;
+                  <span class="mono">&ldquo;I moved to Boston.&rdquo;</span> The past record stays
+                  true of the past.</dd>
+                <dt>Transaction time</dt>
+                <dd>When the store was <em>told</em>. Closed by a correction &mdash;
+                  <span class="mono">&ldquo;I was never at Globex, I misspoke.&rdquo;</span> It was
+                  never true at all.</dd>
+              </dl>
+              <p class="meta-note">
+                Nothing is ever deleted, only closed. A correction closes the transaction-time
+                interval of a record that should not have been believed; it does not rewrite
+                history to pretend the record was never asserted.
+              </p>
+            </div>
+          </div>
+
+          <div class="stratum">
+            <div class="stratum__key">
+              <b>user</b> <span>&middot;</span> <b>employer</b>
+              <span>&middot; after a correction</span>
+            </div>
+            <div class="stratum__layers">
+              <div class="stratum-layer is-current">
+                <span class="stratum-layer__value">Cyberdyne</span>
+                <span class="pill pill--current">current</span>
+                <span class="stratum-layer__range">2024-01-08 &rarr; open</span>
+              </div>
+              <div class="stratum-layer is-superseded is-corrected">
+                <span class="stratum-layer__value">Globex</span>
+                <span class="pill pill--corrected">corrected</span>
+                <span class="stratum-layer__range">never true</span>
+              </div>
+              <div class="stratum-layer is-superseded">
+                <span class="stratum-layer__value">Initech</span>
+                <span class="pill pill--superseded">superseded</span>
+                <span class="stratum-layer__range">2021-03-02 &rarr; 2024-01-08</span>
+              </div>
+            </div>
+            <div class="stratum__note">
+              Illustrative example data. Struck through, not merely stepped back: a corrected value
+              is excluded from every historical answer as well as the current one, which a
+              superseded value is not.
+            </div>
+          </div>
+        </div>
+
+        <div class="prose">
+          <p>
+            An agent that cannot tell these apart gets both directions wrong. Treat a correction as
+            a change and it will happily tell you the user worked at Globex until 2024. Treat a
+            change as a correction and the user&rsquo;s entire history disappears the first time
+            they move house.
+          </p>
+          <p>
+            The API surface for both, with a worked example of the same three employers edited each
+            way, is on the <a href="docs/index.html">docs page</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04 Canonicalization ============ -->
+  <section class="section" id="canon">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>04</b><span>Open world</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>The hard part is not the ledger. It is making two names land on one key.</h2>
+          <p>
+            Supersession only fires if <span class="mono">lives_in</span> and
+            <span class="mono">city</span> resolve to the same key. A closed-world system solves
+            this by shipping a predicate whitelist and discarding everything outside it, which
+            works until a user says something the author did not anticipate. This one is open-world:
+            any predicate an extractor produces is admissible, so the canonicalizer has to earn the
+            merge.
+          </p>
+          <p>
+            The obvious approach &mdash; embed the predicate name, merge above a cosine threshold
+            &mdash; is not merely unreliable. Measured, the ordering is <strong>inverted</strong>:
+          </p>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data">
+            <caption>Name-only cosine similarity between predicates</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">pair</th>
+                <th scope="col" class="num">cosine</th>
+                <th scope="col" class="wrap-cell">relationship</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row" class="mono wrap-cell">lives_in ~ city</th>
+                <td class="num">0.136</td>
+                <td class="wrap-cell">the same thing</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono wrap-cell">favorite_food ~ least_favorite_food</th>
+                <td class="num">0.842</td>
+                <td class="wrap-cell">opposite things</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono wrap-cell">birth_year ~ birth_city</th>
+                <td class="num">0.735</td>
+                <td class="wrap-cell">different things</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="prose">
+          <p>
+            Across the whole set, synonyms average <span class="num">0.287</span> and traps average
+            <span class="num">0.495</span>, and all six trap pairs land in the top 3 of their
+            counterpart. Embedding the observed <em>values</em> rather than the names flips the
+            ordering the right way round &mdash; synonyms <span class="num">0.302</span>, traps
+            <span class="num">0.101</span> &mdash; but the two distributions still overlap, so it is
+            not thresholdable either. There is no cutoff that merges the synonyms without also
+            merging <span class="mono">favorite_food</span> into
+            <span class="mono">least_favorite_food</span>.
+          </p>
+        </div>
+
+        <div class="grid-3">
+          <div class="card">
+            <p class="card__title">1 &middot; Shortlist</p>
+            <p class="card__body">
+              Similarity is used only to narrow the field. The correct cluster is in the top-20 for
+              100% of predicates, which is all that is being asked of it &mdash; a recall
+              instrument, never a decision.
+            </p>
+          </div>
+          <div class="card">
+            <p class="card__title">2 &middot; Adjudicate</p>
+            <p class="card__body">
+              An LLM decides which candidate in the shortlist, if any, is the same predicate. It
+              sees a short list and answers a narrow question, which is the shape of task a model
+              is actually reliable on.
+            </p>
+          </div>
+          <div class="card">
+            <p class="card__title">3 &middot; Veto</p>
+            <p class="card__body">
+              Deterministic guards &mdash; polarity, value-type, head-noun, role-suffix &mdash; hold
+              a veto over the merge. They can exercise it; they can never override a refusal to
+              merge.
+            </p>
+          </div>
+        </div>
+
+        <div class="callout callout--note">
+          <p class="callout__title">Why the veto only points one way</p>
+          <p>
+            A guard that could <em>force</em> a merge would be a whitelist again, wearing a
+            different hat. The guards exist to make the model&rsquo;s mistakes cheap: a wrongly
+            blocked merge leaves two keys where one belonged, which shows up as a missed
+            supersession. A wrongly forced merge silently fuses two different facts and corrupts
+            both chains &mdash; a failure we have actually shipped and had to fix, and it is on the
+            <a href="audit/index.html">audit page</a>.
+          </p>
+        </div>
+
+        <div class="prose">
+          <p>
+            Adjudication happens on write, and only for predicates the store has not seen before.
+            Retrieval never calls a model. The measured contribution of the LLM adjudicator, and
+            what the system scores with it switched off entirely, are in the ablations on the
+            <a href="benchmarks/index.html">benchmarks page</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 05 Retrieval ============ -->
+  <section class="section" id="retrieval">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>05</b><span>Retrieval</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>Three tiers, fused, and the third one always runs.</h2>
+          <p>
+            <code>recall()</code> resolves the question to entities and predicates against the
+            centroids the store actually learned &mdash; there is no hardcoded question vocabulary
+            &mdash; then fills a token budget from three sources.
+          </p>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data">
+            <caption>The three retrieval tiers, in the order they contribute</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">tier</th>
+                <th scope="col" class="wrap-cell">what it returns</th>
+                <th scope="col" class="wrap-cell">when it runs</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row" class="mono">interval</th>
+                <td class="wrap-cell">
+                  The exact <span class="mono">(entity, predicate)</span> chain sliced at
+                  <span class="mono">as_of</span> &mdash; the value that was true, without the
+                  values that were superseded.
+                </td>
+                <td class="wrap-cell">When the question resolves to predicates.</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">graph</th>
+                <td class="wrap-cell">
+                  Every fact about an entity named in the question, for multi-hop questions.
+                </td>
+                <td class="wrap-cell">When the interval tier has not filled <span class="mono">k</span>.</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">hybrid</th>
+                <td class="wrap-cell">
+                  BM25 and dense retrieval over the raw utterances, fused by weighted reciprocal
+                  rank, lexical weighted above semantic.
+                </td>
+                <td class="wrap-cell">Always. Unconditionally.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="prose">
+          <p>
+            Tier 3 running unconditionally is a correction of an earlier version that early-returned
+            an empty context whenever its parser failed to fire. That scored <em>well</em> on a
+            synthetic abstention metric and badly on real paraphrases. The rule is now flat: a
+            non-empty store never returns an empty context.
+          </p>
+          <p>
+            None of this calls a model. <code>recall()</code> is pure Python and numpy, so the read
+            path costs no tokens and no network round trip; the only LLM in the system extracts
+            facts on write, and adjudicates an unfamiliar predicate. The tier-by-tier behaviour,
+            with the returned object&rsquo;s fields, is on the
+            <a href="docs/index.html#tiers">docs page</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 06 Cost ============ -->
+  <section class="section" id="cost">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>06</b><span>What it costs</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>What you give up.</h2>
+          <p>
+            Every one of these is a direct consequence of the design above, not an unfinished
+            feature.
+          </p>
+          <ul>
+            <li>
+              <strong>Extraction is a model call.</strong> Writes cost an LLM; reads do not. A store
+              that is written to far more often than it is read from is the wrong shape for this
+              engine.
+            </li>
+            <li>
+              <strong>What the extractor misses is not in the ledger.</strong> The claim layer can
+              only supersede facts it was given. This is the failure mode behind the LoCoMo result
+              below, and it is a real ceiling, not a tuning issue.
+            </li>
+            <li>
+              <strong>Narrative does not become claims.</strong> A long anecdote with no assertable
+              fact in it lands in the hybrid tier and nowhere else &mdash; which is to say, on
+              questions of that kind this is BM25 with extra steps.
+            </li>
+            <li>
+              <strong>Nothing is deleted.</strong> Storage grows monotonically with edits. That is
+              the price of <code>as_of=</code>, and it is deliberate.
+            </li>
+          </ul>
+        </div>
+
+        <div class="callout callout--loss">
+          <p class="callout__title">Where it loses</p>
+          <p>
+            On LoCoMo, all 10 conversations, 468 questions: <span class="mono">full_context</span>
+            wins at <span class="num">0.549</span> on <span class="num">23,604</span> tokens.
+            <span class="mono">bm25</span> at <span class="num">0.417</span> and
+            <span class="mono">palimpsest</span> at <span class="num">0.408</span> are a statistical
+            tie. Notably the other fact-layer baselines &mdash;
+            <span class="mono">mem0_style</span> <span class="num">0.237</span> and
+            <span class="mono">zep_style</span> <span class="num">0.278</span> &mdash; sit about 17
+            points <em>below</em> plain BM25 on the identical claims, which says the loss is a
+            property of extracting claims from that corpus rather than of this engine in
+            particular.
+          </p>
+        </div>
+
+        <div class="callout callout--caveat">
+          <p class="callout__title">Read this with the number</p>
+          <p>
+            On LongMemEval this engine is first overall in our harness &mdash;
+            <span class="num">0.589</span>, <span class="num">[0.544, 0.633]</span> &mdash; but in
+            both LongMemEval tables the confidence interval <strong>overlaps the
+            runner-up</strong>, so the margin over second place is <strong>not statistically
+            significant</strong>. The margin over BM25 and below is. And we lose LoCoMo.
+          </p>
+        </div>
+
+        <p><a href="benchmarks/index.html">All tables, per-category scores and ablations &rarr;</a></p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap site-footer__grid">
+    <div>
+      <h2>Palimpsest</h2>
+      <p class="measure-short">
+        An open-world bitemporal claim-interval memory engine for AI agents. A palimpsest is a
+        manuscript scraped and rewritten, where the earlier text stays legible underneath. So is this.
+      </p>
+      <p class="meta mt-3">Apache-2.0 &middot; alpha &middot; the API may change</p>
+    </div>
+    <div>
+      <h2>Read</h2>
+      <ul>
+        <li><a href="how-it-works.html">How it works</a></li>
+        <li><a href="benchmarks/index.html">Benchmarks</a></li>
+        <li><a href="leaderboard/index.html">Leaderboard</a></li>
+        <li><a href="field.html">The field</a></li>
+        <li><a href="audit/index.html">Audit</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Use</h2>
+      <ul>
+        <li><a href="docs/index.html">Docs &amp; API</a></li>
+        <li><a href="https://github.com/joe51111jwd/palimpsest">GitHub</a></li>
+        <li><a href="https://pypi.org/project/palimpsest-memory/">PyPI</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
