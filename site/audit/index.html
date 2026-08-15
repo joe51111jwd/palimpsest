@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audit — nine defects found in this engine — Palimpsest</title>
+<meta name="description" content="Nine defects an adversarial audit found in this engine, six of seven critical ones surviving a green 305-test suite, including one that let it see the future and one whose fix lowered our own LoCoMo score.">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header" data-nav="closed">
+  <div class="wrap site-header__inner">
+    <a class="brand" href="../index.html">
+      <span class="brand__name">Palimpsest</span>
+      <span class="brand__note">bitemporal claim-interval memory</span>
+    </a>
+
+    <nav class="nav" aria-label="Primary">
+      <ul class="nav-list">
+        <li><a href="../how-it-works.html">How it works</a></li>
+        <li><a href="../benchmarks/index.html">Benchmarks</a></li>
+        <li><a href="../field.html">The field</a></li>
+        <li><a href="index.html" aria-current="page">Audit</a></li>
+        <li><a href="../docs.html">Docs</a></li>
+        <li><a href="https://github.com/joe51111jwd/palimpsest">GitHub</a></li>
+      </ul>
+    </nav>
+
+    <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false">Menu</button>
+    <button class="theme-toggle" type="button" data-theme-toggle>Dark</button>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ============ Hero ============ -->
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Self-audit</p>
+      <h1 class="hero__title">In a memory system the dangerous bugs do not throw.</h1>
+      <p class="hero__lede">
+        They return something plausible. Before publishing a number, an adversarial audit was run
+        against this engine and its harness, hunting exactly that: failures that are silent, that look
+        like legitimate output, and that a green test suite does not catch. It found nine defects. Six
+        of the seven confirmed critical or major had survived a suite that was green at
+        <span class="num">305</span> tests.
+      </p>
+      <div class="hero__actions">
+        <a class="btn" href="#findings">The findings</a>
+        <a class="btn btn--ghost" href="#cost">What fixing them cost us</a>
+        <span class="meta">docs/AUDIT.md &middot; tests/test_audit_regressions.py</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 01 Method ============ -->
+  <section class="section" id="method">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>01</b><span>Method</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>Four lenses, each with a second agent whose job was to refute the first.</h2>
+          <p>
+            This project&rsquo;s predecessor shipped three headline claims that did not survive review.
+            So the audit came before the publication, not after it. Four independent lenses were run
+            over the engine and the benchmark harness &mdash; bitemporal correctness, future leakage,
+            canonicalization catastrophe, harness integrity &mdash; and every finding was then handed to
+            a second agent tasked with knocking it down.
+          </p>
+          <p>
+            Every defect below was reproduced by <strong>running code</strong>, not by reading it.
+            Several were measurably corrupting numbers this project was about to publish. All are fixed
+            and pinned by regression tests in <code>tests/test_audit_regressions.py</code>.
+          </p>
+        </div>
+
+        <div class="grid-3">
+          <div class="stat stat--accent">
+            <span class="stat__value">9</span>
+            <span class="stat__label">defects found; seven confirmed critical or major</span>
+          </div>
+          <div class="stat">
+            <span class="stat__value">6 / 7</span>
+            <span class="stat__label">of the critical and major findings survived a green suite</span>
+          </div>
+          <div class="stat">
+            <span class="stat__value">305</span>
+            <span class="stat__label">tests passing at the time of the audit</span>
+          </div>
+        </div>
+
+        <div class="callout callout--note">
+          <p class="callout__title">The class of bug being hunted</p>
+          <p>
+            Not a crash and not a wrong type. A memory store that answers is indistinguishable from a
+            memory store that answers <em>correctly</em>, so the failure mode that matters is the one
+            that returns a well-formed, confident, wrong block of context. Every finding on this page
+            produced output that read as a legitimate answer.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 The archetype ============ -->
+  <section class="section" id="archetype">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>02</b><span>The archetype</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>The thing that motivated the exercise had already bitten twice.</h2>
+          <p>
+            Two defects in the claim cache are the reason the audit was scoped the way it was. Neither
+            raised an error. Both silently changed what was being measured.
+          </p>
+        </div>
+
+        <div class="panel">
+          <div class="panel__head">
+            <span class="panel__title">Cache defect &mdash; empty extractions</span>
+            <span class="pill">silent</span>
+          </div>
+          <div class="panel__body">
+            <h3 class="measure">Empty extractions were cached.</h3>
+            <div class="prose">
+              <p>
+                A transient LLM timeout produced zero claims, and the empty list was written to disk,
+                where every later run loaded it as a real result. <strong>20 of 81 benchmark episodes
+                had been silently zeroed</strong> &mdash; a quarter of a benchmark measuring a memory
+                system, running with no memory at all.
+              </p>
+              <p>
+                Nothing errored, because &ldquo;no facts extracted&rdquo; is indistinguishable from
+                &ldquo;this conversation asserted no facts.&rdquo;
+              </p>
+            </div>
+          </div>
+          <div class="panel__foot">
+            Fixed: an extraction that failed is not a result and is not cached.
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel__head">
+            <span class="panel__title">Cache defect &mdash; key ignored the episode</span>
+            <span class="pill">favoured us</span>
+          </div>
+          <div class="panel__body">
+            <h3 class="measure">The claim cache ignored episode content.</h3>
+            <div class="prose">
+              <p>
+                LongMemEval ships the same 500 question ids across variants with different haystacks:
+                <code>oracle</code> gives one question <span class="num">24</span> messages,
+                <code>s</code> gives that same id <span class="num">413</span>. Keyed on the id alone,
+                the <code>s</code> run loaded the <code>oracle</code> variant&rsquo;s claims &mdash;
+                facts extracted from a haystack with every distractor already removed.
+              </p>
+              <p>
+                Not merely wrong. <strong>An unfair advantage to the system under test</strong>, on the
+                exact axis &mdash; distractor robustness &mdash; this project makes its strongest claim
+                about.
+              </p>
+            </div>
+          </div>
+          <div class="panel__foot">
+            Fixed: the cache key covers the episode content, so a different haystack is a different key.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 The findings ============ -->
+  <section class="section" id="findings">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>03</b><span>The findings</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>Seven confirmed critical or major, in the order the audit reports them.</h2>
+          <p>
+            Read this as a log, not an apology. Each entry states what the defect was, what it did to
+            output a reader would have believed, and what the fix changed.
+          </p>
+        </div>
+
+        <!-- Finding 1 -->
+        <div class="panel">
+          <div class="panel__head">
+            <span class="panel__title">Finding 01</span>
+            <span class="pill">critical</span>
+            <span class="pill">ledger invariant</span>
+          </div>
+          <div class="panel__body">
+            <h3 class="measure">Cardinality was a property of a claim, never of a key.</h3>
+            <div class="prose">
+              <p>
+                The extractor labels each claim <code>single</code> or <code>multi</code>
+                independently. Interval repair only ran for <code>single</code> claims, so one stray
+                <code>multi</code> label disabled supersession for an entire attribute and left both
+                values open. And because the neighbour search did not filter by cardinality, a
+                <code>multi</code> atom sitting between two <code>single</code> atoms would itself get
+                wrongly closed.
+              </p>
+            </div>
+
+            <div class="table-wrap" aria-label="Keys holding two contradictory current values">
+              <table class="data">
+                <caption>Keys holding two contradictory current values, measured on real extractions</caption>
+                <thead>
+                  <tr>
+                    <th scope="col" class="wrap-cell">corpus</th>
+                    <th scope="col" class="num">chains affected</th>
+                    <th scope="col" class="num">share</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row" class="mono wrap-cell">LongMemEval knowledge-update</th>
+                    <td class="num">33 of 78 episodes</td>
+                    <td class="num">42%</td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="mono wrap-cell">LoCoMo, single-valued chains</th>
+                    <td class="num">35 of 103</td>
+                    <td class="num">34%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="prose">
+              <p>
+                A worked case, LongMemEval <code>9bbe84a2</code>, gold answer <code>level 100</code>
+                &mdash; where the gold <em>is</em> the superseded value, the thing this engine claims to
+                uniquely supply:
+              </p>
+            </div>
+
+            <div class="compare">
+              <div class="panel">
+                <div class="panel__head">
+                  <span class="panel__title">As extracted &mdash; with the bug</span>
+                  <span class="pill">2 current values</span>
+                </div>
+                <div class="panel__body">
+                  <div class="stratum">
+                    <div class="stratum__key">
+                      <b>user</b> <span>&middot;</span> <b>goal</b>
+                      <span>&middot; version chain, valid time</span>
+                    </div>
+                    <div class="stratum__layers">
+                      <div class="stratum-layer is-current">
+                        <span class="stratum-layer__value">reach level 100</span>
+                        <span class="pill pill--current">current</span>
+                        <span class="stratum-layer__range">since 06-16</span>
+                      </div>
+                      <div class="stratum-layer is-current">
+                        <span class="stratum-layer__value">reach level 150</span>
+                        <span class="pill pill--current">current</span>
+                        <span class="stratum-layer__range">since 09-30</span>
+                      </div>
+                    </div>
+                    <div class="stratum__note">
+                      Both intervals open. The block asserts two contradictory facts as currently true
+                      and dates neither relative to the other.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="panel">
+                <div class="panel__head">
+                  <span class="panel__title">After the fix</span>
+                  <span class="pill pill--current">1 current value</span>
+                </div>
+                <div class="panel__body">
+                  <div class="stratum">
+                    <div class="stratum__key">
+                      <b>user</b> <span>&middot;</span> <b>goal</b>
+                      <span>&middot; version chain, valid time</span>
+                    </div>
+                    <div class="stratum__layers">
+                      <div class="stratum-layer is-current">
+                        <span class="stratum-layer__value">reach level 150</span>
+                        <span class="pill pill--current">current</span>
+                        <span class="stratum-layer__range">since 09-30</span>
+                      </div>
+                      <div class="stratum-layer is-superseded">
+                        <span class="stratum-layer__value">reach level 100</span>
+                        <span class="pill pill--superseded">superseded</span>
+                        <span class="stratum-layer__range">06-16 &rarr; 09-30</span>
+                      </div>
+                    </div>
+                    <div class="stratum__note">
+                      The gold answer is the superseded layer. The bug converted a block that names it
+                      as the previous value into one asserting both as currently true.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <p class="figcaption">
+              Real extraction output for LongMemEval <span class="mono">9bbe84a2</span>, redrawn in the
+              site&rsquo;s version-chain component. Dates are reproduced as the audit reports them.
+            </p>
+
+            <div class="prose">
+              <p>
+                <strong>Fix.</strong> Cardinality is decided per key by vote across its claims, and the
+                chain is rebuilt when the vote flips, so the invariant holds by construction rather than
+                by arrival order. After the fix: <strong>137 single-valued chains on real LoCoMo data,
+                0 violations</strong>.
+              </p>
+            </div>
+
+            <div class="callout callout--note">
+              <p class="callout__title">Why no test caught it</p>
+              <p>
+                <code>test_ledger.py</code> tested <code>single</code> chains and <code>multi</code>
+                chains in strict isolation. No test put both on one key, and no test asserted the
+                invariant as a <em>property over all chains</em> &mdash; each hand-checked the one chain
+                it built. There is now an <code>assert_invariant()</code> helper that walks every chain.
+              </p>
+            </div>
+          </div>
+          <div class="panel__foot">
+            Fixed and pinned by a regression test.
+          </div>
+        </div>
+
+        <!-- Finding 2 -->
+        <div class="panel">
+          <div class="panel__head">
+            <span class="panel__title">Finding 02</span>
+            <span class="pill">critical</span>
+            <span class="pill">inflated our own results</span>
+          </div>
+          <div class="panel__body">
+            <h3 class="measure"><code>as_of</code> was two different filters in one parameter.</h3>
+            <div class="prose">
+              <p>
+                <code>Retriever.retrieve</code> fed <code>as_of</code> to the fact tier as a
+                <strong>valid-time</strong> bound (&ldquo;what was true then&rdquo;) while the excerpt
+                tier used it as a <strong>transaction-time</strong> bound (&ldquo;what had we been told
+                by then&rdquo;). The benchmark passes a question&rsquo;s timestamp, which means the
+                second.
+              </p>
+              <p>
+                So the fact tier answered from facts the store first heard months later, while the
+                rendered header still said <code>[Memory as of &lt;cutoff&gt;]</code>. On LongMemEval
+                this produced apparent wins where the gold answer reached this system and no baseline
+                &mdash; for the excellent reason that <strong>no baseline can see the future
+                either</strong>.
+              </p>
+            </div>
+
+            <div class="code">
+              <div class="code__label">leak, reproduced</div>
+<pre><code>2133c1b5  asked_at=2023-10-15  gold='3 months'
+   palimpsest         gold_in_context=True     <span class="c">&lt;- leaked: atom valid_from 2023-10-15</span>
+   all six baselines  gold_in_context=False</code></pre>
+            </div>
+
+            <div class="prose">
+              <p>
+                <strong>Fix.</strong> <code>known_at</code> is a separate parameter; the two axes filter
+                independently.
+              </p>
+            </div>
+          </div>
+          <div class="panel__foot">
+            This is the defect that could see the future and inflate its own wins. Every affected
+            benchmark artifact was discarded and re-run.
+          </div>
+        </div>
+
+        <!-- Finding 3 -->
+        <div class="panel">
+          <div class="panel__head">
+            <span class="panel__title">Finding 03</span>
+            <span class="pill">critical</span>
+            <span class="pill">belief axis</span>
+          </div>
+          <div class="panel__body">
+            <h3 class="measure">Retroactive closures rewrote the past of the belief axis.</h3>
+            <div class="prose">
+              <p>
+                An atom stored one <code>valid_to</code>, mutated in place. So an interval closed today
+                looked closed to a query about what was believed last week &mdash; the belief axis had
+                no history of its own, which makes &ldquo;bitemporal&rdquo; decorative rather than true.
+              </p>
+              <p>
+                <strong>Fix.</strong> Atoms carry <code>closed_tx</code>, the transaction time at which
+                <code>valid_to</code> was set. An as-of read ignores a closure the store had not yet
+                learned.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Finding 4 -->
+        <div class="panel">
+          <div class="panel__head">
+            <span class="panel__title">Finding 04</span>
+            <span class="pill">critical</span>
+            <span class="pill">public API</span>
+          </div>
+          <div class="panel__body">
+            <h3 class="measure">An unmatched retraction closed everything.</h3>
+            <div class="prose">
+              <p>
+                <code>_retract_value</code> looked the value up, and when the lookup missed it skipped
+                the per-atom filter entirely &mdash; so &ldquo;I don&rsquo;t have a cat anymore&rdquo;,
+                with a value string the ledger had never stored, closed <strong>every open interval on
+                the key</strong>.
+              </p>
+              <p>
+                <code>Memory.correct()</code> had the identical defect through the public API:
+                <code>correct("user", "city", "New York")</code> against a stored
+                <code>"New York City"</code> wiped the whole chain &mdash; and returned a success count.
+              </p>
+              <p>
+                <strong>Fix.</strong> A retraction or correction that matches nothing now affects
+                nothing.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Finding 5 -->
+        <div class="panel">
+          <div class="panel__head">
+            <span class="panel__title">Finding 05</span>
+            <span class="pill">critical</span>
+            <span class="pill">durable cache</span>
+          </div>
+          <div class="panel__body">
+            <h3 class="measure">A failed adjudication was cached as a permanent decision.</h3>
+            <div class="prose">
+              <p>
+                A failed LLM call and a genuine &ldquo;these predicates are different&rdquo; both
+                surface as a falsy result, and the durable cache stored both identically. One run while
+                the LLM was unreachable &mdash; or with <code>PALIMPSEST_LLM_OFFLINE=1</code>, which is
+                how the tests run &mdash; permanently taught the store that <code>lives_in</code> and
+                <code>city</code> are different predicates.
+              </p>
+              <p>
+                The store then served a superseded value labelled current, on the worked example the
+                entire thesis rests on:
+              </p>
+            </div>
+
+            <div class="code">
+              <div class="code__label">recall output</div>
+<pre><code>A) clean cache            B) cache poisoned by one offline run
+  city: Austin              lives in: New York City   [current]   <span class="c">&lt;- superseded</span>
+                            city: Austin              [current]
+
+  supersessions: 1          supersessions: 0</code></pre>
+            </div>
+
+            <div class="prose">
+              <p>
+                <strong>Fix.</strong> Only a call that actually returned parseable JSON is cached.
+                <strong>762 poisoned declines were purged.</strong>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Finding 6 -->
+        <div class="panel">
+          <div class="panel__head">
+            <span class="panel__title">Finding 06</span>
+            <span class="pill">critical</span>
+            <span class="pill">harness integrity</span>
+          </div>
+          <div class="panel__body">
+            <h3 class="measure">Accuracy and its confidence interval used different denominators.</h3>
+            <div class="prose">
+              <p>
+                The point estimate divided by <em>judged</em> rows; the Wilson interval divided by
+                <em>all</em> rows. Whenever any question went unanswered, the interval was drawn around
+                a different proportion than the number printed beside it.
+              </p>
+              <p>
+                In the first LongMemEval artifact an LLM outage left <strong>20 of 72 questions
+                unanswered</strong>, and every single reported accuracy fell <strong>outside its own
+                reported CI</strong>:
+              </p>
+            </div>
+
+            <div class="code">
+              <div class="code__label">first LongMemEval artifact, discarded</div>
+<pre><code>palimpsest  n=72  unjudged=20  acc=0.827  ci95=[0.482, 0.703]   acc in CI? False
+bm25        n=72  unjudged=20  acc=0.615  ci95=[0.335, 0.559]   acc in CI? False</code></pre>
+            </div>
+
+            <div class="prose">
+              <p>
+                Worse than the arithmetic: excluding unanswered questions from the numerator&rsquo;s
+                denominator <em>inflates</em> accuracy, and nothing in the report said so.
+              </p>
+              <p>
+                <strong>Fix.</strong> One denominator, <code>n_judged</code> reported alongside
+                <code>n</code>, and a run with more than <span class="num">2%</span> unanswered
+                questions is flagged <strong>not reportable</strong>.
+              </p>
+            </div>
+          </div>
+          <div class="panel__foot">
+            The <span class="num">0.827</span> above is not a Palimpsest result. It is what the broken
+            harness printed, and it is on this page instead of in a README.
+          </div>
+        </div>
+
+        <!-- Finding 7 -->
+        <div class="panel">
+          <div class="panel__head">
+            <span class="panel__title">Finding 07</span>
+            <span class="pill">major</span>
+            <span class="pill">silent deletion</span>
+          </div>
+          <div class="panel__body">
+            <h3 class="measure">Same-instant claims created zero-length intervals.</h3>
+            <div class="prose">
+              <p>
+                Two values claimed true at the same instant produced an interval with
+                <code>valid_from == valid_to</code>: unreachable by any as-of query, yet still
+                suppressed from the excerpt tier as &ldquo;stale&rdquo;. A fact deleted in silence, in a
+                store whose entire premise is that nothing is ever deleted.
+              </p>
+              <p>
+                <strong>Fix.</strong> A same-instant conflict is a conflict of <em>belief</em>, and
+                resolves on the transaction axis.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04 What it cost ============ -->
+  <section class="section" id="cost">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>04</b><span>What it cost</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>Fixing the cardinality bug lowered our LoCoMo score, and the lower number is the one we
+            publish.</h2>
+          <p>
+            The audit was not free and did not only produce reassurance. On the 3-conversation LoCoMo
+            subset used during the audit, this engine scored <span class="num">0.502</span> before the
+            fix and <span class="num">0.407</span> after it &mdash; a drop of
+            <span class="num">9.5</span> points, concentrated in the temporal category.
+          </p>
+        </div>
+
+        <div class="table-wrap" aria-label="LoCoMo, 3-conversation subset, before and after the cardinality fix">
+          <table class="data">
+            <caption>LoCoMo, 3-conversation subset, before and after the cardinality fix</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">measure</th>
+                <th scope="col" class="num">before the fix</th>
+                <th scope="col" class="num">after the fix</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row" class="mono wrap-cell">overall</th>
+                <td class="num">0.502</td>
+                <td class="num">0.407</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono wrap-cell">temporal</th>
+                <td class="num">0.629</td>
+                <td class="num">0.514</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="prose">
+          <p>
+            The pre-fix score was higher because the bug <em>created supersessions that should not have
+            existed</em> &mdash; a claim mislabelled <code>multi</code> skipped interval repair, and the
+            resulting chaos happened to produce &ldquo;earlier values&rdquo; blocks that flattered the
+            temporal category. <strong>Part of the apparent advantage was an artifact of a broken
+            ledger.</strong>
+          </p>
+          <p>
+            A benchmark number that gets better when you fix a correctness bug is a number to be
+            suspicious of. This one got worse, which is the expected direction, and it is the one on the
+            benchmarks page.
+          </p>
+        </div>
+
+        <div class="callout callout--loss">
+          <p class="callout__title">Where it loses</p>
+          <p>
+            On LoCoMo, all 10 conversations, 468 questions: <span class="mono">full_context</span> wins
+            at <span class="num">0.549</span> on <span class="num">23,604</span> tokens.
+            <span class="mono">bm25</span> at <span class="num">0.417</span> and
+            <span class="mono">palimpsest</span> at <span class="num">0.408</span> are a statistical
+            tie. LoCoMo asks about details <em>inside</em> an utterance, which a fact ledger has nothing
+            to say about.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 05 What this means ============ -->
+  <section class="section" id="numbers">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>05</b><span>The numbers</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>Everything was re-run afterwards. Nothing measured before the fixes is reported.</h2>
+          <p>
+            Every benchmark result on this site was produced after these fixes. Numbers produced before
+            them are not reported &mdash; including a LongMemEval knowledge-update figure that looked
+            good and was measured on a ledger violating its own invariant, with a future leak, over 72%
+            of the questions. It is gone, not softened.
+          </p>
+          <p>
+            The general lesson is the one the audit was designed around. In a memory system the
+            dangerous bugs do not throw; they return something plausible. Six of the seven critical and
+            major findings above survived a suite that was green at <span class="num">305</span> tests,
+            and each one produced output a reader would have believed.
+          </p>
+        </div>
+
+        <div class="callout callout--caveat">
+          <p class="callout__title">Read this with the number</p>
+          <p>
+            In both LongMemEval tables the confidence interval <strong>overlaps the runner-up</strong>,
+            so the margin over second place is <strong>not statistically significant</strong>. The margin
+            over BM25 and below is. And we lose LoCoMo.
+          </p>
+        </div>
+
+        <h3 class="measure">Which is why you should not take this benchmark on faith either.</h3>
+        <div class="prose">
+          <p>
+            Across this field, self-reported memory scores do not reproduce when someone else measures
+            them, and there is no public leaderboard anywhere to arbitrate. That is not a reason to
+            trust the number on this site instead. It is a reason to trust the
+            <em>procedure</em>: same process, same answering model, a judge separate from the answerer,
+            the unmodified standard Mem0 judge prompt, the same token budget for every system, the
+            identical extracted claims shared across every fact-based system &mdash; and a defect log
+            published in full, including the two defects that were making our own results look better
+            than they were.
+          </p>
+          <p>
+            The audit found nine. There is no claim here that nine is all of them.
+          </p>
+          <p>
+            <a href="../benchmarks/index.html">All tables, with intervals and losses &rarr;</a>
+            &nbsp;&middot;&nbsp;
+            <a href="../field.html">Why published numbers in this field do not reproduce &rarr;</a>
+            &nbsp;&middot;&nbsp;
+            <a href="https://github.com/joe51111jwd/palimpsest">Read the code &rarr;</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap site-footer__grid">
+    <div>
+      <h2>Palimpsest</h2>
+      <p class="measure-short">
+        An open-world bitemporal claim-interval memory engine for AI agents. A palimpsest is a
+        manuscript scraped and rewritten, where the earlier text stays legible underneath. So is this.
+      </p>
+      <p class="meta mt-3">Apache-2.0 &middot; alpha &middot; the API may change</p>
+    </div>
+    <div>
+      <h2>Read</h2>
+      <ul>
+        <li><a href="../how-it-works.html">How it works</a></li>
+        <li><a href="../benchmarks/index.html">Benchmarks</a></li>
+        <li><a href="../field.html">The field</a></li>
+        <li><a href="index.html">Audit</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Use</h2>
+      <ul>
+        <li><a href="../docs.html">Docs &amp; API</a></li>
+        <li><a href="https://github.com/joe51111jwd/palimpsest">GitHub</a></li>
+        <li><a href="https://pypi.org/project/palimpsest-memory/">PyPI</a></li>
+        <li><a href="../about.html">About</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

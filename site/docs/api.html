@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>API reference — Palimpsest</title>
+<meta name="description" content="Every public symbol in palimpsest: Memory and its six methods, the recall parameters including the as_of / known_at distinction, all seven dataclasses, and SQLiteStore.">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header" data-nav="closed">
+  <div class="wrap site-header__inner">
+    <a class="brand" href="../index.html">
+      <span class="brand__name">Palimpsest</span>
+      <span class="brand__note">bitemporal claim-interval memory</span>
+    </a>
+
+    <nav class="nav" aria-label="Primary">
+      <ul class="nav-list">
+        <li><a href="../how-it-works.html">How it works</a></li>
+        <li><a href="../benchmarks/index.html">Benchmarks</a></li>
+        <li><a href="../field.html">The field</a></li>
+        <li><a href="../audit/index.html">Audit</a></li>
+        <li><a href="index.html" aria-current="page">Docs</a></li>
+        <li><a href="https://github.com/joe51111jwd/palimpsest">GitHub</a></li>
+      </ul>
+    </nav>
+
+    <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false">Menu</button>
+    <button class="theme-toggle" type="button" data-theme-toggle>Dark</button>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ============ Hero ============ -->
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">API reference &middot; v0.1.0</p>
+      <h1 class="hero__title">Every public symbol, with a real signature and an example that runs.</h1>
+      <p class="hero__lede">
+        Six methods on <span class="mono">Memory</span>, seven dataclasses, one store. The one part
+        worth reading slowly is <a href="#asof">&sect;05, <span class="mono">as_of</span> versus
+        <span class="mono">known_at</span></a> &mdash; they answer different questions, and
+        conflating them leaks the future.
+      </p>
+      <div class="hero__actions">
+        <a class="btn" href="index.html">Concepts &amp; quickstart</a>
+        <a class="btn btn--ghost" href="https://github.com/joe51111jwd/palimpsest">Source on GitHub</a>
+        <span class="meta">Apache-2.0 &middot; alpha &middot; the API may change</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 01 Import surface ============ -->
+  <section class="section" id="imports">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>01</b><span>Imports</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>The whole export surface.</h2>
+          <p>
+            Everything in <code>palimpsest.__all__</code>. Most programs need the first three lines.
+          </p>
+        </div>
+
+        <div class="code">
+          <div class="code__label">python</div>
+<pre><code><span class="k">from</span> palimpsest <span class="k">import</span> Memory, Message           <span class="c"># the API and its input</span>
+<span class="k">from</span> palimpsest <span class="k">import</span> SQLiteStore              <span class="c"># durable storage</span>
+<span class="k">from</span> palimpsest.types <span class="k">import</span> Claim               <span class="c"># if you extract facts yourself</span>
+
+<span class="c"># result and value objects</span>
+<span class="k">from</span> palimpsest <span class="k">import</span> Fact, Recall, RetrievedFact, IngestResult, Stats, Atom
+
+<span class="c"># internals, exported for inspection — see §13</span>
+<span class="k">from</span> palimpsest <span class="k">import</span> Ledger, Canonicalizer, EpisodicIndex, Embedder, default_embedder
+
+<span class="k">import</span> palimpsest
+palimpsest.__version__          <span class="c"># '0.1.0'</span></code></pre>
+        </div>
+
+        <div class="prose">
+          <p>
+            <code>Claim</code> is re-exported from <code>palimpsest</code> as well as
+            <code>palimpsest.types</code>; both import paths are equivalent. Extractors and
+            adjudicators live under <code>palimpsest.extract</code> (<a href="#extract">&sect;12</a>).
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 Memory ============ -->
+  <section class="section section--sunken" id="memory">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>02</b><span>Memory</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2><code>Memory</code></h2>
+          <p>
+            The public API. It owns an embedder, a canonicalizer, the ledger, the episodic index and
+            a retriever, and it is the only object most callers touch. Constructing one with no
+            arguments is valid and does something useful: the seed synonym groups
+            (<a href="index.html#canon">concepts &sect;06</a>) mean the common attributes canonicalize
+            correctly with no model configured at all.
+          </p>
+        </div>
+
+        <div class="code">
+          <div class="code__label">signature</div>
+<pre><code>Memory(
+    *,
+    extractor: Extractor | None = None,
+    embedder: Embedder | None = None,
+    adjudicator: PredicateAdjudicator | None = None,
+    index_messages: bool = True,
+)</code></pre>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data">
+            <caption>Constructor parameters &mdash; all keyword-only</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">parameter</th>
+                <th scope="col" class="wrap-cell">default</th>
+                <th scope="col" class="wrap-cell">meaning</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row" class="mono">extractor</th>
+                <td class="mono">None</td>
+                <td class="wrap-cell">
+                  Turns messages into claims on ingest. With none configured,
+                  <span class="mono">ingest()</span> extracts nothing unless you pass
+                  <span class="mono">claims=</span> yourself.
+                </td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">embedder</th>
+                <td class="mono">default_embedder()</td>
+                <td class="wrap-cell">
+                  Process-wide shared static embedder. Loading the model twice is wasteful, so pass
+                  the shared one rather than a second instance.
+                </td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">adjudicator</th>
+                <td class="mono">None</td>
+                <td class="wrap-cell">
+                  Decides whether a novel predicate means the same as an existing one. Guards may
+                  veto what it proposes; nothing can force a merge it declines.
+                </td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">index_messages</th>
+                <td class="mono">True</td>
+                <td class="wrap-cell">
+                  Index the raw utterances for the hybrid tier. Setting this
+                  <span class="mono">False</span> gives you a pure fact ledger and removes tier 3
+                  entirely.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="prose">
+          <h3>Attributes</h3>
+          <ul>
+            <li><code>mem.ledger</code> &mdash; the <code>Ledger</code>. Atoms, chains, statistics.</li>
+            <li><code>mem.canon</code> &mdash; the <code>Canonicalizer</code>. Entities, predicates, aliases, the merge log.</li>
+            <li><code>mem.index</code> &mdash; the <code>EpisodicIndex</code> over raw messages.</li>
+            <li><code>mem.retriever</code> &mdash; the <code>Retriever</code> that plans and fuses the three tiers.</li>
+            <li><code>mem.embedder</code> &mdash; check <code>mem.embedder.backend</code> to confirm you are not on the hashing fallback.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 ingest ============ -->
+  <section class="section" id="ingest">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>03</b><span>ingest</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2><code>Memory.ingest</code></h2>
+          <p>
+            Folds a batch of messages into memory. Messages are indexed for the hybrid tier, claims
+            are extracted (or supplied), relation bindings are resolved so that
+            &ldquo;my sister&rdquo; and &ldquo;Maria&rdquo; land on one entity from the first write,
+            and each claim is applied to the ledger.
+          </p>
+          <p>
+            Each claim's transaction time is the timestamp of the message named by its
+            <code>source_id</code>, so <em>the ingest order does not decide when the store learned
+            something</em> &mdash; the transcript does. A claim whose <code>source_id</code> matches
+            no message in the batch falls back to the latest timestamp seen so far.
+          </p>
+        </div>
+
+        <div class="code">
+          <div class="code__label">signature</div>
+<pre><code>ingest(
+    messages: Sequence[Message],
+    *,
+    claims: Iterable[Claim] | None = None,
+) -&gt; IngestResult</code></pre>
+        </div>
+
+        <div class="prose">
+          <p>
+            <code>claims=</code> is a first-class path, not a test hook: it lets extraction happen
+            once, in one big cached batch, instead of inside the ingest loop. It is what the
+            benchmark harness uses, and it is what makes the examples on this site deterministic and
+            offline.
+          </p>
+        </div>
+
+        <div class="code">
+          <div class="code__label">python</div>
+<pre><code><span class="k">from</span> datetime <span class="k">import</span> datetime
+<span class="k">from</span> palimpsest <span class="k">import</span> Memory, Message
+<span class="k">from</span> palimpsest.types <span class="k">import</span> Claim
+
+messages = [
+    Message(session_id=<span class="s">"s1"</span>, speaker=<span class="s">"user"</span>, role=<span class="s">"user"</span>, msg_id=<span class="s">"m1"</span>,
+            text=<span class="s">"I live in New York City."</span>, timestamp=datetime(2023, 1, 1, 12, 0)),
+    Message(session_id=<span class="s">"s1"</span>, speaker=<span class="s">"user"</span>, role=<span class="s">"user"</span>, msg_id=<span class="s">"m2"</span>,
+            text=<span class="s">"Just moved to Austin!"</span>,    timestamp=datetime(2023, 4, 11, 12, 0)),
+]
+claims = [
+    Claim(entity=<span class="s">"user"</span>, predicate=<span class="s">"city"</span>,     value=<span class="s">"New York City"</span>,
+          source_text=messages[0].text, source_id=<span class="s">"m1"</span>),
+    Claim(entity=<span class="s">"user"</span>, predicate=<span class="s">"lives_in"</span>, value=<span class="s">"Austin"</span>,
+          source_text=messages[1].text, source_id=<span class="s">"m2"</span>),
+]
+
+mem = Memory()
+print(mem.ingest(messages, claims=claims))
+
+<span class="c"># IngestResult(messages=2, claims=2, atoms_created=2, supersessions=1,</span>
+<span class="c">#              retractions=0, noops=0, predicates_minted=1,</span>
+<span class="c">#              predicates_aliased=2, latency_ms=0.09)</span>
+<span class="c">#              — the timing is from one laptop; everything else is exact</span></code></pre>
+        </div>
+
+        <div class="prose">
+          <p>
+            One supersession, one canonical predicate from two surface forms. If
+            <code>predicates_minted</code> climbs with every ingest while
+            <code>supersessions</code> stays at zero, your synonyms are not merging and the ledger
+            is quietly degrading into a fact list &mdash; that pair of counters is the cheapest
+            health check there is.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04 recall ============ -->
+  <section class="section section--sunken" id="recall">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>04</b><span>recall</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2><code>Memory.recall</code></h2>
+          <p>
+            Plans the query, runs the three tiers, and renders a prompt-ready block. It calls no
+            model: pure Python and numpy.
+          </p>
+        </div>
+
+        <div class="code">
+          <div class="code__label">signature</div>
+<pre><code>recall(
+    query: str,
+    *,
+    k: int = 8,
+    as_of: datetime | None = None,
+    known_at: datetime | None = None,
+    token_budget: int = 1024,
+) -&gt; Recall</code></pre>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data">
+            <caption><code>recall()</code> parameters</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">parameter</th>
+                <th scope="col" class="wrap-cell">default</th>
+                <th scope="col" class="wrap-cell">meaning</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row" class="mono">query</th>
+                <td class="mono">&mdash;</td>
+                <td class="wrap-cell">
+                  The question, in natural language. Entities are resolved from name mentions and
+                  first-person pronouns; predicates by embedding the question against the canonical
+                  predicates this store actually learned. No hardcoded vocabulary.
+                </td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">k</th>
+                <td class="mono">8</td>
+                <td class="wrap-cell">
+                  Target number of structured facts. A soft target: the graph tier stops once
+                  <span class="mono">k</span> is reached, and the final fact list is capped at
+                  <span class="mono">max(k, 24)</span> before rendering.
+                </td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">as_of</th>
+                <td class="mono">None</td>
+                <td class="wrap-cell">
+                  <strong>Valid time.</strong> &ldquo;What was true on this date?&rdquo; Defaults to
+                  the latest message timestamp the store has seen &mdash; i.e. now.
+                  <a href="#asof">&sect;05</a>.
+                </td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">known_at</th>
+                <td class="mono">None</td>
+                <td class="wrap-cell">
+                  <strong>Transaction time.</strong> &ldquo;What had the store been told by this
+                  date?&rdquo; Independent of <span class="mono">as_of</span>.
+                  <a href="#asof">&sect;05</a>.
+                </td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">token_budget</th>
+                <td class="mono">1024</td>
+                <td class="wrap-cell">
+                  Hard ceiling on <span class="mono">Recall.context</span>, enforced after packing
+                  rather than estimated. The fact block gets a fraction of it that depends on how
+                  confidently the question resolved to a predicate; excerpts get the rest.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="code">
+          <div class="code__label">python</div>
+<pre><code>r = mem.recall(<span class="s">"Where do I work?"</span>)
+
+print(r.context)        <span class="c"># the block you paste into a prompt</span>
+print(r.n_tokens)               <span class="c"># 117</span>
+print(r.resolved_predicates)    <span class="c"># ['employer', 'city']</span>
+print(r.resolved_entities)      <span class="c"># ['user']</span>
+print(r.tier_counts)            <span class="c"># {'interval': 2, 'graph': 1, 'hybrid': 3}</span>
+print(round(r.latency_ms, 2))   <span class="c"># 1.27</span>
+
+<span class="k">for</span> rf <span class="k">in</span> r.facts:
+    print(rf.tier, rf.score, rf.fact.value)
+
+<span class="c"># interval 3.0 Pied Piper</span>
+<span class="c"># interval 3.0 Austin</span>
+<span class="c"># graph 1.5 penicillin</span></code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code__label">Recall.context</div>
+<pre><code>KNOWN FACTS (current, verified true as of the latest information):
+  - The user's city: Austin   [since 2023-04-11]
+
+RELEVANT CONVERSATION EXCERPTS:
+  [2023-02-03] user: I work at Globex.
+  [2023-04-11] user: Just moved to Austin!
+  [2023-06-02] user: My new employer is Pied Piper.
+  [2023-03-09] user: I'm allergic to penicillin.</code></pre>
+        </div>
+
+        <div class="prose">
+          <p>
+            When <code>as_of</code> is set, the block is prefixed with
+            <span class="mono">[Memory as of YYYY-MM-DD]</span>. On a historical question the
+            superseded values are emitted first, under
+            <span class="mono">EARLIER VALUES (no longer true &mdash; superseded):</span>, because on
+            such a question they <em>are</em> the answer.
+          </p>
+        </div>
+
+        <div class="callout callout--note">
+          <p class="callout__title">A non-empty store never returns an empty context</p>
+          <p>
+            The hybrid tier is unconditional. If the question resolves to no predicate at all you
+            still get excerpts, never an empty string. An earlier version early-returned nothing
+            when its keyword parser failed to fire; that scored well on a synthetic abstention
+            metric and catastrophically on real paraphrases.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 05 as_of / known_at ============ -->
+  <section class="section" id="asof">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>05</b><span>as_of / known_at</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>The two bounds are different questions, and conflating them leaks the future.</h2>
+          <p>
+            <code>as_of</code> bounds <strong>valid time</strong>: what was true in the world on
+            that date. <code>known_at</code> bounds <strong>transaction time</strong>: what the
+            store had been told by that date. They are independent, and you usually want both.
+          </p>
+          <p>
+            Here is why it matters. A user says in September, &ldquo;I moved to Austin back in
+            April.&rdquo; The Austin atom's valid time starts in April; its transaction time starts
+            in September. Now ask, in June, where they live.
+          </p>
+        </div>
+
+        <div class="code">
+          <div class="code__label">python</div>
+<pre><code>messages = [
+    Message(session_id=<span class="s">"s"</span>, speaker=<span class="s">"user"</span>, role=<span class="s">"user"</span>, msg_id=<span class="s">"m1"</span>,
+            text=<span class="s">"I live in New York City."</span>,
+            timestamp=datetime(2023, 1, 1, 12, 0)),
+    Message(session_id=<span class="s">"s"</span>, speaker=<span class="s">"user"</span>, role=<span class="s">"user"</span>, msg_id=<span class="s">"m2"</span>,
+            text=<span class="s">"I moved to Austin back in April."</span>,
+            timestamp=datetime(2023, 9, 1, 12, 0)),          <span class="c"># told in September</span>
+]
+claims = [
+    Claim(entity=<span class="s">"user"</span>, predicate=<span class="s">"city"</span>, value=<span class="s">"New York City"</span>,
+          source_text=messages[0].text, source_id=<span class="s">"m1"</span>),
+    Claim(entity=<span class="s">"user"</span>, predicate=<span class="s">"city"</span>, value=<span class="s">"Austin"</span>,
+          valid_from=datetime(2023, 4, 11, 12, 0),           <span class="c"># true since April</span>
+          source_text=messages[1].text, source_id=<span class="s">"m2"</span>),
+]
+mem = Memory()
+mem.ingest(messages, claims=claims)
+
+june = datetime(2023, 6, 1, 12, 0)
+
+r = mem.recall(<span class="s">"Where do I live?"</span>, as_of=june)
+print([rf.fact.value <span class="k">for</span> rf <span class="k">in</span> r.facts])
+<span class="c"># ['Austin']        &lt;- true in June, but nobody had said so yet</span>
+
+r = mem.recall(<span class="s">"Where do I live?"</span>, as_of=june, known_at=june)
+print([rf.fact.value <span class="k">for</span> rf <span class="k">in</span> r.facts])
+<span class="c"># ['New York City'] &lt;- what the store could actually have answered in June</span></code></pre>
+        </div>
+
+        <div class="prose">
+          <p>Both answers are correct. They answer different questions:</p>
+          <ul>
+            <li>
+              <strong>Historical truth.</strong> <code>as_of</code> alone. &ldquo;Where did this
+              person live in June?&rdquo; Austin. Use this for reporting on the past with everything
+              you now know.
+            </li>
+            <li>
+              <strong>Historical belief.</strong> <code>as_of</code> and <code>known_at</code>.
+              &ldquo;Answer as the assistant could have on 1 June.&rdquo; New York City. Use this
+              for auditing an old answer, for replaying a conversation, and for any benchmark that
+              asks a question at a point in the transcript.
+            </li>
+          </ul>
+        </div>
+
+        <div class="callout callout--loss">
+          <p class="callout__title">This distinction was a defect in this engine, and fixing it cost score</p>
+          <p>
+            The excerpt tier had always filtered transaction time &mdash; a message the store had not
+            received yet is not retrievable. The fact tier filtered valid time only. So a question
+            asked in June could be answered from a fact the store first heard in September, while
+            the context header still claimed to be &ldquo;as of June&rdquo;. On LongMemEval that
+            produced apparent wins where the gold answer reached this system and no baseline,
+            because <em>no baseline can see the future either</em>.
+            <a href="../audit/index.html">The defect log &rarr;</a>
+          </p>
+        </div>
+
+        <div class="prose">
+          <h3>Passing a question's own timestamp</h3>
+          <p>
+            If you are answering a question that occurs at a point in a transcript, pass that
+            timestamp as <strong>both</strong> bounds. That is almost always what you mean, and it
+            is what the harness does for every system it measures.
+          </p>
+        </div>
+
+        <div class="code">
+          <div class="code__label">python</div>
+<pre><code>asked_at = question.timestamp
+r = mem.recall(question.text, as_of=asked_at, known_at=asked_at)</code></pre>
+        </div>
+
+        <div class="prose">
+          <p>
+            <code>known_at</code> reaches three places: the interval tier drops atoms whose
+            <code>tx_from</code> is later than the bound; a closure the store had not yet learned is
+            ignored, so the earlier value stays open; and a supersession the store had not yet
+            learned cannot be used to suppress an excerpt as stale. The last one matters &mdash;
+            without it, evidence disappears from the context on the strength of a fact that had not
+            arrived yet.
+          </p>
+        </div>
+
+        <div class="callout callout--note">
+          <p class="callout__title">One caveat after a reload</p>
+          <p>
+            The <code>closed_tx</code> stamp &mdash; <em>when the store learned that an interval had
+            ended</em> &mdash; has no column in the SQLite schema and is not restored by
+            <code>SQLiteStore.load()</code>. Valid-time queries round-trip exactly;
+            <code>known_at</code> queries against a reloaded store do not see the pre-closure belief
+            state. Keep a <code>Memory</code> in process for belief-time work, or reconstruct it by
+            re-ingesting. <a href="#store">&sect;11</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 06 facts ============ -->
+  <section class="section section--sunken" id="facts">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>06</b><span>facts</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2><code>Memory.facts</code></h2>
+          <p>
+            Everything the store holds, as <code>Fact</code>s, sorted by
+            <span class="mono">(entity, predicate, valid_from)</span>. This is the direct ledger
+            read: no query planning, no ranking, no token budget.
+          </p>
+        </div>
+
+        <div class="code">
+          <div class="code__label">signature</div>
+<pre><code>facts(
+    *,
+    entity: str | None = None,
+    as_of: datetime | None = None,
+    include_history: bool = False,
+) -&gt; list[Fact]</code></pre>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data">
+            <caption><code>facts()</code> parameters</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">parameter</th>
+                <th scope="col" class="wrap-cell">effect</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row" class="mono">entity</th>
+                <td class="wrap-cell">
+                  Restrict to one canonical entity, resolved through the alias table. This is a
+                  plain alias hit, not the write path&rsquo;s resolution: a name the store has no
+                  alias for resolves to <span class="mono">None</span>, and
+                  <span class="mono">facts()</span> then applies <strong>no filter at all</strong>
+                  and returns everything. First-person forms are the trap &mdash;
+                  <span class="mono">"me"</span> and <span class="mono">"I"</span> collapse to
+                  <span class="mono">user</span> when a claim is written but are not registered as
+                  aliases, so <span class="mono">facts(entity="me")</span> filters nothing. Pass the
+                  canonical name.
+                </td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">as_of</th>
+                <td class="wrap-cell">
+                  Valid-time slice: every value true on that date. There is no
+                  <span class="mono">known_at</span> here &mdash; use
+                  <span class="mono">recall()</span> for belief-time bounds.
+                </td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">include_history</th>
+                <td class="wrap-cell">
+                  Return every believed atom on every key, superseded ones included. Overrides
+                  <span class="mono">as_of</span>.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="code">
+          <div class="code__label">python</div>
+<pre><code><span class="k">for</span> fact <span class="k">in</span> mem.facts():
+    print(fact.as_line())
+
+<span class="c"># You — allergic to: penicillin  (current, since 2023-03-09)</span>
+<span class="c"># You — city: Austin  (current, since 2023-04-11)</span>
+<span class="c"># You — employer: Pied Piper  (current, since 2023-06-02)</span>
+
+len(mem.facts())                          <span class="c"># 3 — current values only</span>
+len(mem.facts(include_history=True))      <span class="c"># 5 — every version ever held</span>
+
+<span class="c"># a valid-time slice: only what was true that day</span>
+[(f.predicate, f.value)
+ <span class="k">for</span> f <span class="k">in</span> mem.facts(entity=<span class="s">"user"</span>, as_of=datetime(2023, 3, 1, 12, 0))]
+<span class="c"># [('city', 'New York City'), ('employer', 'Globex')]</span>
+
+[(f.predicate, f.value)
+ <span class="k">for</span> f <span class="k">in</span> mem.facts(entity=<span class="s">"user"</span>, as_of=datetime(2023, 5, 1, 12, 0))]
+<span class="c"># [('allergic_to', 'penicillin'), ('city', 'Austin'), ('employer', 'Globex')]</span></code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 07 timeline ============ -->
+  <section class="section" id="timeline">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>07</b><span>timeline</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2><code>Memory.timeline</code></h2>
+          <p>
+            Every version of one attribute, oldest first &mdash; the palimpsest view. If either name
+            is unknown the result is an empty list, not an error.
+          </p>
+          <p>
+            The predicate goes through the alias table, so any surface form that canonicalized onto
+            the key works: <code>timeline("user", "lives_in")</code> and
+            <code>timeline("user", "city")</code> return the same chain. The <em>entity</em> is a
+            plain alias hit and is stricter &mdash; <code>timeline("me", "city")</code> returns
+            <code>[]</code>, because <span class="mono">me</span> collapses to
+            <span class="mono">user</span> on the write path but is not stored as an alias. Pass the
+            canonical name.
+          </p>
+          <p>
+            Corrected atoms are absent: the chain returns believed atoms only.
+          </p>
+        </div>
+
+        <div class="code">
+          <div class="code__label">signature</div>
+<pre><code>timeline(entity: str, predicate: str) -&gt; list[Fact]</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code__label">python</div>
+<pre><code><span class="k">for</span> fact <span class="k">in</span> mem.timeline(<span class="s">"user"</span>, <span class="s">"city"</span>):
+    print(fact.as_line())
+
+<span class="c"># You — city: New York City  (was true 2023-01-01 to 2023-04-11, superseded)</span>
+<span class="c"># You — city: Austin  (current, since 2023-04-11)</span>
+
+<span class="c"># the raw fields, if you are rendering it yourself</span>
+<span class="k">for</span> fact <span class="k">in</span> mem.timeline(<span class="s">"user"</span>, <span class="s">"city"</span>):
+    print(fact.value, fact.valid_from, fact.valid_to, fact.is_current)</code></pre>
+        </div>
+
+        <div class="stratum">
+          <div class="stratum__key">
+            <b>user</b> <span>&middot;</span> <b>city</b>
+            <span>&middot; what timeline() returns, rendered</span>
+          </div>
+          <div class="stratum__layers">
+            <div class="stratum-layer is-current">
+              <span class="stratum-layer__value">Austin</span>
+              <span class="pill pill--current">current</span>
+              <span class="stratum-layer__range">2023-04-11 &rarr; open</span>
+            </div>
+            <div class="stratum-layer is-superseded">
+              <span class="stratum-layer__value">New York City</span>
+              <span class="pill pill--superseded">superseded</span>
+              <span class="stratum-layer__range">2023-01-01 &rarr; 2023-04-11</span>
+            </div>
+          </div>
+          <div class="stratum__note">
+            <span class="mono">timeline()</span> returns these oldest-first; the component shows
+            them current-first.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 08 correct ============ -->
+  <section class="section section--sunken" id="correct">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>08</b><span>correct</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2><code>Memory.correct</code></h2>
+          <p>
+            Retracts a stored fact as never-having-been-true &mdash; a transaction-time close. This
+            is not supersession: the atom stops being returned for <em>any</em>
+            <code>as_of</code>, and whatever it superseded reopens to cover the gap. Use it for
+            &ldquo;I was never at Globex, I misspoke&rdquo;, never for &ldquo;I moved&rdquo;.
+          </p>
+          <p>
+            Returns the number of atoms retracted. Matching is on the value, case-insensitively and
+            exactly; every believed atom on the key holding that value is retracted.
+          </p>
+        </div>
+
+        <div class="code">
+          <div class="code__label">signature</div>
+<pre><code>correct(entity: str, predicate: str, value: str) -&gt; int</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code__label">python</div>
+<pre><code><span class="c"># chain: Initech (2021-03-02), Globex (2022-08-15), Cyberdyne (2024-01-08)</span>
+
+mem.correct(<span class="s">"user"</span>, <span class="s">"employer"</span>, <span class="s">"Globex"</span>)      <span class="c"># -&gt; 1</span>
+
+<span class="k">for</span> fact <span class="k">in</span> mem.timeline(<span class="s">"user"</span>, <span class="s">"employer"</span>):
+    print(fact.as_line())
+
+<span class="c"># You — employer: Initech    (was true 2021-03-02 to 2024-01-08, superseded)</span>
+<span class="c"># You — employer: Cyberdyne  (current, since 2024-01-08)</span>
+
+mem.correct(<span class="s">"user"</span>, <span class="s">"employer"</span>, <span class="s">"Globe"</span>)       <span class="c"># -&gt; 0, nothing changed</span></code></pre>
+        </div>
+
+        <div class="callout callout--note">
+          <p class="callout__title">Check the return value</p>
+          <p>
+            A correction that matches nothing corrects nothing and returns
+            <span class="mono">0</span>. An earlier version treated a missed value lookup as
+            &ldquo;match everything&rdquo;, so
+            <span class="mono">correct("user", "city", "New York")</span> against a stored
+            <span class="mono">"New York City"</span> wiped the entire chain and reported success.
+            The transaction time used is the latest message timestamp the store has seen, falling
+            back to <span class="mono">datetime.now()</span> for an empty store.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 09 stats ============ -->
+  <section class="section" id="stats">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>09</b><span>stats</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2><code>Memory.stats</code></h2>
+          <p>
+            A <code>Stats</code> snapshot over the believed atoms only &mdash; corrected atoms are
+            excluded from every count.
+          </p>
+        </div>
+
+        <div class="code">
+          <div class="code__label">signature</div>
+<pre><code>stats() -&gt; Stats</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code__label">python</div>
+<pre><code>print(mem.stats())
+
+<span class="c"># Stats(n_atoms=5, n_current=3, n_entities=1, n_predicates=4,</span>
+<span class="c">#       n_canonical_predicates=3, bytes_stored=398, index_bytes=160,</span>
+<span class="c">#       source_text_bytes=119)</span></code></pre>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data">
+            <caption><code>Stats</code> fields</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">field</th>
+                <th scope="col" class="wrap-cell">meaning</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row" class="mono">n_atoms</th><td class="wrap-cell">Believed intervals, current and superseded.</td></tr>
+              <tr><th scope="row" class="mono">n_current</th><td class="wrap-cell">Of those, how many are still open.</td></tr>
+              <tr><th scope="row" class="mono">n_entities</th><td class="wrap-cell">Canonical entities.</td></tr>
+              <tr><th scope="row" class="mono">n_predicates</th><td class="wrap-cell">Predicate <em>surface forms</em> seen.</td></tr>
+              <tr><th scope="row" class="mono">n_canonical_predicates</th><td class="wrap-cell">Distinct predicates after canonicalization. The ratio against the row above is how well synonyms are merging.</td></tr>
+              <tr><th scope="row" class="mono">bytes_stored</th><td class="wrap-cell">Source text on atoms, plus indexed message text, plus the embedding index.</td></tr>
+              <tr><th scope="row" class="mono">index_bytes</th><td class="wrap-cell">The quantized embedding matrix alone.</td></tr>
+              <tr><th scope="row" class="mono">source_text_bytes</th><td class="wrap-cell">Indexed message text alone.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 10 Dataclasses ============ -->
+  <section class="section section--sunken" id="types">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>10</b><span>Dataclasses</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>The value objects.</h2>
+          <p>
+            All in <code>palimpsest.types</code>. <code>Message</code>, <code>Claim</code> and
+            <code>Fact</code> are frozen; the rest are plain dataclasses. Three type aliases are
+            exported alongside them:
+            <span class="mono">Polarity = "positive" | "negative"</span>,
+            <span class="mono">Cardinality = "single" | "multi"</span>, and
+            <span class="mono">ValueType = "date" | "number" | "person" | "place" | "org" |
+            "boolean" | "text"</span>. The sentinel <span class="mono">OPEN</span> is
+            <span class="mono">None</span> and means &ldquo;still open&rdquo;.
+          </p>
+        </div>
+
+        <div class="prose">
+          <h3><code>Message</code> &mdash; one utterance, with real wall-clock time</h3>
+        </div>
+        <div class="code">
+          <div class="code__label">python</div>
+<pre><code>Message(
+    session_id: str,
+    speaker: str,
+    text: str,
+    timestamp: datetime,
+    msg_id: str = <span class="s">""</span>,
+    role: str = <span class="s">""</span>,       <span class="c"># "user" / "assistant" when the source distinguishes them</span>
+)
+msg.is_user        <span class="c"># property: True unless role == "assistant"</span></code></pre>
+        </div>
+        <div class="prose">
+          <p>
+            Give every message a distinct <code>msg_id</code>. It is how a claim is attributed to the
+            utterance that asserts it, how transaction time is assigned on ingest, how stale excerpts
+            are suppressed, and the unique key in the persisted <code>messages</code> table.
+            <code>timestamp</code> must be a real datetime; the entire engine is built on it.
+          </p>
+        </div>
+
+        <div class="prose">
+          <h3><code>Claim</code> &mdash; what an extractor emits</h3>
+        </div>
+        <div class="code">
+          <div class="code__label">python</div>
+<pre><code>Claim(
+    entity: str,
+    predicate: str,                          <span class="c"># RAW surface form; canonicalized later</span>
+    value: str,
+    polarity: Polarity = <span class="s">"positive"</span>,
+    cardinality: Cardinality = <span class="s">"single"</span>,
+    value_type: ValueType = <span class="s">"text"</span>,
+    valid_from: datetime | None = None,      <span class="c"># None -&gt; the source message's timestamp</span>
+    confidence: float = 1.0,
+    source_text: str = <span class="s">""</span>,
+    source_id: str = <span class="s">""</span>,               <span class="c"># the msg_id that asserts it</span>
+)
+claim.normalized()   <span class="c"># -&gt; Claim with entity/value stripped and</span>
+                     <span class="c">#    predicate lowercased, spaces -&gt; underscores</span></code></pre>
+        </div>
+        <div class="prose">
+          <ul>
+            <li>
+              <code>polarity="negative"</code> closes an interval without opening a successor
+              &mdash; &ldquo;I don't have a cat anymore&rdquo;, not &ldquo;I moved to Boston&rdquo;.
+              It creates no atom.
+            </li>
+            <li>
+              <code>cardinality</code> is a <em>vote</em>, not an instruction. The key decides.
+              <a href="index.html#cardinality">Concepts &sect;05</a>.
+            </li>
+            <li>
+              <code>value_type</code> left at <code>"text"</code> is inferred from the value
+              (date, number, boolean, else text). It feeds the type-compatibility guard, which is
+              what stops <code>birth_year</code> merging with <code>birth_city</code>.
+            </li>
+            <li>
+              <code>valid_from</code> is when the fact became true <em>in the world</em>. Set it
+              whenever the text pins one down &mdash; that is what makes a retroactive insert
+              retroactive.
+            </li>
+          </ul>
+        </div>
+
+        <div class="prose">
+          <h3><code>Fact</code> &mdash; the id-free public view of an atom</h3>
+        </div>
+        <div class="code">
+          <div class="code__label">python</div>
+<pre><code>Fact(
+    entity: str,
+    predicate: str,
+    value: str,
+    valid_from: datetime,
+    valid_to: datetime | None,     <span class="c"># None = still true</span>
+    is_current: bool,
+    source_text: str,
+    source_id: str,
+    confidence: float = 1.0,
+)
+fact.as_line(with_dates=True) -&gt; str
+
+<span class="c"># You — city: Austin  (current, since 2023-04-11)</span>
+<span class="c"># You — city: New York City  (was true 2023-01-01 to 2023-04-11, superseded)</span>
+<span class="c"># with_dates=False:  "You — city: Austin"</span></code></pre>
+        </div>
+        <div class="prose">
+          <p>
+            <code>as_line()</code> renders <code>user</code> and <code>you</code> as
+            &ldquo;You&rdquo; and turns underscores into spaces. <code>is_current</code> is the raw
+            ledger property &mdash; the interval is open &mdash; and is not re-evaluated under a
+            <code>known_at</code> bound.
+          </p>
+        </div>
+
+        <div class="prose">
+          <h3><code>RetrievedFact</code> and <code>Recall</code></h3>
+        </div>
+        <div class="code">
+          <div class="code__label">python</div>
+<pre><code>RetrievedFact(
+    fact: Fact,
+    score: float,
+    tier: str,          <span class="c"># "interval" | "graph" | "hybrid"</span>
+)
+
+Recall(
+    context: str,                        <span class="c"># paste this into your prompt</span>
+    facts: list[RetrievedFact] = [],
+    n_tokens: int = 0,                   <span class="c"># measured, not estimated</span>
+    latency_ms: float = 0.0,
+    resolved_predicates: list[str] = [],
+    resolved_entities: list[str] = [],
+    as_of: datetime | None = None,
+    tier_counts: dict[str, int] = {},
+)</code></pre>
+        </div>
+        <div class="prose">
+          <p>
+            Tier scores are fixed weights, not similarities: <span class="num">3.0</span> for an
+            interval hit, <span class="num">2.5</span> for a historical chain walk,
+            <span class="num">1.5</span> for a graph hit. They order the fact block; they are not
+            confidences and should not be shown to a user as such.
+          </p>
+        </div>
+
+        <div class="prose">
+          <h3><code>IngestResult</code></h3>
+        </div>
+        <div class="code">
+          <div class="code__label">python</div>
+<pre><code>IngestResult(
+    messages: int = 0,
+    claims: int = 0,
+    atoms_created: int = 0,
+    supersessions: int = 0,       <span class="c"># intervals closed by a newer value</span>
+    retractions: int = 0,         <span class="c"># negative-polarity claims applied</span>
+    noops: int = 0,               <span class="c"># repeats, and claims with an empty value</span>
+    predicates_minted: int = 0,   <span class="c"># new canonical predicates</span>
+    predicates_aliased: int = 0,  <span class="c"># new surface forms</span>
+    latency_ms: float = 0.0,
+)</code></pre>
+        </div>
+
+        <div class="prose">
+          <h3><code>Atom</code> &mdash; the stored interval</h3>
+          <p>
+            Exported for inspection and for anyone writing their own persistence layer. You do not
+            construct these; the ledger does.
+          </p>
+        </div>
+        <div class="code">
+          <div class="code__label">python</div>
+<pre><code>Atom(
+    idx: int,                          <span class="c"># position in Ledger.atoms; the row id</span>
+    entity_id: int,
+    predicate_id: int,
+    value_id: int,
+    entity: str, predicate: str, value: str,   <span class="c"># surface forms, for rendering</span>
+    valid_from: datetime,
+    valid_to: datetime | None = None,  <span class="c"># None = still true</span>
+    tx_from: datetime | None = None,
+    tx_to: datetime | None = None,     <span class="c"># None = still believed</span>
+    source_text: str = <span class="s">""</span>, source_id: str = <span class="s">""</span>,
+    value_type: ValueType = <span class="s">"text"</span>,
+    cardinality: Cardinality = <span class="s">"single"</span>,
+    confidence: float = 1.0,
+    predecessor: int | None = None,
+    successor: int | None = None,
+    access: int = 0,
+    closed_tx: datetime | None = None, <span class="c"># when we LEARNED valid_to</span>
+)
+
+atom.is_open                       <span class="c"># valid_to is None</span>
+atom.is_believed                   <span class="c"># tx_to is None</span>
+atom.key                           <span class="c"># (entity_id, predicate_id)</span>
+atom.valid_at(when, known_at=None) <span class="c"># -&gt; bool</span>
+atom.believed_at(when)             <span class="c"># -&gt; bool</span></code></pre>
+        </div>
+        <div class="prose">
+          <p>
+            <code>valid_at(when, known_at)</code> is where the two axes meet: if the interval was
+            closed by something the store learned after <code>known_at</code>, the closure is
+            ignored and the atom is treated as still open. That one branch is the whole
+            &ldquo;what did we believe last Tuesday&rdquo; capability.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 11 SQLiteStore ============ -->
+  <section class="section" id="store">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>11</b><span>SQLiteStore</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2><code>SQLiteStore</code></h2>
+          <p>
+            Durable storage for the ledger and the message index. The schema is deliberately boring
+            SQL with no SQLite-specific types, because a storage primitive that only exists inside
+            one Python process is a demo. The same DDL runs on Postgres with two substitutions
+            (<span class="mono">INTEGER PRIMARY KEY</span> &rarr;
+            <span class="mono">BIGSERIAL</span>, <span class="mono">TEXT</span> timestamps &rarr;
+            <span class="mono">TIMESTAMPTZ</span>), which is the intended production path.
+          </p>
+        </div>
+
+        <div class="code">
+          <div class="code__label">signature</div>
+<pre><code>SQLiteStore(path: str | Path = <span class="s">":memory:"</span>)
+
+store.save(memory)  -&gt; int    <span class="c"># atoms written; idempotent</span>
+store.load(memory)  -&gt; int    <span class="c"># atoms restored, into a FRESH Memory</span>
+store.close()       -&gt; None</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code__label">python</div>
+<pre><code><span class="k">from</span> palimpsest <span class="k">import</span> Memory, SQLiteStore
+
+store = SQLiteStore(<span class="s">"memory.db"</span>)
+store.save(mem)                    <span class="c"># -&gt; 5</span>
+
+restored = Memory()
+store.load(restored)               <span class="c"># -&gt; 5</span>
+print(restored.recall(<span class="s">"Where do I live?"</span>).context)
+store.close()</code></pre>
+        </div>
+
+        <div class="prose">
+          <h3>Tables</h3>
+          <ul>
+            <li><code>entities</code> &mdash; id, name, JSON alias list.</li>
+            <li><code>predicates</code> &mdash; id, name, JSON alias list, JSON value-type counts.</li>
+            <li>
+              <code>atoms</code> &mdash; one row per interval. Append-only: the sole mutation is
+              closing <code>valid_to</code> or <code>tx_to</code>. A value is never overwritten and
+              a row is never deleted.
+            </li>
+            <li><code>messages</code> &mdash; the raw utterances, unique on <code>msg_id</code>.</li>
+          </ul>
+          <p>Indexes exist for the three access patterns that matter:</p>
+          <ul>
+            <li>current value of a key &mdash; <span class="mono">(entity_id, predicate_id, valid_to)</span></li>
+            <li>value at a past time &mdash; <span class="mono">(entity_id, predicate_id, valid_from)</span></li>
+            <li>everything about an entity &mdash; <span class="mono">(entity_id)</span></li>
+          </ul>
+          <p>
+            That append-only discipline is what makes the store auditable: every value the system
+            ever believed, when it believed it, and which utterance it came from are all still
+            there.
+          </p>
+        </div>
+
+        <div class="callout callout--note">
+          <p class="callout__title">Three things to know about a round-trip</p>
+          <p>
+            <strong>1.</strong> <code>save()</code> rewrites the entities, predicates and atoms
+            tables wholesale, so it is idempotent and safe to call repeatedly; messages are inserted
+            additively and de-duplicated on <code>msg_id</code>.
+            <strong>2.</strong> <code>load()</code> expects a <em>fresh</em> <code>Memory</code>
+            &mdash; it clears the canonicalizer and ledger before restoring, and rebuilds the message
+            index by re-adding every row.
+            <strong>3.</strong> The <code>closed_tx</code> stamp has no column in the schema and is
+            not restored, so <code>known_at</code>-bounded queries do not survive a reload
+            (<a href="#asof">&sect;05</a>). Valid-time queries, timelines and current values do,
+            exactly.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 12 Extractors and adjudicators ============ -->
+  <section class="section section--sunken" id="extract">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>12</b><span>Extract</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>Extractors and adjudicators.</h2>
+          <p>
+            Two separate jobs, deliberately kept apart: an <strong>extractor</strong> turns raw
+            conversation into claims, and an <strong>adjudicator</strong> decides whether a novel
+            predicate name means the same as one already stored. A model asked to do extraction and
+            vocabulary management in one pass does neither reliably.
+          </p>
+          <p>
+            Both are protocols, so anything with the right shape works &mdash; a rules engine, a
+            fine-tune, a stub in a test.
+          </p>
+        </div>
+
+        <div class="code">
+          <div class="code__label">python — the two protocols</div>
+<pre><code><span class="k">class</span> Extractor(Protocol):
+    name: str
+    <span class="k">def</span> extract(self, window: Sequence[Message]) -&gt; list[Claim]: ...
+
+
+<span class="k">class</span> PredicateAdjudicator(Protocol):
+    <span class="k">def</span> __call__(
+        self, raw: str, candidates: list[str], value_type: ValueType
+    ) -&gt; str | None: ...</code></pre>
+        </div>
+
+        <div class="prose">
+          <p>
+            An extractor is handed a <em>window</em> of messages, not one message, for two reasons.
+            Pronouns: &ldquo;she's a cardiologist in Chicago&rdquo; is unextractable alone and
+            trivial with the previous turn in view. And throughput: one call per window instead of
+            per message is the difference between a 13-hour benchmark run and a 40-minute one.
+          </p>
+          <p>The implementations that ship:</p>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data">
+            <caption>Shipped implementations, under <code>palimpsest.extract</code></caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">symbol</th>
+                <th scope="col" class="wrap-cell">module</th>
+                <th scope="col" class="wrap-cell">what it is</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row" class="mono wrap-cell">LLMExtractor</th>
+                <td class="mono">extract.llm</td>
+                <td class="wrap-cell">
+                  Open-world extractor over a sliding window, backed by any
+                  <span class="mono">complete_json_many</span>-shaped callable. The model invents
+                  whatever predicate name fits and is only nudged toward reusing names it has
+                  already used.
+                </td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono wrap-cell">LLMAdjudicator</th>
+                <td class="mono">extract.adjudicator</td>
+                <td class="wrap-cell">
+                  One batched call per novel predicate, cached in-process by
+                  <span class="mono">(raw, candidate-set)</span>. Refuses any answer that is not
+                  literally one of the candidates offered.
+                </td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono wrap-cell">DiskCachedAdjudicator</th>
+                <td class="mono">extract.adjudicator</td>
+                <td class="wrap-cell">
+                  The same, with decisions persisted to a JSON file. Whether
+                  <span class="mono">lives_in</span> means <span class="mono">city</span> does not
+                  change between runs, so a re-run costs zero calls.
+                </td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono wrap-cell">StaticAdjudicator</th>
+                <td class="mono">extract.adjudicator</td>
+                <td class="wrap-cell">
+                  Deterministic, from an explicit list of synonym sets. Zero LLM calls &mdash; for
+                  tests and offline runs.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="code">
+          <div class="code__label">python</div>
+<pre><code><span class="k">from</span> palimpsest <span class="k">import</span> Memory
+<span class="k">from</span> palimpsest.extract.llm <span class="k">import</span> LLMExtractor
+<span class="k">from</span> palimpsest.extract.adjudicator <span class="k">import</span> DiskCachedAdjudicator, StaticAdjudicator
+
+<span class="c"># fully offline and deterministic</span>
+mem = Memory(adjudicator=StaticAdjudicator([{<span class="s">"pet"</span>, <span class="s">"animal_companion"</span>}]))
+
+<span class="c"># with a model on the write path</span>
+mem = Memory(
+    extractor=LLMExtractor(client.complete_json_many, window_size=12, overlap=2),
+    adjudicator=DiskCachedAdjudicator(client.complete_json, path=<span class="s">".cache/adjudged.json"</span>),
+)
+mem.ingest(messages)          <span class="c"># no claims= — the extractor produces them</span></code></pre>
+        </div>
+
+        <div class="callout callout--note">
+          <p class="callout__title">Do not cache a failed call as a decision</p>
+          <p>
+            A failed LLM call and a genuine &ldquo;these are different&rdquo; both surface as a falsy
+            result. Storing the first as if it were the second permanently teaches the store that
+            <span class="mono">lives_in</span> and <span class="mono">city</span> are different
+            predicates, after which it serves a superseded value labelled current &mdash; the exact
+            failure this engine exists to prevent. <code>LLMAdjudicator</code> distinguishes the two
+            and never caches a failure. If you write your own, do the same.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 13 Internals ============ -->
+  <section class="section" id="internals">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>13</b><span>Internals</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>Exported for inspection.</h2>
+          <p>
+            <code>Memory</code> composes these; you rarely construct them yourself. They are in
+            <code>__all__</code> because being able to look inside the store is most of what makes
+            it auditable.
+          </p>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data">
+            <caption>Composed objects and the reads worth knowing</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">object</th>
+                <th scope="col" class="wrap-cell">useful surface</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row" class="mono">Ledger</th>
+                <td class="wrap-cell">
+                  <span class="mono">atoms</span>, <span class="mono">stats</span> (created,
+                  superseded, retracted, noop, retroactive),
+                  <span class="mono">current(e, p)</span>,
+                  <span class="mono">at(e, p, when, known_at=None)</span>,
+                  <span class="mono">chain(e, p)</span>,
+                  <span class="mono">timeline</span>'s underlying read,
+                  <span class="mono">effective_cardinality(key)</span>,
+                  <span class="mono">to_fact(atom)</span>. Ids, not names.
+                </td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">Canonicalizer</th>
+                <td class="wrap-cell">
+                  <span class="mono">predicates</span>, <span class="mono">entities</span>,
+                  <span class="mono">lookup_predicate(name)</span>,
+                  <span class="mono">lookup_entity(name)</span>,
+                  <span class="mono">shortlist(raw, k=20)</span>,
+                  <span class="mono">merge_log</span>, and
+                  <span class="mono">summary()</span> &mdash; counts, merges, blocks by reason, and
+                  the surface-forms-per-canonical compression ratio.
+                </td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">EpisodicIndex</th>
+                <td class="wrap-cell">
+                  <span class="mono">add(msg)</span>, <span class="mono">bm25(q)</span>,
+                  <span class="mono">dense(q)</span>, <span class="mono">hybrid(q)</span>,
+                  <span class="mono">message(idx)</span>,
+                  <span class="mono">index_bytes()</span>. Lazily rebuilt; embeddings are quantized
+                  by default.
+                </td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">Embedder</th>
+                <td class="wrap-cell">
+                  <span class="mono">embed(texts)</span>,
+                  <span class="mono">embed_one(text)</span>, <span class="mono">dim</span>,
+                  <span class="mono">backend</span>. L2-normalized float32, cached in process.
+                  <span class="mono">default_embedder()</span> returns the shared instance.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="code">
+          <div class="code__label">python</div>
+<pre><code>print(mem.canon.summary())
+
+<span class="c"># {'canonical_predicates': 1, 'predicate_surface_forms': 2,</span>
+<span class="c">#  'canonical_entities': 1, 'entity_surface_forms': 1,</span>
+<span class="c">#  'merges': 0, 'blocked': 0, 'blocked_reasons': {}, 'compression': 2.0}</span>
+
+<span class="c"># 'city' and 'lives_in' are one key — via the seed groups, so no merge was needed</span>
+print(mem.canon.lookup_predicate(<span class="s">"lives_in"</span>) == mem.canon.lookup_predicate(<span class="s">"city"</span>))
+<span class="c"># True</span>
+
+print(mem.ledger.stats)
+<span class="c"># {'created': 2, 'superseded': 1, 'retracted': 0, 'noop': 0, 'retroactive': 0}</span></code></pre>
+        </div>
+
+        <div class="prose">
+          <p>
+            <code>merge_log</code> and <code>summary()['blocked_reasons']</code> are the place to
+            look when canonicalization is behaving oddly: they record which guard vetoed which
+            proposed merge, by name.
+          </p>
+        </div>
+
+        <div class="hero__actions mt-5">
+          <a class="btn" href="index.html">Back to the concepts</a>
+          <a class="btn btn--ghost" href="../audit/index.html">Defects found in this engine</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap site-footer__grid">
+    <div>
+      <h2>Palimpsest</h2>
+      <p class="measure-short">
+        An open-world bitemporal claim-interval memory engine for AI agents. A palimpsest is a
+        manuscript scraped and rewritten, where the earlier text stays legible underneath. So is this.
+      </p>
+      <p class="meta mt-3">Apache-2.0 &middot; alpha &middot; the API may change</p>
+    </div>
+    <div>
+      <h2>Read</h2>
+      <ul>
+        <li><a href="../how-it-works.html">How it works</a></li>
+        <li><a href="../benchmarks/index.html">Benchmarks</a></li>
+        <li><a href="../field.html">The field</a></li>
+        <li><a href="../audit/index.html">Audit</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Use</h2>
+      <ul>
+        <li><a href="index.html">Docs</a></li>
+        <li><a href="api.html">API reference</a></li>
+        <li><a href="https://github.com/joe51111jwd/palimpsest">GitHub</a></li>
+        <li><a href="https://pypi.org/project/palimpsest-memory/">PyPI</a></li>
+        <li><a href="../about.html">About</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

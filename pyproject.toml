@@ -26,8 +26,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+serve = ["fastapi>=0.110", "uvicorn[standard]>=0.27"]
 bench = ["pytest>=8", "ruff>=0.6"]
-dev = ["pytest>=8", "ruff>=0.6"]
+dev = ["pytest>=8", "ruff>=0.6", "fastapi>=0.110", "uvicorn[standard]>=0.27", "httpx"]
 
 [project.urls]
 Homepage = "https://github.com/joe51111jwd/palimpsest"

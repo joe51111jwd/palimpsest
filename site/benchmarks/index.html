@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Benchmarks — Palimpsest</title>
+<meta name="description" content="Every measured result: LongMemEval all six categories, LongMemEval-S knowledge-update, distractor robustness, and LoCoMo — including the benchmark this engine loses.">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header" data-nav="closed">
+  <div class="wrap site-header__inner">
+    <a class="brand" href="../index.html">
+      <span class="brand__name">Palimpsest</span>
+      <span class="brand__note">bitemporal claim-interval memory</span>
+    </a>
+
+    <nav class="nav" aria-label="Primary">
+      <ul class="nav-list">
+        <li><a href="../how-it-works.html">How it works</a></li>
+        <li><a href="index.html" aria-current="page">Benchmarks</a></li>
+        <li><a href="../field.html">The field</a></li>
+        <li><a href="../audit/index.html">Audit</a></li>
+        <li><a href="../docs/index.html">Docs</a></li>
+        <li><a href="https://github.com/joe51111jwd/palimpsest">GitHub</a></li>
+      </ul>
+    </nav>
+
+    <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false">Menu</button>
+    <button class="theme-toggle" type="button" data-theme-toggle>Dark</button>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ============ Hero ============ -->
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Measured results</p>
+      <h1 class="hero__title">Every table, including the benchmark this engine loses.</h1>
+      <p class="hero__lede">
+        One process, one answering model, a judge separate from the answerer, the unmodified standard
+        Mem0 judge prompt, the same 1,024-token budget for every system, and the identical extracted
+        claims shared across every fact-based system. Nothing below is cited from a vendor&rsquo;s table.
+      </p>
+      <div class="hero__actions">
+        <a class="btn" href="methodology.html">How the harness works</a>
+        <a class="btn btn--ghost" href="#locomo">Where it loses</a>
+        <span class="meta">micro-averaged &middot; LongMemEval cleaned release &middot; raw per-question JSON linked under every benchmark table</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 01 Setup ============ -->
+  <section class="section" id="setup">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>01</b><span>Setup</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>What was held constant, stated before any score.</h2>
+          <p>
+            Every free parameter that moves a score more than an architecture does &mdash; averaging,
+            denominator, judge choice, dataset version, token budget &mdash; is fixed here and printed
+            with the numbers. It is the only reason these seven rows can be compared to each other.
+            It is also why they cannot be stacked against a published figure that omits them.
+          </p>
+        </div>
+
+        <div class="table-wrap" tabindex="0">
+          <table class="data">
+            <caption>Harness configuration, identical for every system in every table on this page</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">parameter</th>
+                <th scope="col" class="wrap-cell">value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row" class="wrap-cell">Answering model</th>
+                <td class="mono wrap-cell">claude-haiku</td>
+              </tr>
+              <tr>
+                <th scope="row" class="wrap-cell">Judge model</th>
+                <td class="mono wrap-cell">claude-haiku &mdash; a separate call from the answerer</td>
+              </tr>
+              <tr>
+                <th scope="row" class="wrap-cell">Judge prompt</th>
+                <td class="wrap-cell">Mem0 formulation (arXiv 2504.19413), <strong>unmodified</strong></td>
+              </tr>
+              <tr>
+                <th scope="row" class="wrap-cell">Averaging</th>
+                <td class="wrap-cell"><strong>micro</strong> (question-weighted)</td>
+              </tr>
+              <tr>
+                <th scope="row" class="wrap-cell">Token budget</th>
+                <td class="wrap-cell"><span class="num">1,024</span> for every retrieval system</td>
+              </tr>
+              <tr>
+                <th scope="row" class="wrap-cell">Full-context budget</th>
+                <td class="wrap-cell"><span class="num">32,000</span> &mdash; an upper-bound reference, not budget-matched</td>
+              </tr>
+              <tr>
+                <th scope="row" class="wrap-cell">LongMemEval data</th>
+                <td class="wrap-cell"><strong>cleaned</strong> release (the widely-cited one was deprecated 2025-09-19)</td>
+              </tr>
+              <tr>
+                <th scope="row" class="wrap-cell">Canonicalization</th>
+                <td class="wrap-cell">seed synonyms + deterministic guards, <strong>no LLM</strong>, unless a row says otherwise</td>
+              </tr>
+              <tr>
+                <th scope="row" class="wrap-cell">Extraction</th>
+                <td class="wrap-cell">one shared LLM pass; every fact-based system gets the <em>identical</em> claims</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="prose">
+          <p>
+            Holding extraction constant is the point. Palimpsest, the Mem0-style flat fact layer and
+            the Zep-style temporal graph receive the same claims and differ only in what they do with
+            them, so any gap between those three is attributable to the storage semantics rather than
+            to somebody&rsquo;s extractor prompt.
+          </p>
+        </div>
+
+        <div class="callout callout--caveat">
+          <p class="callout__title">Read this with every number below</p>
+          <p>
+            In both LongMemEval tables the confidence interval <strong>overlaps the runner-up</strong>,
+            so the margin over second place is <strong>not statistically significant</strong>. The margin
+            over BM25 and below is. And we lose LoCoMo.
+          </p>
+        </div>
+
+        <p><a href="methodology.html">The harness, the reproduction command, and why other published numbers are not comparable &rarr;</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 LongMemEval overall ============ -->
+  <section class="section" id="longmemeval">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>02</b><span>LongMemEval</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>LongMemEval, all six categories, 470 questions.</h2>
+          <p>
+            The complete public benchmark on the oracle haystack. All 470 non-abstention questions,
+            all judged, micro-averaged. Palimpsest is first overall at
+            <span class="num">0.589</span>, ahead of hybrid RAG and of full context at 5.7&times; the
+            tokens.
+          </p>
+        </div>
+
+        <div class="table-wrap" tabindex="0">
+          <table class="data">
+            <caption>LongMemEval, all 6 categories, 470 questions, all judged, oracle haystack</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">system</th>
+                <th scope="col" class="num">n</th>
+                <th scope="col" class="num">accuracy</th>
+                <th scope="col" class="num">95% CI</th>
+                <th scope="col" class="num">tokens</th>
+                <th scope="col" class="num">ms</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="is-ours">
+                <th scope="row" class="mono">palimpsest</th>
+                <td class="num">470</td>
+                <td class="num">0.589</td>
+                <td class="num">[0.544, 0.633]</td>
+                <td class="num">949</td>
+                <td class="num">5.3</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">hybrid_rag</th>
+                <td class="num">470</td>
+                <td class="num">0.553</td>
+                <td class="num">[0.508, 0.598]</td>
+                <td class="num">936</td>
+                <td class="num">1.9</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">full_context</th>
+                <td class="num">470</td>
+                <td class="num">0.536</td>
+                <td class="num">[0.491, 0.581]</td>
+                <td class="num">5,442</td>
+                <td class="num">3.1</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">bm25</th>
+                <td class="num">470</td>
+                <td class="num">0.479</td>
+                <td class="num">[0.434, 0.524]</td>
+                <td class="num">882</td>
+                <td class="num">0.3</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">vector_rag</th>
+                <td class="num">470</td>
+                <td class="num">0.472</td>
+                <td class="num">[0.428, 0.518]</td>
+                <td class="num">960</td>
+                <td class="num">1.5</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">zep_style</th>
+                <td class="num">470</td>
+                <td class="num">0.387</td>
+                <td class="num">[0.344, 0.432]</td>
+                <td class="num">345</td>
+                <td class="num">0.5</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">mem0_style</th>
+                <td class="num">470</td>
+                <td class="num">0.360</td>
+                <td class="num">[0.317, 0.404]</td>
+                <td class="num">316</td>
+                <td class="num">0.3</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="meta-note">
+          n = 470 &middot; answering model <span class="mono">claude-haiku</span> &middot; judge
+          <span class="mono">claude-haiku</span>, a separate call &middot; micro-averaged &middot;
+          1,024-token budget, except <span class="mono">full_context</span> at 32,000 &middot;
+          <span class="mono">ms</span> is mean retrieval latency, not end-to-end.
+          Raw per-question results:
+          <a href="https://github.com/joe51111jwd/palimpsest/blob/main/results/final/lme_oracle_all_categories.json"><span class="mono">results/<wbr>final/<wbr>lme_oracle_all_categories.json</span></a>.
+        </p>
+
+        <div class="callout callout--caveat">
+          <p class="callout__title">Read this with the number</p>
+          <p>
+            The interval <strong>overlaps <span class="mono">hybrid_rag</span></strong>, so the margin
+            over the runner-up is <strong>not significant at n=470</strong>. The margin over
+            <span class="mono">bm25</span> and below is.
+          </p>
+        </div>
+
+        <div class="callout callout--note">
+          <p class="callout__title">This is the oracle haystack</p>
+          <p>
+            Oracle has no distractor sessions, which makes it an upper bound rather than a retrieval
+            result. The distractor-laden comparison is in
+            <a href="#knowledge-update">section 04</a>, and it is the one that favours this design
+            most. <span class="mono">full_context</span> placing third here at 5.7&times; the tokens is
+            an artifact of the same thing: with nothing to distract it, stuffing the prompt works.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 Per category ============ -->
+  <section class="section" id="per-category">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>03</b><span>Per category</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>First on four of six categories &mdash; and second on the one the whole thesis rests on.</h2>
+          <p>
+            The four wins include the two hardest for everyone, multi-session and temporal reasoning.
+            The loss is knowledge-update, where <span class="mono">hybrid_rag</span> takes
+            <span class="num">0.792</span> against <span class="num">0.764</span> &mdash; on the oracle
+            haystack, in this all-categories run. That ordering reverses once distractors are present,
+            which is <a href="#knowledge-update">the next section</a>, and it is the more honest
+            setting. The paired oracle run in section 04 reports different values for this same
+            category; <a href="#ku-provenance">that discrepancy is flagged there</a> rather than
+            smoothed over.
+          </p>
+        </div>
+
+        <div class="table-wrap" tabindex="0">
+          <table class="data">
+            <caption>LongMemEval per category, 470 questions, oracle haystack, micro-averaged</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">system</th>
+                <th scope="col" class="num">knowledge-update</th>
+                <th scope="col" class="num">multi-session</th>
+                <th scope="col" class="num">temporal</th>
+                <th scope="col" class="num">ss-user</th>
+                <th scope="col" class="num">ss-assistant</th>
+                <th scope="col" class="num">ss-preference</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="is-ours">
+                <th scope="row" class="mono">palimpsest</th>
+                <td class="num">0.764</td>
+                <td class="num">0.438</td>
+                <td class="num">0.315</td>
+                <td class="num">0.906</td>
+                <td class="num">0.964</td>
+                <td class="num">0.567</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">hybrid_rag</th>
+                <td class="num">0.792</td>
+                <td class="num">0.397</td>
+                <td class="num">0.268</td>
+                <td class="num">0.875</td>
+                <td class="num">0.929</td>
+                <td class="num">0.433</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">full_context</th>
+                <td class="num">0.750</td>
+                <td class="num">0.339</td>
+                <td class="num">0.291</td>
+                <td class="num">0.906</td>
+                <td class="num">0.982</td>
+                <td class="num">0.233</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">bm25</th>
+                <td class="num">0.681</td>
+                <td class="num">0.231</td>
+                <td class="num">0.260</td>
+                <td class="num">0.812</td>
+                <td class="num">0.964</td>
+                <td class="num">0.300</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">vector_rag</th>
+                <td class="num">0.653</td>
+                <td class="num">0.281</td>
+                <td class="num">0.189</td>
+                <td class="num">0.844</td>
+                <td class="num">0.964</td>
+                <td class="num">0.300</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">zep_style</th>
+                <td class="num">0.597</td>
+                <td class="num">0.331</td>
+                <td class="num">0.276</td>
+                <td class="num">0.719</td>
+                <td class="num">0.089</td>
+                <td class="num">0.433</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">mem0_style</th>
+                <td class="num">0.569</td>
+                <td class="num">0.364</td>
+                <td class="num">0.181</td>
+                <td class="num">0.734</td>
+                <td class="num">0.089</td>
+                <td class="num">0.300</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="meta-note">
+          Same run as section 02 &mdash; n = 470, answering model
+          <span class="mono">claude-haiku</span>, judge <span class="mono">claude-haiku</span> as a
+          separate call, micro-averaged within each category. Category leaders:
+          <span class="mono">hybrid_rag</span> on knowledge-update,
+          <span class="mono">full_context</span> on ss-assistant, Palimpsest on the other four
+          &mdash; and on ss-user it is level with <span class="mono">full_context</span> at
+          <span class="num">0.906</span> rather than ahead of it. On ss-assistant
+          <span class="mono">bm25</span> also scores <span class="num">0.964</span>.
+          Raw per-question results:
+          <a href="https://github.com/joe51111jwd/palimpsest/blob/main/results/final/lme_oracle_all_categories.json"><span class="mono">results/<wbr>final/<wbr>lme_oracle_all_categories.json</span></a>.
+        </p>
+
+        <div class="callout callout--note">
+          <p class="callout__title">No per-category confidence intervals are published here</p>
+          <p>
+            Each category is a fraction of 470 questions, so the intervals are wide enough that almost
+            every pairwise ordering in this table is within noise. Read the columns as a shape, not as
+            a ranking. The only interval-tested claim on this page is the overall row above and the
+            knowledge-update row below.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04 Knowledge update ============ -->
+  <section class="section" id="knowledge-update">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>04</b><span>Knowledge update</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>The thesis category, with a realistic haystack.</h2>
+          <p>
+            A fact changed, and the question asks for the current value. 78 questions, of which 72 are
+            scored &mdash; six are abstention variants and are reported separately. This is the one
+            place a bitemporal interval ledger should win, and it is the number this project stands on.
+            LongMemEval-S carries roughly 500 distractor sessions per question.
+          </p>
+        </div>
+
+        <div class="table-wrap" tabindex="0">
+          <table class="data">
+            <caption>LongMemEval-S knowledge-update, 72 questions, ~500 distractor sessions per question</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">system</th>
+                <th scope="col" class="num">n</th>
+                <th scope="col" class="num">judged</th>
+                <th scope="col" class="num">accuracy</th>
+                <th scope="col" class="num">95% CI</th>
+                <th scope="col" class="num">tokens</th>
+                <th scope="col" class="num">ms</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="is-ours">
+                <th scope="row" class="mono">palimpsest</th>
+                <td class="num">72</td>
+                <td class="num">72</td>
+                <td class="num">0.736</td>
+                <td class="num">[0.624, 0.824]</td>
+                <td class="num">1,011</td>
+                <td class="num">72</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">hybrid_rag</th>
+                <td class="num">72</td>
+                <td class="num">72</td>
+                <td class="num">0.708</td>
+                <td class="num">[0.595, 0.801]</td>
+                <td class="num">1,010</td>
+                <td class="num">17</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">bm25</th>
+                <td class="num">72</td>
+                <td class="num">72</td>
+                <td class="num">0.639</td>
+                <td class="num">[0.524, 0.740]</td>
+                <td class="num">997</td>
+                <td class="num">1</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">mem0_style</th>
+                <td class="num">72</td>
+                <td class="num">72</td>
+                <td class="num">0.625</td>
+                <td class="num">[0.510, 0.728]</td>
+                <td class="num">970</td>
+                <td class="num">6</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">vector_rag</th>
+                <td class="num">72</td>
+                <td class="num">72</td>
+                <td class="num">0.556</td>
+                <td class="num">[0.441, 0.665]</td>
+                <td class="num">1,016</td>
+                <td class="num">4</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">zep_style</th>
+                <td class="num">72</td>
+                <td class="num">72</td>
+                <td class="num">0.542</td>
+                <td class="num">[0.427, 0.652]</td>
+                <td class="num">815</td>
+                <td class="num">4</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">full_context</th>
+                <td class="num">72</td>
+                <td class="num">72</td>
+                <td class="num">0.389</td>
+                <td class="num">[0.285, 0.504]</td>
+                <td class="num">31,998</td>
+                <td class="num">30</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="meta-note">
+          n = 72, all judged &middot; answering model <span class="mono">claude-haiku</span> &middot;
+          judge <span class="mono">claude-haiku</span>, a separate call &middot; micro-averaged
+          &middot; 1,024-token budget, except <span class="mono">full_context</span> at 32,000 &mdash;
+          32&times; everyone else, and it comes last. Raw per-question results:
+          <a href="https://github.com/joe51111jwd/palimpsest/blob/main/results/final/lme_s_knowledge_update.json"><span class="mono">results/<wbr>final/<wbr>lme_s_knowledge_update.json</span></a>.
+        </p>
+
+        <div class="callout callout--caveat">
+          <p class="callout__title">Read this with the number</p>
+          <p>
+            <span class="num">+9.7</span> points over BM25 and <span class="num">+34.7</span> over full
+            context on 1/32 of the tokens. But the interval
+            <strong>overlaps <span class="mono">hybrid_rag</span></strong>, so
+            <strong>the margin over the runner-up is not significant at n=72</strong>. The margin over
+            BM25 and below is.
+          </p>
+        </div>
+
+        <div class="prose">
+          <h3>The same 72 questions with the distractors removed</h3>
+          <p>
+            This is an upper bound, not a retrieval result. With nothing to be confused by,
+            <span class="mono">hybrid_rag</span> is nominally ahead &mdash; and inside its interval,
+            tied.
+          </p>
+        </div>
+
+        <div class="table-wrap" tabindex="0">
+          <table class="data">
+            <caption>LongMemEval-oracle knowledge-update, 72 questions, distractors removed</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">system</th>
+                <th scope="col" class="num">accuracy</th>
+                <th scope="col" class="num">95% CI</th>
+                <th scope="col" class="num">tokens</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row" class="mono">hybrid_rag</th>
+                <td class="num">0.764</td>
+                <td class="num">[0.654, 0.847]</td>
+                <td class="num">1,000</td>
+              </tr>
+              <tr class="is-ours">
+                <th scope="row" class="mono">palimpsest</th>
+                <td class="num">0.750</td>
+                <td class="num">[0.639, 0.836]</td>
+                <td class="num">1,007</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">full_context</th>
+                <td class="num">0.681</td>
+                <td class="num">[0.566, 0.777]</td>
+                <td class="num">6,122</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">bm25</th>
+                <td class="num">0.653</td>
+                <td class="num">[0.538, 0.752]</td>
+                <td class="num">961</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">vector_rag</th>
+                <td class="num">0.611</td>
+                <td class="num">[0.496, 0.715]</td>
+                <td class="num">1,008</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">zep_style</th>
+                <td class="num">0.597</td>
+                <td class="num">[0.482, 0.703]</td>
+                <td class="num">450</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">mem0_style</th>
+                <td class="num">0.569</td>
+                <td class="num">[0.454, 0.677]</td>
+                <td class="num">401</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="meta-note">
+          n = 72, all judged &middot; same models, judge and averaging as above &middot; 1,024-token
+          budget, except <span class="mono">full_context</span> at 32,000, which used 6,122 because the
+          oracle episodes are short enough to fit. Raw per-question results:
+          <a href="https://github.com/joe51111jwd/palimpsest/blob/main/results/final/lme_oracle_knowledge_update.json"><span class="mono">results/<wbr>final/<wbr>lme_oracle_knowledge_update.json</span></a>.
+        </p>
+
+        <div class="callout callout--note" id="ku-provenance">
+          <p class="callout__title">TODO &mdash; two oracle knowledge-update figures on this page do not agree</p>
+          <p>
+            Section 03 reports oracle knowledge-update as Palimpsest <span class="num">0.764</span> and
+            <span class="mono">hybrid_rag</span> <span class="num">0.792</span>, taken from the
+            all-categories run. The table directly above reports <span class="num">0.750</span> and
+            <span class="num">0.764</span> on the same category from the paired run that the robustness
+            delta below is computed on. Both are printed as measured; the reason the two runs differ has
+            not been established, and no explanation is being invented here. Reconcile the provenance of
+            the two runs before this page is treated as final.
+          </p>
+        </div>
+
+        <div class="prose">
+          <h3>The two tables together are the actual finding</h3>
+          <p>
+            Without distractors, <span class="mono">hybrid_rag</span> and Palimpsest are tied inside
+            their intervals. Add 500 sessions of distractors and Palimpsest is the one that holds. The
+            ledger is not finding the answer better &mdash; it is <strong>refusing to hand the model
+            the wrong one</strong>, and that matters more as the haystack grows.
+          </p>
+        </div>
+
+        <div class="table-wrap" tabindex="0">
+          <table class="data">
+            <caption>Distractor robustness &mdash; the same 72 questions, oracle haystack &rarr; LongMemEval-S</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">system</th>
+                <th scope="col" class="num">oracle</th>
+                <th scope="col" class="num">LongMemEval-S</th>
+                <th scope="col" class="num">change</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="is-ours">
+                <th scope="row" class="mono">palimpsest</th>
+                <td class="num">0.750</td>
+                <td class="num">0.736</td>
+                <td class="num pos">&minus;1.4</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">bm25</th>
+                <td class="num">0.653</td>
+                <td class="num">0.639</td>
+                <td class="num pos">&minus;1.4</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">vector_rag</th>
+                <td class="num">0.611</td>
+                <td class="num">0.556</td>
+                <td class="num">&minus;5.6</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">zep_style</th>
+                <td class="num">0.597</td>
+                <td class="num">0.542</td>
+                <td class="num">&minus;5.6</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">hybrid_rag</th>
+                <td class="num">0.764</td>
+                <td class="num">0.708</td>
+                <td class="num">&minus;5.6</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">full_context</th>
+                <td class="num">0.681</td>
+                <td class="num">0.389</td>
+                <td class="num neg">&minus;29.2</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="meta-note">
+          Change is in accuracy points, oracle minus LongMemEval-S, on the identical 72 questions.
+          Rows are ordered by degradation, not by accuracy &mdash;
+          <span class="mono">hybrid_rag</span> is the most accurate system in the oracle column and the
+          third-least robust. Full context collapsing by 29.2 points at 32,000 tokens is its own
+          result, and it reproduces the effect the long-context literature keeps reporting.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 05 LoCoMo ============ -->
+  <section class="section" id="locomo">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>05</b><span>LoCoMo</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>LoCoMo, all 10 conversations: full context wins and we do not.</h2>
+          <p>
+            Categories use the <strong>LoCoMo authors&rsquo; own labels</strong>, not the ones the
+            Mem0 &rarr; Memobase &rarr; Backboard lineage propagated, which are wrong on three of four.
+            Adversarial questions are excluded from the headline and reported separately, which matches
+            what Mem0, Memobase and Backboard do &mdash; so this row stays comparable to published
+            numbers, rather than calling 1,540 questions &ldquo;the full benchmark&rdquo;.
+          </p>
+        </div>
+
+        <div class="table-wrap" tabindex="0">
+          <table class="data">
+            <caption>LoCoMo, all 10 conversations, 468 questions, adversarial excluded, authors&rsquo; category labels</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">system</th>
+                <th scope="col" class="num">accuracy</th>
+                <th scope="col" class="num">95% CI</th>
+                <th scope="col" class="num">tokens</th>
+                <th scope="col" class="num">multi-hop</th>
+                <th scope="col" class="num">open-domain</th>
+                <th scope="col" class="num">single-hop</th>
+                <th scope="col" class="num">temporal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row" class="mono">full_context</th>
+                <td class="num">0.549</td>
+                <td class="num">[0.504, 0.594]</td>
+                <td class="num">23,604</td>
+                <td class="num">0.504</td>
+                <td class="num">0.275</td>
+                <td class="num">0.890</td>
+                <td class="num">0.449</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">bm25</th>
+                <td class="num">0.417</td>
+                <td class="num">[0.373, 0.462]</td>
+                <td class="num">978</td>
+                <td class="num">0.252</td>
+                <td class="num">0.231</td>
+                <td class="num">0.732</td>
+                <td class="num">0.394</td>
+              </tr>
+              <tr class="is-ours">
+                <th scope="row" class="mono">palimpsest</th>
+                <td class="num">0.408</td>
+                <td class="num">[0.365, 0.453]</td>
+                <td class="num">1,014</td>
+                <td class="num">0.285</td>
+                <td class="num">0.176</td>
+                <td class="num">0.661</td>
+                <td class="num">0.441</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">vector_rag</th>
+                <td class="num">0.385</td>
+                <td class="num">[0.342, 0.429]</td>
+                <td class="num">1,013</td>
+                <td class="num">0.268</td>
+                <td class="num">0.275</td>
+                <td class="num">0.661</td>
+                <td class="num">0.299</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">hybrid_rag</th>
+                <td class="num">0.359</td>
+                <td class="num">[0.317, 0.403]</td>
+                <td class="num">990</td>
+                <td class="num">0.236</td>
+                <td class="num">0.143</td>
+                <td class="num">0.638</td>
+                <td class="num">0.354</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">zep_style</th>
+                <td class="num">0.278</td>
+                <td class="num">[0.239, 0.320]</td>
+                <td class="num">708</td>
+                <td class="num">0.260</td>
+                <td class="num">0.187</td>
+                <td class="num">0.252</td>
+                <td class="num">0.386</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">mem0_style</th>
+                <td class="num">0.237</td>
+                <td class="num">[0.201, 0.278]</td>
+                <td class="num">965</td>
+                <td class="num">0.309</td>
+                <td class="num">0.242</td>
+                <td class="num">0.291</td>
+                <td class="num">0.110</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="meta-note">
+          n = 468 &middot; answering model <span class="mono">claude-haiku</span> &middot; judge
+          <span class="mono">claude-haiku</span>, a separate call &middot; micro-averaged &middot;
+          1,024-token budget, except <span class="mono">full_context</span> at 32,000, which used
+          23,604. Raw per-question results:
+          <a href="https://github.com/joe51111jwd/palimpsest/blob/main/results/final/locomo_10conv.json"><span class="mono">results/<wbr>final/<wbr>locomo_10conv.json</span></a>.
+        </p>
+
+        <div class="callout callout--note">
+          <p class="callout__title">TODO &mdash; the question count needs an explanation this page does not have</p>
+          <p>
+            LoCoMo holds 1,986 questions, <span class="num">1,540</span> of them non-adversarial
+            (the per-category counts are in the
+            <a href="methodology.html#labels">methodology</a>). The run above judges
+            <span class="num">468</span>. The rule that selects those 468 is not documented here, and
+            is not being guessed at. State it beside the table before this page is treated as final.
+          </p>
+        </div>
+
+        <div class="callout callout--loss">
+          <p class="callout__title">Where it loses</p>
+          <p>
+            <strong>Full context wins LoCoMo outright, at 23&times; the tokens.</strong> Among
+            budget-matched systems, Palimpsest <span class="num">0.408</span> and BM25
+            <span class="num">0.417</span> are a statistical tie &mdash; intervals almost entirely
+            overlapping. Palimpsest leads on multi-hop and temporal; BM25 leads on single-hop and
+            open-domain. If your workload looks like LoCoMo, use BM25.
+          </p>
+        </div>
+
+        <div class="prose">
+          <h3>Why, and why that is the expected result</h3>
+          <p>
+            LoCoMo is dominated by single-hop recall of details <em>inside</em> an utterance &mdash;
+            &ldquo;what did the charity race raise awareness for?&rdquo; A fact ledger has nothing to
+            offer that question, and the fact block spends budget that would otherwise buy excerpts.
+          </p>
+          <p>Two things in the table are worth more than our own row:</p>
+          <ul>
+            <li>
+              <strong>Full context wins outright at <span class="num">0.549</span></strong>, 13.2
+              points above the best budget-matched system (<span class="mono">bm25</span>,
+              <span class="num">0.417</span>) and 14.1 above Palimpsest, at 23&times; the tokens. If you
+              can afford to put the transcript in the prompt on every turn, on this benchmark you
+              should. Vendors reporting LoCoMo rarely show this row.
+            </li>
+            <li>
+              <strong>Fact-layer memory is far worse than raw retrieval:</strong>
+              <span class="mono">mem0_style</span> <span class="num">0.237</span> and
+              <span class="mono">zep_style</span> <span class="num">0.278</span>, against BM25&rsquo;s
+              <span class="num">0.417</span>, <em>on the identical extracted claims</em>. This
+              corroborates the LightMem reproduction (arXiv 2607.29104) &mdash; memory construction
+              destroys 11.3 points. Discarding source utterances in favour of a fact list loses more
+              than the structure recovers: those two sit <span class="num">18.0</span> and
+              <span class="num">13.9</span> points <em>below</em> plain BM25. Palimpsest is
+              <span class="num">17.1</span> points above <span class="mono">mem0_style</span> and
+              <span class="num">13.0</span> above <span class="mono">zep_style</span> because it keeps
+              the utterances <em>and</em> the ledger &mdash; while still not beating BM25 here.
+            </li>
+          </ul>
+        </div>
+
+        <div class="callout callout--note">
+          <p class="callout__title">A caution that applies to our own earlier numbers</p>
+          <p>
+            On a 3-conversation subset BM25 led by 14 points. At full scale that gap closes to 0.9
+            points. Small-subset benchmarking is not a preview of the full result, and this project
+            published a 3-conversation figure before it had the full one.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 06 Ablations ============ -->
+  <section class="section" id="ablations">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>06</b><span>Ablations</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>Is the ledger doing the work, or the retriever?</h2>
+          <p>
+            Retrieval ceiling &mdash; gold answer present in context, an LLM-free proxy over 383 LoCoMo
+            questions &mdash; varying only the share of the token budget the structured fact block may
+            take.
+          </p>
+        </div>
+
+        <div class="table-wrap" tabindex="0">
+          <table class="data">
+            <caption>Retrieval ceiling by fact-block budget share, 383 LoCoMo questions, LLM-free proxy</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">fact-block share</th>
+                <th scope="col" class="num">overall</th>
+                <th scope="col" class="num">single-hop</th>
+                <th scope="col" class="num">temporal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row" class="mono">0.35</th>
+                <td class="num">21.9%</td>
+                <td class="num">34.0%</td>
+                <td class="num">10.0%</td>
+              </tr>
+              <tr class="is-ours">
+                <th scope="row" class="mono">0.15 (chosen)</th>
+                <td class="num">22.7%</td>
+                <td class="num">35.0%</td>
+                <td class="num">10.0%</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">0.10</th>
+                <td class="num">22.5%</td>
+                <td class="num">35.5%</td>
+                <td class="num">7.8%</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">0.00 (no ledger)</th>
+                <td class="num">21.7%</td>
+                <td class="num">35.0%</td>
+                <td class="num">5.6%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="meta-note">
+          n = 383 &middot; no answering model and no judge &mdash; this measures whether the gold answer
+          is present in the assembled context, which is a ceiling, not an accuracy. It is reported as a
+          ceiling and never placed beside an answer-accuracy number.
+        </p>
+
+        <div class="prose">
+          <p>
+            Removing the fact block costs almost nothing overall and <strong>halves the temporal
+            category</strong>. The ledger is not carrying the general case; it carries temporal
+            questions specifically, which is exactly the claim.
+          </p>
+          <h3>What LLM predicate adjudication is worth</h3>
+        </div>
+
+        <div class="table-wrap" tabindex="0">
+          <table class="data">
+            <caption>Canonicalization ablation, LoCoMo 3-conversation subset</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">configuration</th>
+                <th scope="col" class="num">accuracy</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="is-ours">
+                <th scope="row" class="wrap-cell">seed synonyms + guards (default, no LLM)</th>
+                <td class="num">0.407</td>
+              </tr>
+              <tr>
+                <th scope="row" class="wrap-cell">+ LLM predicate adjudication</th>
+                <td class="num">0.442</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="meta-note">
+          3-conversation subset &middot; answering model <span class="mono">claude-haiku</span> &middot;
+          judge <span class="mono">claude-haiku</span>, a separate call &middot; micro-averaged.
+          Raw per-question results for the adjudicated arm:
+          <a href="https://github.com/joe51111jwd/palimpsest/blob/main/results/final/locomo_palimpsest_adjudicated.json"><span class="mono">results/<wbr>final/<wbr>locomo_palimpsest_adjudicated.json</span></a>.
+        </p>
+
+        <div class="prose">
+          <p>
+            <span class="num">+3.5</span> points, at one LLM call per never-before-seen predicate
+            surface form. It is off by default because a LongMemEval-S episode carries around 240 claims
+            and the calls made a single benchmark run take hours &mdash; which would put the numbers out
+            of reach of anyone trying to reproduce them offline. <strong>Every headline number on this
+            page is the no-LLM configuration</strong>, so the LongMemEval result does not depend on it.
+          </p>
+          <h3>Predicate canonicalization, measured directly</h3>
+          <p>
+            No vendor in this space publishes a number for this, so there is nothing to compare against.
+            Measured on the 123 predicate surface forms an LLM extractor actually emitted over LoCoMo,
+            against 103 hand-labelled gold clusters.
+          </p>
+        </div>
+
+        <div class="table-wrap" tabindex="0">
+          <table class="data">
+            <caption>Predicate clustering, 123 emitted surface forms against 103 hand-labelled gold clusters</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">configuration</th>
+                <th scope="col" class="num">precision</th>
+                <th scope="col" class="num">recall</th>
+                <th scope="col" class="num">F1</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row" class="wrap-cell">guards only, no LLM</th>
+                <td class="num">0.778</td>
+                <td class="num">0.111</td>
+                <td class="num">0.194</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="meta-note">
+          Gold clusters, the labelling rule and the trap set are in
+          <a href="https://github.com/joe51111jwd/palimpsest/blob/main/bench/canon_labels.json"><span class="mono">bench/<wbr>canon_labels.json</span></a>;
+          the run is
+          <a href="https://github.com/joe51111jwd/palimpsest/blob/main/results/canon_guards_only.json"><span class="mono">results/<wbr>canon_guards_only.json</span></a>.
+          Recall of 0.111 is low and is printed here rather than omitted.
+        </p>
+
+        <div class="prose">
+          <p>
+            Precision is weighted far above recall by design: a false merge destroys facts &mdash; merge
+            <span class="mono">favorite_food</span> with
+            <span class="mono">least_favorite_food</span> and the ledger believes the user&rsquo;s
+            favourite food became the thing they hate &mdash; while a missed merge only costs a little
+            retrieval recall.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 07 What the audit cost ============ -->
+  <section class="section" id="audit-cost">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>07</b><span>Corrections</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>Fixing our own bug cost 9.5 points, and that is on this page.</h2>
+          <p>
+            On the LoCoMo 3-conversation subset, Palimpsest scored <span class="num">0.502</span> before
+            the audit, with temporal at <span class="num">0.629</span>. After fixing the cardinality
+            defect: <span class="num">0.407</span>, temporal <span class="num">0.514</span>.
+          </p>
+          <p>
+            The pre-fix score was higher because the bug <em>created supersessions that should not have
+            existed</em> &mdash; a claim mislabelled <span class="mono">multi</span> skipped interval
+            repair, and the resulting chaos happened to produce &ldquo;EARLIER VALUES&rdquo; blocks that
+            flattered the temporal category. Part of the apparent advantage was an artifact of a broken
+            ledger. The lower number is the true one.
+          </p>
+        </div>
+
+        <div class="table-wrap" tabindex="0">
+          <table class="data">
+            <caption>Palimpsest before and after the cardinality fix, LoCoMo 3-conversation subset</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">measurement</th>
+                <th scope="col" class="num">before the audit</th>
+                <th scope="col" class="num">after the fix</th>
+                <th scope="col" class="num">change</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row" class="wrap-cell">overall accuracy</th>
+                <td class="num">0.502</td>
+                <td class="num">0.407</td>
+                <td class="num neg">&minus;9.5</td>
+              </tr>
+              <tr>
+                <th scope="row" class="wrap-cell">temporal category</th>
+                <td class="num">0.629</td>
+                <td class="num">0.514</td>
+                <td class="num neg">&minus;11.5</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="meta-note">
+          3-conversation subset, same harness and models both times. Change is in accuracy points. Nine
+          defects were found in this engine and its harness in total, including one where it could see
+          the future and inflate its own results. Every number on this page was re-run after those
+          fixes; the pre-fix artifacts were withdrawn rather than corrected.
+        </p>
+
+        <p><a href="../audit/index.html">All nine defects, written as a log &rarr;</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 08 Reproduce ============ -->
+  <section class="section" id="reproduce">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>08</b><span>Reproduce</span></div>
+
+      <div class="stack-lg">
+        <div class="prose">
+          <h2>Run it yourself.</h2>
+          <p>
+            Every table above comes from one runner. The raw per-question JSON for each is committed,
+            so any row can be re-aggregated without re-running anything.
+          </p>
+        </div>
+
+        <div class="code">
+          <div class="code__label">shell</div>
+<pre><code>./scripts/fetch_data.sh
+
+<span class="c"># Section 02 and 03 — LongMemEval, all six categories, oracle</span>
+python -m bench.run --dataset longmemeval --variant oracle --all \
+    --systems palimpsest,hybrid_rag,vector_rag,bm25,mem0_style,zep_style,full_context \
+    --out results/final/lme_oracle_all_categories.json
+
+<span class="c"># Section 04 — knowledge-update with ~500 distractor sessions per question</span>
+python -m bench.run --dataset longmemeval --variant s --all \
+    --categories knowledge_update \
+    --systems palimpsest,hybrid_rag,vector_rag,bm25,mem0_style,zep_style,full_context \
+    --out results/final/lme_s_knowledge_update.json
+
+<span class="c"># Section 05 — LoCoMo, all 10 conversations</span>
+python -m bench.run --dataset locomo --all \
+    --systems palimpsest,hybrid_rag,vector_rag,bm25,mem0_style,zep_style,full_context \
+    --out results/final/locomo_10conv.json</code></pre>
+        </div>
+
+        <p class="meta-note">
+          Defaults that the commands above rely on: <span class="mono">--budget 1024</span> and
+          <span class="mono">--model haiku</span>. <span class="mono">full_context</span> overrides the
+          budget to 32,000 by design, because comparing it at 1,024 tokens would measure the truncation
+          rather than the method &mdash; a rigged baseline is not a win.
+        </p>
+
+        <div class="table-wrap" tabindex="0">
+          <table class="data">
+            <caption>Raw per-question records, one file per table on this page</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="wrap-cell">table</th>
+                <th scope="col" class="wrap-cell">file in the repository</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row" class="wrap-cell">LongMemEval, all six categories &amp; per category (02, 03)</th>
+                <td><a class="mono" href="https://github.com/joe51111jwd/palimpsest/blob/main/results/final/lme_oracle_all_categories.json">results/<wbr>final/<wbr>lme_oracle_all_categories.json</a></td>
+              </tr>
+              <tr>
+                <th scope="row" class="wrap-cell">Knowledge-update, LongMemEval-S (04)</th>
+                <td><a class="mono" href="https://github.com/joe51111jwd/palimpsest/blob/main/results/final/lme_s_knowledge_update.json">results/<wbr>final/<wbr>lme_s_knowledge_update.json</a></td>
+              </tr>
+              <tr>
+                <th scope="row" class="wrap-cell">Knowledge-update, oracle (04)</th>
+                <td><a class="mono" href="https://github.com/joe51111jwd/palimpsest/blob/main/results/final/lme_oracle_knowledge_update.json">results/<wbr>final/<wbr>lme_oracle_knowledge_update.json</a></td>
+              </tr>
+              <tr>
+                <th scope="row" class="wrap-cell">LoCoMo, all 10 conversations (05)</th>
+                <td><a class="mono" href="https://github.com/joe51111jwd/palimpsest/blob/main/results/final/locomo_10conv.json">results/<wbr>final/<wbr>locomo_10conv.json</a></td>
+              </tr>
+              <tr>
+                <th scope="row" class="wrap-cell">LoCoMo, LLM-adjudicated arm (06)</th>
+                <td><a class="mono" href="https://github.com/joe51111jwd/palimpsest/blob/main/results/final/locomo_palimpsest_adjudicated.json">results/<wbr>final/<wbr>locomo_palimpsest_adjudicated.json</a></td>
+              </tr>
+              <tr>
+                <th scope="row" class="wrap-cell">Predicate canonicalization (06)</th>
+                <td><a class="mono" href="https://github.com/joe51111jwd/palimpsest/blob/main/results/canon_guards_only.json">results/<wbr>canon_guards_only.json</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="hero__actions mt-0">
+          <a class="btn" href="methodology.html">Read the methodology</a>
+          <a class="btn btn--ghost" href="../field.html">Why other published numbers differ</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 09 Summary ============ -->
+  <section class="section" id="summary">
+    <div class="wrap section-grid">
+      <div class="section-rail"><b>09</b><span>Summary</span></div>
+
+      <div class="prose">
+        <h2>On LongMemEval it is first. On LoCoMo it is not.</h2>
+        <ul>
+          <li>
+            <strong>LongMemEval, all six categories, 470 questions: first at 0.589</strong>, ahead of
+            hybrid RAG (0.553) and of full context (0.536, at 5.7&times; the tokens), and first on four
+            of six categories including the two hardest for everyone.
+          </li>
+          <li>
+            <strong>LongMemEval-S knowledge-update, with realistic distractors: first at 0.736</strong>,
+            +9.7 over BM25 and +34.7 over full context on 1/32 of the tokens. It is also the system that
+            degrades least when distractors are introduced (&minus;1.4 points, against hybrid
+            RAG&rsquo;s &minus;5.6 and full context&rsquo;s &minus;29.2).
+          </li>
+          <li>
+            <strong>LoCoMo, all 10 conversations: full context wins at 23&times; the tokens</strong>, and
+            among budget-matched systems Palimpsest and BM25 are a statistical tie.
+          </li>
+        </ul>
+        <p>
+          In both interval-overlap cases the margin over the <em>runner-up</em> is not significant at
+          these sample sizes, and that is stated wherever the number appears.
+        </p>
+        <p>
+          If your workload is factoid recall over a transcript and you can afford the tokens, put the
+          transcript in the prompt. If your agent&rsquo;s problem is that it keeps confidently telling
+          users things that stopped being true &mdash; and that it cannot tell you what it believed last
+          month &mdash; that is what this is for.
+        </p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap site-footer__grid">
+    <div>
+      <h2>Palimpsest</h2>
+      <p class="measure-short">
+        An open-world bitemporal claim-interval memory engine for AI agents. A palimpsest is a
+        manuscript scraped and rewritten, where the earlier text stays legible underneath. So is this.
+      </p>
+      <p class="meta mt-3">Apache-2.0 &middot; alpha &middot; the API may change</p>
+    </div>
+    <div>
+      <h2>Read</h2>
+      <ul>
+        <li><a href="../how-it-works.html">How it works</a></li>
+        <li><a href="index.html">Benchmarks</a></li>
+        <li><a href="methodology.html">Benchmark methodology</a></li>
+        <li><a href="../field.html">The field</a></li>
+        <li><a href="../audit/index.html">Audit</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Use</h2>
+      <ul>
+        <li><a href="../docs/index.html">Docs &amp; API</a></li>
+        <li><a href="https://github.com/joe51111jwd/palimpsest">GitHub</a></li>
+        <li><a href="https://pypi.org/project/palimpsest-memory/">PyPI</a></li>
+        <li><a href="../about.html">About</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
