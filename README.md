@@ -4,6 +4,8 @@
 [![python](https://img.shields.io/badge/python-3.11%20|%203.12%20|%203.13-blue)](https://github.com/joe51111jwd/palimpsest)
 [![license](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
 
+**[palimpsest-6r43iz21s-atwbusinessjames-8923s-projects.vercel.app](https://palimpsest-6r43iz21s-atwbusinessjames-8923s-projects.vercel.app)** — benchmarks, methodology, the self-audit, and a reproducible leaderboard.
+
 **Memory for AI agents that never serves a stale fact — and can tell you what it knew last Tuesday.**
 
 > *A palimpsest is a manuscript where the earlier writing was scraped away but
