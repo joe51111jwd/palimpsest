@@ -154,9 +154,9 @@ the transcript in the prompt. I would.
 
 ### Who are you?
 
-A high-school sophomore in Las Vegas. No company, no funding, no team, nothing for
-sale. I built this on an 8 GB M2, which is also where every benchmark in the repo
-was run.
+An independent developer. No company, no funding, no team, nothing for sale. I
+built this on an 8 GB M2, which is also where every benchmark in the repo was
+run.
 
 That is relevant in two directions and I would rather state both.
 

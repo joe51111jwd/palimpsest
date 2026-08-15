@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>About — Palimpsest</title>
-<meta name="description" content="Who built Palimpsest, what state it is in, and what the site does with numbers. One person, a high-school sophomore in Las Vegas, working in the open under Apache-2.0.">
+<meta name="description" content="What Palimpsest is, what state it is in, and what this site does with numbers. Apache-2.0, every result reproducible from the published harness.">
 <link rel="stylesheet" href="assets/site.css">
 <script src="assets/site.js"></script>
 </head>
@@ -41,12 +41,12 @@
   <section class="hero">
     <div class="wrap">
       <p class="eyebrow">About</p>
-      <h1 class="hero__title">A high-school sophomore in Las Vegas built this.</h1>
+      <h1 class="hero__title">Every number here can be re-run.</h1>
       <p class="hero__lede">
-        Not a company, not a team, not a startup in stealth. One person, working in the open under
-        Apache-2.0. That is stated here because the alternative &mdash; letting the plural pronouns
-        on a project site imply an organisation &mdash; would be the first dishonest thing on a site
-        whose entire argument is that this field&rsquo;s published numbers cannot be trusted.
+        Independent, Apache-2.0, and not attached to a product that a result could embarrass. On a
+        site whose whole argument is that this field&rsquo;s published numbers do not survive
+        independent measurement, the only claim worth making is the one you can check &mdash; so the
+        harness, the seeds, the prompts, the raw per-question records and the losses are all here.
       </p>
     </div>
   </section>
@@ -165,12 +165,15 @@
         <div class="callout callout--caveat">
           <p class="callout__title">Read this with the number</p>
           <p>
-            On LongMemEval this engine is first overall in our harness &mdash;
-            <span class="num">0.589</span>, <span class="num">[0.544, 0.633]</span>, against
-            <span class="num">0.553</span> for <span class="mono">hybrid_rag</span> &mdash; but in
-            both LongMemEval tables the confidence interval <strong>overlaps the
-            runner-up</strong>, so the margin over second place is <strong>not statistically
-            significant</strong>. The margin over BM25 and below is. And we lose LoCoMo.
+            On LongMemEval-S &mdash; all six categories, 470 questions, ~500 distractor sessions
+            each &mdash; this engine is first at <span class="num">0.536</span>,
+            <span class="num">[0.491, 0.581]</span>, against <span class="num">0.472</span> for
+            <span class="mono">hybrid_rag</span>, and the margin over second place clears an exact
+            paired test (65 won / 35 lost, <strong>p&nbsp;=&nbsp;0.0035</strong>). No earlier result
+            here ever did, and the tables that predate this run said so. But the lead is
+            category-shaped: on single-session recall the systems are level and
+            <span class="mono">bm25</span> beats both, on single-session preference we score the
+            worst number on the board, <strong>and we lose LoCoMo.</strong>
           </p>
         </div>
 
@@ -204,21 +207,21 @@
       <div class="section-rail"><b>04</b><span>Why</span></div>
 
       <div class="prose">
-        <h2>Why a student built this rather than a lab.</h2>
+        <h2>Why the scope is deliberately narrow.</h2>
         <p>
           The idea is not novel. Bitemporal modelling is decades old in databases, and the
           contribution here is narrow: applying it to agent memory as the primary key rather than as
           an audit log, and doing the open-world predicate canonicalization that has to work before
-          any of it fires. That is a small enough problem for one person to actually finish, and
-          finishing it honestly is the part that turned out to be scarce.
+          any of it fires. That is a small enough problem to actually finish, and finishing it
+          honestly is the part that turned out to be scarce.
         </p>
         <p>
-          Being one person is a real limitation and it is not being dressed up as an advantage. No
-          second pair of eyes reviews the code by default, so the audit was run adversarially
-          instead, with agents whose job was to refute each other. No organisation stands behind
-          the numbers, so the raw per-question records are published for every table. The
-          confidence intervals overlap, so the site says the margin is not significant instead of
-          rounding the claim up.
+          There is no review board here and that is a real limitation, not a stylistic one. It is
+          answered by running the audit adversarially &mdash; reviewers whose only job is to refute a
+          result, including an outside model that broke four of five claims in one pass and whose
+          findings are in the changelog. Nothing institutional stands behind these numbers, so the
+          raw per-question records are published for every table, and where a margin does not clear
+          a paired significance test the site says so rather than rounding the claim up.
         </p>
         <p>
           If a number here is wrong, the fastest way to prove it is to run the harness. Everything

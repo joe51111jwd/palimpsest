@@ -184,7 +184,7 @@ unmodified standard judge prompt, micro-averaged, cleaned dataset, 1,024-token
 budget for every retrieval system. The absolute numbers would move with a
 stronger answerer; the controlled comparison between systems is the point.
 
-Disclosure: I am a high-school sophomore in Las Vegas. No company, no funding, no
-team, and nothing here is for sale. I am posting it because the harness is useful
-whether or not my engine is, and because I would like people who know this
-material better than I do to try to break it.
+Disclosure: I am an independent developer. No company, no funding, no team, and
+nothing here is for sale. I am posting it because the harness is useful whether
+or not my engine is, and because I would like people who know this material
+better than I do to try to break it.

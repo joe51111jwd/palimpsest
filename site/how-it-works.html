@@ -484,11 +484,15 @@
         <div class="callout callout--caveat">
           <p class="callout__title">Read this with the number</p>
           <p>
-            On LongMemEval this engine is first overall in our harness &mdash;
-            <span class="num">0.589</span>, <span class="num">[0.544, 0.633]</span> &mdash; but in
-            both LongMemEval tables the confidence interval <strong>overlaps the
-            runner-up</strong>, so the margin over second place is <strong>not statistically
-            significant</strong>. The margin over BM25 and below is. And we lose LoCoMo.
+            On LongMemEval-S &mdash; all six categories, 470 questions, ~500 distractor sessions
+            each &mdash; this engine is first at <span class="num">0.536</span>,
+            <span class="num">[0.491, 0.581]</span>, against <span class="num">0.472</span> for
+            <span class="mono">hybrid_rag</span>, and the margin over second place clears an exact
+            paired test (65 won / 35 lost, <strong>p&nbsp;=&nbsp;0.0035</strong>). No earlier result
+            here ever did, and the tables that predate this run said so. But the lead is
+            category-shaped: on single-session recall the systems are level and
+            <span class="mono">bm25</span> beats both, on single-session preference we score the
+            worst number on the board, <strong>and we lose LoCoMo.</strong>
           </p>
         </div>
 

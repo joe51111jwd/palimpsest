@@ -272,67 +272,77 @@ mem.timeline(<span class="s">"user"</span>, <span class="s">"city"</span>)
 
       <div class="stack-lg">
         <div class="prose">
-          <h2>First overall on LongMemEval &mdash; and the margin over second place is not significant.</h2>
+          <h2>First on LongMemEval-S, and the margin over second place holds up.</h2>
           <p>
             One process, one answering model, a judge separate from the answerer, the unmodified
             standard Mem0 judge prompt, the same 1,024-token budget for every system, and the
-            identical extracted claims shared across every fact-based system.
+            identical extracted claims shared across every fact-based system. Every question judged
+            in its own call &mdash; batching the judge let one system&rsquo;s answers move another
+            system&rsquo;s verdicts, which an outside audit caught and which is now fixed.
           </p>
         </div>
 
         <div class="table-wrap">
           <table class="data">
-            <caption>LongMemEval, all 6 categories, 470 questions, all judged, oracle haystack</caption>
+            <caption>LongMemEval-S, all 6 categories, 470 questions, ~500 distractor sessions each</caption>
             <thead>
               <tr>
                 <th scope="col" class="wrap-cell">system</th>
                 <th scope="col" class="num">accuracy</th>
                 <th scope="col" class="num">95% CI</th>
                 <th scope="col" class="num">tokens</th>
+                <th scope="col" class="num">vs ours, paired</th>
               </tr>
             </thead>
             <tbody>
               <tr class="is-ours">
                 <th scope="row" class="mono">palimpsest</th>
-                <td class="num">0.589</td>
-                <td class="num">[0.544, 0.633]</td>
-                <td class="num">949</td>
+                <td class="num">0.536</td>
+                <td class="num">[0.491, 0.581]</td>
+                <td class="num">982</td>
+                <td class="num">&mdash;</td>
               </tr>
               <tr>
                 <th scope="row" class="mono">hybrid_rag</th>
-                <td class="num">0.553</td>
-                <td class="num">[0.508, 0.598]</td>
-                <td class="num">936</td>
-              </tr>
-              <tr>
-                <th scope="row" class="mono">full_context</th>
-                <td class="num">0.536</td>
-                <td class="num">[0.491, 0.581]</td>
-                <td class="num">5,442</td>
+                <td class="num">0.472</td>
+                <td class="num">[0.428, 0.518]</td>
+                <td class="num">1,010</td>
+                <td class="num">65/35, <strong>p=0.0035</strong></td>
               </tr>
               <tr>
                 <th scope="row" class="mono">bm25</th>
-                <td class="num">0.479</td>
-                <td class="num">[0.434, 0.524]</td>
-                <td class="num">882</td>
+                <td class="num">0.430</td>
+                <td class="num">[0.386, 0.475]</td>
+                <td class="num">996</td>
+                <td class="num">72/22, p&lt;0.0001</td>
               </tr>
               <tr>
                 <th scope="row" class="mono">vector_rag</th>
-                <td class="num">0.472</td>
-                <td class="num">[0.428, 0.518]</td>
-                <td class="num">960</td>
-              </tr>
-              <tr>
-                <th scope="row" class="mono">zep_style</th>
-                <td class="num">0.387</td>
-                <td class="num">[0.344, 0.432]</td>
-                <td class="num">345</td>
+                <td class="num">0.396</td>
+                <td class="num">[0.353, 0.441]</td>
+                <td class="num">1,016</td>
+                <td class="num">94/28, p&lt;0.0001</td>
               </tr>
               <tr>
                 <th scope="row" class="mono">mem0_style</th>
-                <td class="num">0.360</td>
-                <td class="num">[0.317, 0.404]</td>
-                <td class="num">316</td>
+                <td class="num">0.345</td>
+                <td class="num">[0.303, 0.389]</td>
+                <td class="num">961</td>
+                <td class="num">116/26, p&lt;0.0001</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">zep_style</th>
+                <td class="num">0.338</td>
+                <td class="num">[0.297, 0.382]</td>
+                <td class="num">810</td>
+                <td class="num">120/27, p&lt;0.0001</td>
+              </tr>
+              <tr>
+                <th scope="row" class="mono">full_context</th>
+                <td class="num">0.162</td>
+                <td class="num">[0.131, 0.198]</td>
+                <td class="num">31,531</td>
+                <td class="num">187/11, p&lt;0.0001</td>
               </tr>
             </tbody>
           </table>
@@ -341,21 +351,25 @@ mem.timeline(<span class="s">"user"</span>, <span class="s">"city"</span>)
         <div class="callout callout--caveat">
           <p class="callout__title">Read this with the number</p>
           <p>
-            In both LongMemEval tables the confidence interval <strong>overlaps the runner-up</strong>,
-            so the margin over second place is <strong>not statistically significant</strong>. The margin
-            over BM25 and below is. And we lose LoCoMo.
+            The lead is <strong>category-shaped, not general</strong>. Against
+            <span class="mono">hybrid_rag</span> it is +7.0 on knowledge-update, +11.5 on
+            multi-session and +7.1 on temporal &mdash; the categories where the answer depends on
+            which version of a fact is current. On single-session recall the two are level and
+            <span class="mono">bm25</span> beats both, and on single-session preference we score
+            <span class="num">0.167</span>, the worst number on the board. <strong>And we lose
+            LoCoMo.</strong>
           </p>
         </div>
 
         <div class="prose">
           <h3>What holds up when the haystack is realistic</h3>
           <p>
-            On LongMemEval-S knowledge-update &mdash; roughly 500 distractor sessions per question, 72
-            questions &mdash; Palimpsest scores <span class="num">0.736</span> against
+            On the knowledge-update slice of that run &mdash; the category this design exists for
+            &mdash; Palimpsest scores <span class="num">0.778</span> against
             <span class="num">0.708</span> for <span class="mono">hybrid_rag</span>,
             <span class="num">0.639</span> for <span class="mono">bm25</span> and
             <span class="num">0.389</span> for <span class="mono">full_context</span> at
-            <span class="num">31,998</span> tokens. The sharper finding is the delta when the
+            <span class="num">31,531</span> tokens. The sharper finding is the delta when the
             distractors are taken away and put back:
           </p>
         </div>
@@ -561,13 +575,12 @@ mem.timeline(<span class="s">"user"</span>, <span class="s">"city"</span>)
     <div class="wrap section-grid">
       <div class="section-rail"><b>06</b><span>Who built it</span></div>
       <div class="prose">
-        <h2>A high-school sophomore in Las Vegas.</h2>
+        <h2>Independent, and Apache-2.0.</h2>
         <p>
-          Not a company and not a team &mdash; one person, working in the open under Apache-2.0. That is
-          also why the losses, the overlapping confidence intervals and the nine self-found defects are
-          on the site instead of in a footnote. In a field where self-reported numbers do not survive
-          independent measurement, the only thing worth publishing is the measurement anyone else can
-          repeat.
+          No product here can be embarrassed by a result, which is why the losses, the margins that
+          fail a significance test and the defects found by outside audit are on the site instead of
+          in a footnote. In a field where self-reported numbers do not survive independent
+          measurement, the only thing worth publishing is the measurement anyone else can repeat.
         </p>
         <p><a href="about.html">More about the project &rarr;</a></p>
       </div>

@@ -148,39 +148,36 @@ audit for exactly that mistake, and the fix is documented rather than hidden.
 
 ### Results
 
-**LongMemEval — all six categories, 470 questions, all judged.**
+**LongMemEval-S — all six categories, 470 questions, full distractors.**
 
-| system | accuracy | 95% CI | tokens |
-|---|---:|---|---:|
-| **palimpsest** | **0.589** | [0.544, 0.633] | 949 |
-| hybrid_rag | 0.553 | [0.508, 0.598] | 936 |
-| full_context | 0.536 | [0.491, 0.581] | 5,442 |
-| bm25 | 0.479 | [0.434, 0.524] | 882 |
-| vector_rag | 0.472 | [0.428, 0.518] | 960 |
-| zep_style | 0.387 | [0.344, 0.432] | 345 |
-| mem0_style | 0.360 | [0.317, 0.404] | 316 |
+The realistic setting: every question carries ~500 sessions of unrelated
+conversation. Each question judged in its own call; the artifact records the
+commit, the judge mode and a digest of the claim list every system received.
 
-First overall and first on four of six categories, including the two hardest for
-everyone (multi-session and temporal-reasoning). The interval overlaps
-`hybrid_rag`, so the margin over the runner-up is *not* significant at n=470; the
-margin over BM25 and below is.
+| system | accuracy | 95% CI | tokens | vs palimpsest (paired) |
+|---|---:|---|---:|---|
+| **palimpsest** | **0.536** | [0.491, 0.581] | 982 | — |
+| hybrid_rag | 0.472 | [0.428, 0.518] | 1,010 | 65/35, **p = 0.0035** |
+| bm25 | 0.430 | [0.386, 0.475] | 996 | 72/22, p < 0.0001 |
+| vector_rag | 0.396 | [0.353, 0.441] | 1,016 | 94/28, p < 0.0001 |
+| mem0_style | 0.345 | [0.303, 0.389] | 961 | 116/26, p < 0.0001 |
+| zep_style | 0.338 | [0.297, 0.382] | 810 | 120/27, p < 0.0001 |
+| full_context | 0.162 | [0.131, 0.198] | 31,531 | 187/11, p < 0.0001 |
 
-**On knowledge-update with realistic distractors** (LongMemEval-S, ~500 sessions
-of haystack per question) it is first at **0.736** — +9.7 over BM25 and +34.7 over
-full context on **1/32 of the tokens**.
+First overall, first on four of six categories, tied on a fifth — and the margin
+over the runner-up clears an exact paired test (McNemar), which no earlier result
+in this project did.
 
-The sharper finding is what happens when you take the distractors away and put
-them back. Without them, Palimpsest and `hybrid_rag` are tied. With them, only one
-holds:
+**The gap is category-shaped, not general.** Against `hybrid_rag`: +7.0 on
+knowledge-update, +11.5 on multi-session, +7.1 on temporal — the categories where
+the answer depends on which version of a fact is current. On single-session
+recall the two are level and BM25 beats both. On `single_session_preference` we
+score **0.167, the worst number on the board**. The ledger is a defence against
+returning a value that stopped being true; it is not a better retriever.
 
-| system | oracle | with distractors | change |
-|---|---:|---:|---:|
-| **palimpsest** | 0.750 | 0.736 | **−1.4** |
-| hybrid_rag | 0.764 | 0.708 | −5.6 |
-| full_context | 0.681 | 0.389 | −29.2 |
-
-The ledger is not finding the answer better. It is refusing to hand the model the
-wrong one, and that matters more as the haystack grows.
+**Full context scores 0.162 at 31,531 tokens** — 32x the budget, last place by 37
+points. On the oracle haystack the same system scores 0.536. That collapse *is*
+the argument for retrieval over stuffing the window.
 
 **And on LoCoMo it does not win.** Across all 10 conversations full context takes
 it at 23× the tokens (0.549), and among budget-matched systems Palimpsest and BM25

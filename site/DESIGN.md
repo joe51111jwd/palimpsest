@@ -571,7 +571,7 @@ what it does → does it work → do we believe anyone's numbers → do we belie
 | `field.html` | the reproducibility problem | Self-reported vs. measured; MemDelta (arXiv 2606.29914); the LightMem reproduction (arXiv 2607.29104); the wrong LoCoMo category labels in the Mem0 → Memobase → Backboard lineage; the deprecated 2025-09-19 LongMemEval release; no public leaderboard exists. Verified from primary sources — cite each one. |
 | `audit.html` | our own defects | The nine defects found in this engine, including the one where it could see the future and inflate its own results, and the one whose fix *lowered* our LoCoMo score. This page is the credibility of the whole site; write it as a log, not an apology. |
 | `docs.html` | using it | Install, the three dependencies, the `Memory` API (`ingest`, `recall`, `recall(as_of=)`, `timeline`), storage notes (SQLite, Postgres-portable schema, nothing deleted), and "what this is not". |
-| `about.html` | who built it | A high-school sophomore in Las Vegas. Stated plainly — never implied to be a company or a team, no "we", no fake org. Status: alpha, Apache-2.0, the API may change. |
+| `about.html` | what it is and who stands behind it | Independent, Apache-2.0, nothing for sale — never implied to be a company or a team, no "we", no fake org. Deliberately no age or location: the measurements are the argument, and personal detail on a page pushed to HN/Reddit/X is a locator, not a credential. Status: alpha, the API may change. |
 
 Cross-linking rules: any headline number links to `benchmarks.html`; any claim about the field
 links to `field.html`; any claim about our own honesty links to `audit.html`.

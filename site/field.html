@@ -442,12 +442,12 @@
         <div class="callout callout--caveat">
           <p class="callout__title">Read this with the number</p>
           <p>
-            The same standard applies here. On LongMemEval this engine is first overall in our
-            harness &mdash; <span class="num">0.589</span>, <span class="num">[0.544, 0.633]</span>
-            &mdash; but in both LongMemEval tables the confidence interval <strong>overlaps the
-            runner-up</strong>, so the margin over second place is <strong>not statistically
-            significant</strong>. The margin over BM25 and below is. And we lose LoCoMo:
-            <span class="mono">full_context</span> <span class="num">0.549</span>,
+            The same standard applies here. On LongMemEval-S &mdash; all six categories, 470
+            questions, ~500 distractor sessions each &mdash; this engine is first at
+            <span class="num">0.536</span>, <span class="num">[0.491, 0.581]</span>, and the margin
+            over second place clears an exact paired test (65/35,
+            <strong>p&nbsp;=&nbsp;0.0035</strong>). It is the only lead here that ever has. And we
+            lose LoCoMo: <span class="mono">full_context</span> <span class="num">0.549</span>,
             <span class="mono">bm25</span> <span class="num">0.417</span>,
             <span class="mono">palimpsest</span> <span class="num">0.408</span>.
           </p>

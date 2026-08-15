@@ -272,6 +272,6 @@ then `timeline("user", "employer")` printing both versions with dates.
   numbers are the whole argument and adjectives make them look weaker.
 - If someone replies "your CI overlaps second place" — agree, immediately, and
   point at post 12. That is the honest strong claim.
-- If someone asks about the author: answer plainly (high-school sophomore, Las
-  Vegas, no company, nothing for sale) and do not make it the hook. It is a
-  footnote, not the pitch.
+- If someone asks about the author: "independent, no company, nothing for sale"
+  is the whole answer. Do not volunteer age or location, and do not make who
+  built it the hook &mdash; the measurements are the pitch.
