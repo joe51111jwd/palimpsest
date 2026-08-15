@@ -22,3 +22,6 @@ results/*.log
 results/*.json
 !results/final/*.json
 scratch/
+
+# Agent worktrees and local session state
+.claude/
