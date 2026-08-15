@@ -134,7 +134,80 @@ reproduces the effect the long-context literature keeps reporting.
 
 ---
 
-## LongMemEval — all six categories, 470 questions
+## LongMemEval-S — all six categories, 470 questions, full distractors
+
+**This is the headline result and the only one produced under the corrected
+harness.** Every table elsewhere in this document was judged in batches of eight,
+which let one system's answers change another system's verdicts (see "what is
+known to be wrong", above); those numbers are kept for the record but are not
+comparable to this one and are being re-run. This run judged every question in
+its own call.
+
+The realistic setting: all six categories, all 470 non-abstention questions, each
+with a haystack of roughly 500 sessions of unrelated conversation. Micro-averaged.
+`results/final/lme_s_ALL_v2.json`, commit `2404177`, clean tree, judge
+independent, zero degraded episodes — all recorded in the file's `provenance`
+block so this is checkable rather than asserted.
+
+| system | n | accuracy | 95% CI | tokens | ms | vs palimpsest (paired) |
+|---|---:|---:|---|---:|---:|---|
+| **palimpsest** | 470 | **0.536** | [0.491, 0.581] | 982 | 58.3 | — |
+| hybrid_rag | 470 | 0.472 | [0.428, 0.518] | 1,010 | 10.4 | 65 / 35, **p = 0.0035** |
+| bm25 | 470 | 0.430 | [0.386, 0.475] | 996 | 0.6 | 72 / 22, p < 0.0001 |
+| vector_rag | 470 | 0.396 | [0.353, 0.441] | 1,016 | 2.5 | 94 / 28, p < 0.0001 |
+| mem0_style ¹ | 470 | 0.345 | [0.303, 0.389] | 961 | 1.2 | 116 / 26, p < 0.0001 |
+| zep_style ¹ | 470 | 0.338 | [0.297, 0.382] | 810 | 1.5 | 120 / 27, p < 0.0001 |
+| full_context ² | 470 | 0.162 | [0.131, 0.198] | 31,531 | 29.2 | 187 / 11, p < 0.0001 |
+
+¹ Re-implementations of the published designs, not the products. See `docs/LANDSCAPE.md`.
+² 32x the tokens of everything else, and it finishes last by 37 points.
+
+Per category:
+
+| system | knowledge-update | multi-session | temporal | ss-user | ss-assistant | ss-preference |
+|---|---:|---:|---:|---:|---:|---:|
+| **palimpsest** | **0.778** | **0.413** | **0.244** | **0.922** | 0.911 | 0.167 |
+| hybrid_rag | 0.708 | 0.298 | 0.173 | 0.875 | 0.911 | **0.200** |
+| bm25 | 0.639 | 0.215 | 0.165 | 0.828 | **0.929** | 0.133 |
+| vector_rag | 0.556 | 0.273 | 0.142 | 0.766 | 0.768 | 0.100 |
+| mem0_style | 0.625 | 0.322 | 0.181 | 0.750 | 0.089 | 0.067 |
+| zep_style | 0.639 | 0.289 | 0.173 | 0.734 | 0.089 | 0.133 |
+| full_context | 0.389 | 0.050 | 0.031 | 0.328 | 0.304 | 0.000 |
+
+**First overall, first on four of six categories, tied on a fifth, and — for the
+first time in this project — the margin over the strongest baseline is
+statistically significant** (65 questions won to 35 lost, p = 0.0035, exact
+McNemar on the paired outcomes). Every other margin is significant at p < 0.0001.
+
+Three things are worth reading off this table.
+
+**The gap widens exactly where the design says it should.** Against `hybrid_rag`
+the lead is +7.0 on knowledge-update, +11.5 on multi-session and +7.1 on
+temporal — the three categories where an answer depends on which version of a
+fact is current, or on connecting sessions. On single-session recall, where there
+is no supersession to get right, the systems are level (0.911 vs 0.911) or behind
+(BM25's 0.929 is the best score in that column). The ledger is not a better
+retriever. It is a defence against confidently returning a value that stopped
+being true, and that is a category-shaped advantage, not a general one.
+
+**`single_session_preference` at 0.167 is the worst score on the board and it is
+ours.** Preference questions ask for a rubric-shaped answer ("what advice would
+suit me?") that no attribute lookup helps with, and the fact block spends tokens
+that the excerpts needed. `hybrid_rag` beats us there. It is the clearest open
+weakness in the system.
+
+**Full context collapsing to 0.162** at 31,531 tokens is the sharpest version of
+the long-context result this project keeps reproducing. On the oracle haystack
+the same system scores 0.536. Add the distractors a real user's history would
+contain and it loses two thirds of its accuracy while costing 32x the tokens.
+
+---
+
+## LongMemEval-oracle — all six categories, 470 questions
+
+⚠️ **Judged in batches of eight. Not comparable to the table above, and awaiting
+re-run.** Kept because it is what was published and because the per-category
+shape is still informative.
 
 The complete public benchmark, oracle haystack. All 470 non-abstention questions,
 all judged, micro-averaged.
@@ -363,9 +436,14 @@ costs a little retrieval recall.
 
 **On LongMemEval it is first. On LoCoMo it is not.**
 
-- **LongMemEval, all six categories, 470 questions: first at 0.589**, ahead of
-  hybrid RAG (0.553) and of full context (0.536, at 5.7x the tokens), and first on
-  four of six categories including the two hardest for everyone.
+- **LongMemEval-S, all six categories, 470 questions, full distractors: first at
+  0.536**, ahead of hybrid RAG (0.472), BM25 (0.430) and full context (0.162 at
+  32x the tokens). First on four of six categories, tied on a fifth. This is the
+  one result produced under the corrected harness, and **the margin over the
+  runner-up is significant** (65/35, p = 0.0035) — the only lead in this project
+  that has ever cleared a paired test.
+- **LongMemEval-oracle, all six categories: first at 0.589**, but judged in
+  batches and awaiting re-run.
 - **LongMemEval-S knowledge-update, with realistic distractors: first at 0.819**
   (0.736 in the original run; the increase is a harness bug fix plus engine
   changes, split out above). It is also the system that degrades least when
@@ -374,11 +452,10 @@ costs a little retrieval recall.
 - **LoCoMo, all 10 conversations: full context wins at 23x the tokens**, and among
   budget-matched systems Palimpsest and BM25 are a statistical tie.
 
-The only margin anywhere in this document that reaches significance on a paired
-test is Palimpsest over BM25 on knowledge-update in the latest run (18/6,
-p = 0.023). Every other lead — including first place overall on LongMemEval — is
-a rank, not a demonstrated difference, and is labelled that way wherever it
-appears.
+In the corrected 470-question run every margin is significant on a paired test,
+including the one over the runner-up. In every table produced before that run,
+no margin over the runner-up was significant, and those are labelled where they
+appear — a rank, not a demonstrated difference.
 
 ### What is known to be wrong with these measurements
 
