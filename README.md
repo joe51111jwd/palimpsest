@@ -146,26 +146,30 @@ audit for exactly that mistake, and the fix is documented rather than hidden.
 
 ### Results
 
-**LongMemEval-S, knowledge-update** — the thesis category, with ~500 sessions of
-distractors per question. 72 questions, all judged, micro-averaged, cleaned release.
+**LongMemEval — all six categories, 470 questions, all judged.**
 
 | system | accuracy | 95% CI | tokens |
 |---|---:|---|---:|
-| **palimpsest** | **0.736** | [0.624, 0.824] | 1,011 |
-| hybrid_rag | 0.708 | [0.595, 0.801] | 1,010 |
-| bm25 | 0.639 | [0.524, 0.740] | 997 |
-| mem0_style | 0.625 | [0.510, 0.728] | 970 |
-| vector_rag | 0.556 | [0.441, 0.665] | 1,016 |
-| zep_style | 0.542 | [0.427, 0.652] | 815 |
-| full_context | 0.389 | [0.285, 0.504] | 31,998 |
+| **palimpsest** | **0.589** | [0.544, 0.633] | 949 |
+| hybrid_rag | 0.553 | [0.508, 0.598] | 936 |
+| full_context | 0.536 | [0.491, 0.581] | 5,442 |
+| bm25 | 0.479 | [0.434, 0.524] | 882 |
+| vector_rag | 0.472 | [0.428, 0.518] | 960 |
+| zep_style | 0.387 | [0.344, 0.432] | 345 |
+| mem0_style | 0.360 | [0.317, 0.404] | 316 |
 
-+9.7 over BM25, +34.7 over full context on **1/32 of the tokens**. The interval
-overlaps `hybrid_rag`, so the margin over the runner-up is *not* significant at
-n=72; the margin over everything below it is.
+First overall and first on four of six categories, including the two hardest for
+everyone (multi-session and temporal-reasoning). The interval overlaps
+`hybrid_rag`, so the margin over the runner-up is *not* significant at n=470; the
+margin over BM25 and below is.
 
-The sharper finding is what happens when you remove the distractors and put them
-back. On the oracle haystack Palimpsest and `hybrid_rag` are tied inside their
-intervals (0.750 vs 0.764). Add the distractors and only one holds:
+**On knowledge-update with realistic distractors** (LongMemEval-S, ~500 sessions
+of haystack per question) it is first at **0.736** — +9.7 over BM25 and +34.7 over
+full context on **1/32 of the tokens**.
+
+The sharper finding is what happens when you take the distractors away and put
+them back. Without them, Palimpsest and `hybrid_rag` are tied. With them, only one
+holds:
 
 | system | oracle | with distractors | change |
 |---|---:|---:|---:|
@@ -176,12 +180,13 @@ intervals (0.750 vs 0.764). Add the distractors and only one holds:
 The ledger is not finding the answer better. It is refusing to hand the model the
 wrong one, and that matters more as the haystack grows.
 
-**And it loses LoCoMo.** Plain BM25 beats it there by 14 points at the same budget
-(0.545 vs 0.407), because LoCoMo asks about details *inside* an utterance and a
-fact ledger has nothing to offer those. Fixing our own cardinality bug *lowered*
-that score from 0.502, because part of the apparent advantage was spurious
-supersession. Both facts are in [`docs/RESULTS.md`](docs/RESULTS.md) with the
-full tables.
+**And on LoCoMo it does not win.** Across all 10 conversations full context takes
+it at 23× the tokens (0.549), and among budget-matched systems Palimpsest and BM25
+are a statistical tie (0.408 vs 0.417). LoCoMo asks about details *inside* an
+utterance, which a fact ledger has nothing to say about. Fixing our own
+cardinality bug *lowered* our score there, because part of the apparent advantage
+was spurious supersession — see [`docs/RESULTS.md`](docs/RESULTS.md) for all four
+tables and the ablations.
 
 ## What this is not
 
