@@ -249,6 +249,17 @@ above, and it is the one that favours this design most.
 
 ## LoCoMo — all 10 conversations, 468 questions
 
+⚠️ **Judged in batches of eight, on a 468-question subsample, with the
+computed-time block active. Superseded on all three counts; re-run pending.**
+Two later runs on the full 1,540-question set are in
+`results/final/locomo_v2.json` (block on, 0.133) and
+`results/final/locomo_ablate_temporal.json` (block off, 0.548 on the first four
+conversations). Those two are not comparable to this table — different question
+set, different judging — and the full-set, block-off, independently-judged run
+that would replace it has not been done yet. Until it is, **the honest statement
+about LoCoMo is that this project does not currently have a trustworthy number
+for it.**
+
 Categories use the **LoCoMo authors' own labels**, not the ones the
 Mem0 → Memobase → Backboard lineage propagated, which are wrong on three of four
 (see [`LANDSCAPE.md`](LANDSCAPE.md)). Adversarial questions are excluded from the
@@ -305,6 +316,69 @@ ledger. The lower number is the true one.
 
 ---
 
+## The proxy was anti-correlated with accuracy, and it cost us 20 points
+
+**Read this before the proxy section below, because it retracts most of it.**
+
+The engine changes described further down were justified by an LLM-free proxy:
+*is the gold answer string present in the rendered context?* On that proxy the
+largest single win available was a `COMPUTED FROM THE STORED DATES` block, which
+does calendar arithmetic over the retrieved records and states the result —
+LongMemEval temporal 21.3% → 37.0%, LoCoMo temporal 9.1% → 13.8%.
+
+Two independent reviewers warned, before it shipped, that the proxy would
+over-credit it: a block that *computes and prints numbers* scores a hit whenever
+one of its numbers matches the gold, whether or not it was computed from the
+right pair of records. Both warnings were written down. It shipped anyway, on the
+argument that the mechanism was sound.
+
+Measured under a real judge — 584 LoCoMo questions, identical retrieval, paired,
+the only difference being whether the block renders:
+
+| | with the block | without it |
+|---|---:|---:|
+| **overall** | 0.351 | **0.548** |
+| single_hop | 0.437 | **0.672** |
+| **temporal** | 0.338 | **0.592** |
+| multi_hop | 0.162 | **0.225** |
+| open_domain | 0.219 | **0.281** |
+| mean context tokens | 1,002 | 1,015 |
+
+**122 questions gained, 7 lost, exact McNemar p = 3×10⁻²⁸.** It does not merely
+fail to help. It costs twenty points, and it costs them in *every* category,
+including the one it was written for.
+
+The mechanism was sound and the feature is harmful, which is the part worth
+keeping. Handing a model a confidently derived number computed from the wrong two
+records is worse than handing it the dates and letting it decline — the model
+does not treat a stated number as a hypothesis, and a wrong premise stated
+precisely is more damaging than no premise at all.
+
+**For this feature the proxy was not optimistic, it was anti-correlated.** On
+LoCoMo temporal it said 13.8% against BM25's 5.7%; the judge says 0.137 against
+0.212, reversed. The general lesson, which applies to anyone using retrieval
+proxies to iterate cheaply:
+
+> A retrieval proxy cannot evaluate a change that synthesizes answer-shaped
+> content. What it measures is presence of the answer string, and that is exactly
+> what such a change manufactures.
+
+The block is off by default (`PALIMPSEST_TEMPORAL_BLOCK=1` re-enables it, and a
+test pins that it stays off). The code and `palimpsest/temporal.py` remain,
+because the arithmetic is correct, independently tested, and the before/after has
+to stay reproducible.
+
+**What this invalidates.** Every proxy figure in the next section that the
+computed block contributed to is withdrawn as evidence of anything. The
+never-empty-context fix in that section is unaffected — it is a spec violation
+repaired in the adapter, and it is not measured by presence of a gold string.
+The graph-tier and index changes were measured on annotated-evidence recall
+rather than gold-in-context and are less exposed, but they have not been
+independently re-measured under a judge either, and until they are, treat the
+numbers below as a record of what was believed rather than as findings.
+
+---
+
 ## Retrieval proxies at large n — what justified the 2026-08-15 engine changes
 
 Judged runs cost an hour of LLM calls, which makes them a bad instrument for
@@ -314,6 +388,11 @@ recall**. Both under-count us (a fact block paraphrases) and over-count short
 numeric golds that appear incidentally, so they are only ever used to compare
 two revisions of the *same* system under an identical normalization. They are
 not accuracy and are never reported as accuracy.
+
+⚠️ **Largely retracted — see the section immediately above.** The single biggest
+contributor to these gains has since been measured under a judge and costs 20
+points. Kept because the retraction only means something if the claim it retracts
+is still visible.
 
 Every figure below is `main` before vs after, same machine, same cached claims.
 
