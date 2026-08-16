@@ -118,10 +118,44 @@ MAX_TIME_NOTES = 5
 #: on the argument rather than on a peak.
 MAX_DATED_ITEMS = 4
 
-#: ``PALIMPSEST_ABLATE_TEMPORAL=all`` switches the computed-time block off and
-#: reproduces the rendering that preceded it. Kept because every claim made about
-#: that block is a before/after number, and the "before" has to stay runnable.
-_ABLATE = {p.strip() for p in os.environ.get("PALIMPSEST_ABLATE_TEMPORAL", "").split(",") if p.strip()}
+#: **The computed-time block is OFF by default, and this is the most expensive
+#: thing this project has learned.**
+#:
+#: It was merged on the strength of an LLM-free proxy — "is the gold answer
+#: string present in the rendered context?" — on which it was the single largest
+#: win available: LongMemEval temporal 21.3% -> 37.0%, LoCoMo temporal 9.1% ->
+#: 13.8%. Two reviewers warned that the proxy would over-credit it, because a
+#: block that *computes and prints numbers* scores a hit whenever one of those
+#: numbers happens to match the gold, whether or not it was computed from the
+#: right pair of records. Both warnings were recorded and the block shipped
+#: anyway, on the argument that the mechanism was sound.
+#:
+#: Measured under a real judge, on 584 LoCoMo questions, identical retrieval,
+#: paired:
+#:
+#:      with the block     0.351
+#:      without it         0.548
+#:      +122 / -7, exact McNemar p = 3e-28
+#:
+#: It does not merely fail to help. It costs twenty points, and it costs them in
+#: EVERY category — single-hop 0.437 -> 0.672, and temporal itself 0.338 -> 0.592,
+#: which is the category it was written for. Handing a model a confidently
+#: derived number computed from the wrong two records is worse than handing it
+#: the dates and letting it decline.
+#:
+#: The proxy was not slightly optimistic here; for this feature it was
+#: **anti-correlated** with judged accuracy. That is the finding worth keeping:
+#: a retrieval proxy cannot evaluate a change that synthesizes answer-shaped
+#: content, because the thing it measures is presence of the answer string, and
+#: that is precisely what such a change manufactures.
+#:
+#: The code stays, off, behind an opt-in flag, because the before/after has to
+#: remain runnable and because the underlying arithmetic in `temporal.py` is
+#: correct and independently tested. Set ``PALIMPSEST_TEMPORAL_BLOCK=1`` to turn
+#: it back on. Do not turn it on to chase a proxy number.
+_TIME_BLOCK_ON = os.environ.get("PALIMPSEST_TEMPORAL_BLOCK", "0").strip().lower() in {
+    "1", "true", "yes", "on",
+}
 
 _TOKEN_RE = re.compile(r"[a-z0-9']+")
 _STOP = frozenset("""
@@ -201,7 +235,7 @@ def render_context(
     # independent: `plan.temporal` decides which *slice of time* to retrieve,
     # this decides whether to do arithmetic on what came back.
     intent = detect_intent(query)
-    ref = as_of if (intent and as_of is not None and "all" not in _ABLATE) else None
+    ref = as_of if (intent and as_of is not None and _TIME_BLOCK_ON) else None
 
     confident = plan is not None and plan.predicate_confidence >= CONFIDENT_RESOLUTION
     fraction = FACT_BUDGET_FRACTION if confident else FACT_BUDGET_FRACTION_UNSURE

@@ -156,6 +156,30 @@ def test_long_date_is_the_form_a_person_would_answer_with():
 # rendering
 # --------------------------------------------------------------------------- #
 
+@pytest.fixture
+def block_on(monkeypatch):
+    """Render with the computed-time block enabled.
+
+    It is OFF in production: measured under a real judge it costs 20 points on
+    LoCoMo (0.548 -> 0.351, +122/-7, p=3e-28) despite being the largest win
+    available on the LLM-free retrieval proxy. The tests below still pin its
+    behaviour, because the code is kept runnable behind the flag and because the
+    before/after that condemned it has to stay reproducible.
+    """
+    import palimpsest.render as render
+    monkeypatch.setattr(render, "_TIME_BLOCK_ON", True)
+
+
+def test_the_computed_block_is_off_by_default():
+    """The regression that matters most: this must not come back on by accident."""
+    ctx, _ = render_context(
+        TWO_FACTS, [], as_of=ASKED, token_budget=4096,
+        query="How long had I been bird watching when I attended the workshop?",
+    )
+    assert "COMPUTED FROM THE STORED DATES" not in ctx
+    assert "apart" not in ctx
+
+
 def _fact(pred: str, value: str, when: datetime) -> RetrievedFact:
     return RetrievedFact(
         Fact(
@@ -180,7 +204,7 @@ TWO_FACTS = [
 ]
 
 
-def test_computed_block_states_the_span_between_dated_evidence():
+def test_computed_block_states_the_span_between_dated_evidence(block_on):
     ctx, _ = render_context(
         TWO_FACTS, [], as_of=ASKED, token_budget=4096,
         query="How long had I been bird watching when I attended the workshop?",
@@ -193,7 +217,7 @@ def test_computed_block_states_the_span_between_dated_evidence():
     assert "attended event: bird watching workshop" in ctx
 
 
-def test_a_fact_that_did_not_fit_cannot_define_a_span():
+def test_a_fact_that_did_not_fit_cannot_define_a_span(block_on):
     """The block may only compute over evidence the model can actually see.
 
     It used to compute over everything *retrieved*, on the reasoning that the
@@ -227,7 +251,7 @@ def test_computed_block_is_absent_without_a_question_date():
     assert "COMPUTED" not in ctx
 
 
-def test_span_ignores_evidence_dated_on_the_day_of_the_question():
+def test_span_ignores_evidence_dated_on_the_day_of_the_question(block_on):
     """A session on the question's own day is the conversation the question sits
     in, not a separate event; letting it define one end pins every span to
     'today'."""
@@ -240,7 +264,7 @@ def test_span_ignores_evidence_dated_on_the_day_of_the_question():
     assert "91 days (about 3 months) apart" not in ctx  # 2023-02-25 -> question date
 
 
-def test_duration_valued_fact_is_carried_forward_to_the_question_date():
+def test_duration_valued_fact_is_carried_forward_to_the_question_date(block_on):
     facts = [_fact("device_usage_duration", "6 months", datetime(2023, 1, 15))]
     ctx, _ = render_context(
         facts, [], as_of=ASKED, query="How long have I been using my Fitbit?"
@@ -250,7 +274,7 @@ def test_duration_valued_fact_is_carried_forward_to_the_question_date():
     assert "10 months" in ctx  # ...and so is the carried-forward total
 
 
-def test_ordering_question_reports_the_chronological_extremes():
+def test_ordering_question_reports_the_chronological_extremes(block_on):
     ctx, _ = render_context(
         TWO_FACTS, [], as_of=ASKED, token_budget=4096,
         query="Which did I do first, the hobby or the workshop?",
