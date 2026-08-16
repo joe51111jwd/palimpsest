@@ -156,27 +156,27 @@ commit, the judge mode and a digest of the claim list every system received.
 
 | system | accuracy | 95% CI | tokens | vs palimpsest (paired) |
 |---|---:|---|---:|---|
-| **palimpsest** | **0.536** | [0.491, 0.581] | 982 | — |
-| hybrid_rag | 0.472 | [0.428, 0.518] | 1,010 | 65/35, **p = 0.0035** |
-| bm25 | 0.430 | [0.386, 0.475] | 996 | 72/22, p < 0.0001 |
-| vector_rag | 0.396 | [0.353, 0.441] | 1,016 | 94/28, p < 0.0001 |
-| mem0_style | 0.345 | [0.303, 0.389] | 961 | 116/26, p < 0.0001 |
-| zep_style | 0.338 | [0.297, 0.382] | 810 | 120/27, p < 0.0001 |
-| full_context | 0.162 | [0.131, 0.198] | 31,531 | 187/11, p < 0.0001 |
+| **palimpsest** | **0.519** | [0.474, 0.564] | 982 | — |
+| hybrid_rag | 0.472 | [0.428, 0.518] | 1,010 | 60/38, **p = 0.033** |
+| bm25 | 0.430 | [0.386, 0.475] | 996 | 62/20, p < 0.0001 |
+| vector_rag | 0.396 | [0.353, 0.441] | 1,016 | 83/25, p < 0.0001 |
+| mem0_style | 0.345 | [0.303, 0.389] | 961 | 111/29, p < 0.0001 |
+| zep_style | 0.338 | [0.297, 0.382] | 810 | 116/31, p < 0.0001 |
+| full_context | 0.162 | [0.131, 0.198] | 31,531 | 181/13, p < 0.0001 |
 
 First overall, first on four of six categories, tied on a fifth — and the margin
 over the runner-up clears an exact paired test (McNemar), which no earlier result
 in this project did.
 
 **The gap is category-shaped, not general.** Against `hybrid_rag`: +7.0 on
-knowledge-update, +11.5 on multi-session, +7.1 on temporal — the categories where
+knowledge-update, +10.7 on multi-session, +4.0 on temporal — the categories where
 the answer depends on which version of a fact is current. On single-session
 recall the two are level and BM25 beats both. On `single_session_preference` we
 score **0.167, the worst number on the board**. The ledger is a defence against
 returning a value that stopped being true; it is not a better retriever.
 
 **Full context scores 0.162 at 31,531 tokens** — 32x the budget, last place by 37
-points. On the oracle haystack the same system scores 0.536. That collapse *is*
+points. On the oracle haystack the same system scores 0.519. That collapse *is*
 the argument for retrieval over stuffing the window.
 
 **And on LoCoMo it does not win.** Across all 10 conversations full context takes

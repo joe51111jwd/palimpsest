@@ -137,7 +137,7 @@ reproduces the effect the long-context literature keeps reporting.
 ## LongMemEval-S — all six categories, 470 questions, full distractors
 
 **This is the headline result and the only one produced under the corrected
-harness.** Every table elsewhere in this document was judged in batches of eight,
+harness with the computed-time block off.** Every table elsewhere in this document was judged in batches of eight,
 which let one system's answers change another system's verdicts (see "what is
 known to be wrong", above); those numbers are kept for the record but are not
 comparable to this one and are being re-run. This run judged every question in
@@ -145,19 +145,22 @@ its own call.
 
 The realistic setting: all six categories, all 470 non-abstention questions, each
 with a haystack of roughly 500 sessions of unrelated conversation. Micro-averaged.
-`results/final/lme_s_ALL_v2.json`, commit `2404177`, clean tree, judge
-independent, zero degraded episodes — all recorded in the file's `provenance`
-block so this is checkable rather than asserted.
+`results/final/lme_s_ALL_v3.json`, commit `f795e6c`, judge independent, zero
+degraded episodes, all recorded in the file's `provenance` block. Its
+`claims_manifest` is byte-identical to the previous run's, which is how you can
+verify both saw exactly the same extracted claims rather than take our word for
+it. (`dirty: true` in that block refers to uncommitted files under `marketing/`
+and `site/`; no engine, harness or test file was modified.)
 
 | system | n | accuracy | 95% CI | tokens | ms | vs palimpsest (paired) |
 |---|---:|---:|---|---:|---:|---|
-| **palimpsest** | 470 | **0.536** | [0.491, 0.581] | 982 | 58.3 | — |
-| hybrid_rag | 470 | 0.472 | [0.428, 0.518] | 1,010 | 10.4 | 65 / 35, **p = 0.0035** |
-| bm25 | 470 | 0.430 | [0.386, 0.475] | 996 | 0.6 | 72 / 22, p < 0.0001 |
-| vector_rag | 470 | 0.396 | [0.353, 0.441] | 1,016 | 2.5 | 94 / 28, p < 0.0001 |
-| mem0_style ¹ | 470 | 0.345 | [0.303, 0.389] | 961 | 1.2 | 116 / 26, p < 0.0001 |
-| zep_style ¹ | 470 | 0.338 | [0.297, 0.382] | 810 | 1.5 | 120 / 27, p < 0.0001 |
-| full_context ² | 470 | 0.162 | [0.131, 0.198] | 31,531 | 29.2 | 187 / 11, p < 0.0001 |
+| **palimpsest** | 470 | **0.519** | [0.474, 0.564] | 1,008 | 59.1 | — |
+| hybrid_rag | 470 | 0.472 | [0.428, 0.518] | 1,010 | 10.6 | 60 / 38, **p = 0.033** |
+| bm25 | 470 | 0.430 | [0.386, 0.475] | 996 | 0.6 | 62 / 20, p < 0.0001 |
+| vector_rag | 470 | 0.396 | [0.353, 0.441] | 1,016 | 2.6 | 83 / 25, p < 0.0001 |
+| mem0_style ¹ | 470 | 0.345 | [0.303, 0.389] | 961 | 1.2 | 111 / 29, p < 0.0001 |
+| zep_style ¹ | 470 | 0.338 | [0.297, 0.382] | 810 | 1.5 | 116 / 31, p < 0.0001 |
+| full_context ² | 470 | 0.162 | [0.131, 0.198] | 31,531 | 29.6 | 181 / 13, p < 0.0001 |
 
 ¹ Re-implementations of the published designs, not the products. See `docs/LANDSCAPE.md`.
 ² 32x the tokens of everything else, and it finishes last by 37 points.
@@ -166,7 +169,7 @@ Per category:
 
 | system | knowledge-update | multi-session | temporal | ss-user | ss-assistant | ss-preference |
 |---|---:|---:|---:|---:|---:|---:|
-| **palimpsest** | **0.778** | **0.413** | **0.244** | **0.922** | 0.911 | 0.167 |
+| **palimpsest** | **0.736** | **0.405** | **0.213** | **0.906** | **0.929** | 0.167 |
 | hybrid_rag | 0.708 | 0.298 | 0.173 | 0.875 | 0.911 | **0.200** |
 | bm25 | 0.639 | 0.215 | 0.165 | 0.828 | **0.929** | 0.133 |
 | vector_rag | 0.556 | 0.273 | 0.142 | 0.766 | 0.768 | 0.100 |
@@ -176,17 +179,17 @@ Per category:
 
 **First overall, first on four of six categories, tied on a fifth, and — for the
 first time in this project — the margin over the strongest baseline is
-statistically significant** (65 questions won to 35 lost, p = 0.0035, exact
+statistically significant** (60 questions won to 38 lost, p = 0.033, exact
 McNemar on the paired outcomes). Every other margin is significant at p < 0.0001.
 
 Three things are worth reading off this table.
 
 **The gap widens exactly where the design says it should.** Against `hybrid_rag`
-the lead is +7.0 on knowledge-update, +11.5 on multi-session and +7.1 on
+the lead is +2.8 on knowledge-update, +10.7 on multi-session and +4.0 on
 temporal — the three categories where an answer depends on which version of a
 fact is current, or on connecting sessions. On single-session recall, where there
-is no supersession to get right, the systems are level (0.911 vs 0.911) or behind
-(BM25's 0.929 is the best score in that column). The ledger is not a better
+is no supersession to get right, the three are level — 0.929 for both Palimpsest
+and BM25 on assistant recall, and nobody is meaningfully ahead. The ledger is not a better
 retriever. It is a defence against confidently returning a value that stopped
 being true, and that is a category-shaped advantage, not a general one.
 
@@ -362,6 +365,19 @@ proxies to iterate cheaply:
 > A retrieval proxy cannot evaluate a change that synthesizes answer-shaped
 > content. What it measures is presence of the answer string, and that is exactly
 > what such a change manufactures.
+
+**And on LongMemEval it does nothing.** The same on/off comparison was run over
+all 470 LongMemEval-S questions. Every one of the six baselines came back
+byte-identical — 0 gained, 0 lost, on all six — which is as clean a control as
+this harness can produce and confirms that only the block changed. Palimpsest
+moved from 0.536 to 0.519, i.e. removing the block **lost 17 questions and gained
+9, p = 0.17: not distinguishable from noise.**
+
+So the full picture is a feature with no measurable benefit on one benchmark and
+a twenty-point cost on the other. That is not a trade-off to tune; it is a
+feature to switch off. It would have been easy to keep it on and report the 0.536
+— it is the larger number, and on LongMemEval alone nothing would have looked
+wrong.
 
 The block is off by default (`PALIMPSEST_TEMPORAL_BLOCK=1` re-enables it, and a
 test pins that it stays off). The code and `palimpsest/temporal.py` remain,

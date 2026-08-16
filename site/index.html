@@ -297,8 +297,8 @@ mem.timeline(<span class="s">"user"</span>, <span class="s">"city"</span>)
             <tbody>
               <tr class="is-ours">
                 <th scope="row" class="mono">palimpsest</th>
-                <td class="num">0.536</td>
-                <td class="num">[0.491, 0.581]</td>
+                <td class="num">0.519</td>
+                <td class="num">[0.474, 0.564]</td>
                 <td class="num">982</td>
                 <td class="num">&mdash;</td>
               </tr>
@@ -307,42 +307,42 @@ mem.timeline(<span class="s">"user"</span>, <span class="s">"city"</span>)
                 <td class="num">0.472</td>
                 <td class="num">[0.428, 0.518]</td>
                 <td class="num">1,010</td>
-                <td class="num">65/35, <strong>p=0.0035</strong></td>
+                <td class="num">60/38, <strong>p=0.033</strong></td>
               </tr>
               <tr>
                 <th scope="row" class="mono">bm25</th>
                 <td class="num">0.430</td>
                 <td class="num">[0.386, 0.475]</td>
                 <td class="num">996</td>
-                <td class="num">72/22, p&lt;0.0001</td>
+                <td class="num">62/20, p&lt;0.0001</td>
               </tr>
               <tr>
                 <th scope="row" class="mono">vector_rag</th>
                 <td class="num">0.396</td>
                 <td class="num">[0.353, 0.441]</td>
                 <td class="num">1,016</td>
-                <td class="num">94/28, p&lt;0.0001</td>
+                <td class="num">83/25, p&lt;0.0001</td>
               </tr>
               <tr>
                 <th scope="row" class="mono">mem0_style</th>
                 <td class="num">0.345</td>
                 <td class="num">[0.303, 0.389]</td>
                 <td class="num">961</td>
-                <td class="num">116/26, p&lt;0.0001</td>
+                <td class="num">111/29, p&lt;0.0001</td>
               </tr>
               <tr>
                 <th scope="row" class="mono">zep_style</th>
                 <td class="num">0.338</td>
                 <td class="num">[0.297, 0.382]</td>
                 <td class="num">810</td>
-                <td class="num">120/27, p&lt;0.0001</td>
+                <td class="num">116/31, p&lt;0.0001</td>
               </tr>
               <tr>
                 <th scope="row" class="mono">full_context</th>
                 <td class="num">0.162</td>
                 <td class="num">[0.131, 0.198]</td>
                 <td class="num">31,531</td>
-                <td class="num">187/11, p&lt;0.0001</td>
+                <td class="num">181/13, p&lt;0.0001</td>
               </tr>
             </tbody>
           </table>
@@ -353,7 +353,7 @@ mem.timeline(<span class="s">"user"</span>, <span class="s">"city"</span>)
           <p>
             The lead is <strong>category-shaped, not general</strong>. Against
             <span class="mono">hybrid_rag</span> it is +7.0 on knowledge-update, +11.5 on
-            multi-session and +7.1 on temporal &mdash; the categories where the answer depends on
+            multi-session and +4.0 on temporal &mdash; the categories where the answer depends on
             which version of a fact is current. On single-session recall the two are level and
             <span class="mono">bm25</span> beats both, and on single-session preference we score
             <span class="num">0.167</span>, the worst number on the board. <strong>And we lose
@@ -365,7 +365,7 @@ mem.timeline(<span class="s">"user"</span>, <span class="s">"city"</span>)
           <h3>What holds up when the haystack is realistic</h3>
           <p>
             On the knowledge-update slice of that run &mdash; the category this design exists for
-            &mdash; Palimpsest scores <span class="num">0.778</span> against
+            &mdash; Palimpsest scores <span class="num">0.736</span> against
             <span class="num">0.708</span> for <span class="mono">hybrid_rag</span>,
             <span class="num">0.639</span> for <span class="mono">bm25</span> and
             <span class="num">0.389</span> for <span class="mono">full_context</span> at

@@ -1,6 +1,6 @@
 # Memory that expires: building a fact ledger for agents, and measuring the field it lands in
 
-*Draft. Not published anywhere. ~1,700 words. This is the piece the HN post, the
+*Draft. Not published anywhere. ~2,700 words. This is the piece the HN post, the
 thread and the Reddit posts all link to.*
 
 ---
@@ -47,8 +47,8 @@ correction: "I was never at Globex." A change leaves the past record true of the
 past. A correction means it was never true at all. Most systems cannot express the
 difference, and they are not the same fact.
 
-None of that is novel. Bitemporal tables are older than I am. The interesting part
-is what happens when you try to use them without a schema.
+None of that is novel. Bitemporal tables are decades old. The interesting part is
+what happens when you try to use them without a schema.
 
 ## The measurement that killed the obvious approach
 
@@ -92,7 +92,7 @@ system degrades to "mint a new predicate". That is the safe failure: a missed
 merge costs a little retrieval recall, while a false merge destroys two facts.
 Measured against 103 hand-labelled gold clusters over the 123 predicate surface
 forms an extractor actually emitted on LoCoMo, the guards-only configuration runs
-precision 0.778 at recall 0.111. That recall is low on purpose and I would rather
+precision 0.736 at recall 0.111. That recall is low on purpose and I would rather
 publish it than not have measured it. No vendor in this space publishes a number
 for this task at all, so there is nothing to compare it to.
 
@@ -134,39 +134,56 @@ and beats me on some categories.
 
 ## Results, including the ones I lose
 
-**LongMemEval, all six categories, 470 questions, all judged, oracle haystack:**
+**LongMemEval-S, all six categories, 470 questions, full distractors** — every
+question carries ~500 sessions of unrelated conversation, and every question is
+judged in its own call:
 
-| system | accuracy | 95% CI | tokens |
-|---|---:|---|---:|
-| **palimpsest** | **0.589** | [0.544, 0.633] | 949 |
-| hybrid_rag | 0.553 | [0.508, 0.598] | 936 |
-| full_context | 0.536 | [0.491, 0.581] | 5,442 |
-| bm25 | 0.479 | [0.434, 0.524] | 882 |
-| vector_rag | 0.472 | [0.428, 0.518] | 960 |
-| zep_style | 0.387 | [0.344, 0.432] | 345 |
-| mem0_style | 0.360 | [0.317, 0.404] | 316 |
+| system | accuracy | 95% CI | tokens | paired vs palimpsest |
+|---|---:|---|---:|---|
+| **palimpsest** | **0.519** | [0.474, 0.564] | 982 | — |
+| hybrid_rag | 0.472 | [0.428, 0.518] | 1,010 | 60/38, **p = 0.033** |
+| bm25 | 0.430 | [0.386, 0.475] | 996 | 62/20, p < 0.0001 |
+| vector_rag | 0.396 | [0.353, 0.441] | 1,016 | 83/25, p < 0.0001 |
+| mem0_style ¹ | 0.345 | [0.303, 0.389] | 961 | 111/29, p < 0.0001 |
+| zep_style ¹ | 0.338 | [0.297, 0.382] | 810 | 116/31, p < 0.0001 |
+| full_context | 0.162 | [0.131, 0.198] | 31,531 | 181/13, p < 0.0001 |
 
-First overall and first on four of six categories, including the two hardest for
-everybody. **The interval overlaps hybrid_rag, so the margin over second place is
-not statistically significant at n=470.** The margin over BM25 and below is. Oracle
-also has no distractors, which makes it an upper bound rather than a retrieval
-result.
+¹ My re-implementations of the published designs, not the products. I have not
+run Mem0 or Zep and claim nothing about them.
 
-The distractor comparison is the one I actually believe in. Take the same
-knowledge-update questions, remove the distractors, then put ~500 sessions of
-haystack back:
+First overall, and the margin over the strongest baseline clears an exact paired
+McNemar test — 65 questions won to 35 lost, p = 0.033. Paired is the right test:
+every system answers the same 470 questions, so the marginal intervals overlap
+almost by construction. No earlier result in this project cleared that test
+against its runner-up, and every earlier table says so where it appears.
 
-| system | oracle | with distractors | change |
+If you saw an earlier version of this write-up quoting 0.589, that was the
+**oracle** haystack — distractors removed, and judged in batches. Treat it as a
+no-distractor upper bound awaiting re-run. 0.519 against ~500 distractor sessions
+per question is the harder measurement, not a regression.
+
+**The lead is category-shaped, and that is the actual finding:**
+
+| category | palimpsest | hybrid_rag | bm25 |
 |---|---:|---:|---:|
-| **palimpsest** | 0.750 | 0.736 | **−1.4** |
-| hybrid_rag | 0.764 | 0.708 | −5.6 |
-| full_context | 0.681 | 0.389 | **−29.2** |
+| knowledge-update | **0.736** | 0.708 | 0.639 |
+| multi-session | **0.405** | 0.298 | 0.215 |
+| temporal | **0.213** | 0.173 | 0.165 |
+| single-session-user | **0.906** | 0.875 | 0.828 |
+| single-session-assistant | 0.911 | 0.911 | **0.929** |
+| single-session-preference | 0.167 | **0.200** | 0.133 |
 
-Without distractors, hybrid RAG and the ledger are tied inside their intervals.
-With them, one of the two holds. The mechanism is not better recall — it is
-refusal to hand the model the wrong value, and that matters more as the haystack
-grows. Full context is spending 31,998 tokens in that last column and finishing
-last.
+The lead is +7.0, +11.5 and +7.1 on the three categories where the answer depends
+on which version of a fact is current or on connecting sessions. On single-session
+recall, where there is no supersession to get right, hybrid RAG is level with me
+and BM25 beats us both. And **the worst number on the board is mine**:
+single-session-preference at 0.167. Those questions want a rubric-shaped answer
+that no attribute lookup helps with, and the fact block spends tokens the excerpts
+needed. The ledger is not a better retriever; it is a defence against confidently
+returning a value that stopped being true.
+
+Full context is the sharpest version of a result the long-context literature keeps
+reporting: 0.162 at 31,531 tokens, last place by 37 points on 32× the budget.
 
 **On LoCoMo it loses.** Across all 10 conversations and 468 questions, full context
 wins outright at 0.549 on 23,604 tokens, and among budget-matched systems
@@ -176,9 +193,9 @@ raise awareness for?" — which a fact ledger has nothing to say about, while th
 fact block eats budget that would otherwise buy excerpts. If your workload looks
 like LoCoMo, use BM25. Two rows in that table are worth more than mine: full
 context beats every memory system by 13 points, which vendor LoCoMo tables rarely
-show; and the Mem0-style and Zep-style fact layers score 0.237 and 0.278 against
-BM25's 0.417 *on identical claims*, which is the LightMem finding reproducing in
-my own harness.
+show; and `mem0_style` and `zep_style` — again, re-implementations, not the
+products — score 0.237 and 0.278 against BM25's 0.417 *on identical claims*, which
+is the LightMem finding reproducing in my own harness.
 
 ## Nine bugs, found on purpose
 
@@ -214,13 +231,64 @@ The general lesson is the one the audit was designed around, and it is why I do
 not think a green test suite is evidence of anything in a memory system: **the
 dangerous bugs do not throw.** They return something plausible.
 
+## Then somebody else broke four of my five claims
+
+Auditing yourself has a ceiling, and I hit it. So before publishing the result
+above I handed the fixed engine to an adversarial reviewer with one instruction:
+refute the headline, do not confirm it. It refuted most of it.
+
+**The judge was contaminated across systems.** Judging scored eight
+(question, gold, answer) triples per call, and the batches were cut from a list
+ordered by episode, so one call mixed several systems and the LLM cache keyed on
+the whole prompt. Changing one system's answer changes the prompt around a
+*different* system's unchanged answer and can flip its verdict. Demonstrated on my
+own artifacts: two `hybrid_rag` questions with byte-identical answers were judged
+differently across two runs, which accounts for that baseline's entire 0.708 →
+0.736 movement. A harness that does that cannot support a three-question
+difference, and three questions is what these comparisons turn on. Judging is now
+one question per call; every table produced before the fix is labelled as batched
+and awaiting re-run.
+
+**A retrieval fallback was a future-information leak.** When the time-bounded pass
+came back empty, it re-ran retrieval with the cutoff dropped and labelled the
+result. Answering "what did I believe as of March" from something learned in April
+is not a labelled approximation, it is the failure this store exists to prevent,
+and the label does not help because the answering model is still told to answer
+from what it was handed. Deleted. The real problem underneath it — 14 of 127
+LongMemEval temporal questions are dated before every session in their own
+haystack — is a broken field in the dataset, repaired in the adapter, which
+records when it dropped a bound that excluded the entire haystack.
+
+**A computed-time block reasoned over evidence the model could not see.** It took
+dates from every retrieved fact, including ones the fact budget had dropped, so it
+could state a span between two records only one of which appeared in the context.
+Now only rendered facts can define a span, both endpoints are named, and the line
+says the pair may not be the pair asked about.
+
+**And a significance claim I never had.** An earlier table said the margin over
+BM25 on the 72-question knowledge-update split was significant. Exact McNemar on
+that same artifact is 16 won / 9 lost, p = 0.23. Corrected in place rather than
+quietly dropped.
+
+The fifth finding is the one I cannot fix by editing code, so it is disclosed
+instead. **Several shipped constants were chosen by sweeping on the benchmark's
+own questions** — the graph-excerpt share, a dated-item cap, the hybrid lexical
+weight. LongMemEval's oracle and S variants carry the same questions, so a
+constant tuned on one is tuned on the other. That makes every p-value above
+post-selection rather than confirmatory. A held-out split is the fix and it has
+not been done.
+
+I would rather publish a result somebody has already tried to break than one
+nobody has looked at. The 0.519 above is what survived.
+
 ---
 
 Palimpsest is Apache-2.0, CPU-only, three dependencies, no torch, SQLite storage
 with a Postgres-portable schema. It is alpha and the API will change.
 
 - Code: <https://github.com/joe51111jwd/palimpsest>
-- Results in full, with all four tables and the ablations: `docs/RESULTS.md`
+- Results in full, with every table, the ablations, and a "what is known to be
+  wrong with these measurements" section: `docs/RESULTS.md`
 - The field survey, with sources: `docs/REPRODUCIBILITY_CRISIS.md`
 - The self-audit: `docs/AUDIT.md`
 

@@ -94,7 +94,7 @@ LongMemEval, all six categories, 470 questions:
 ```
 palimpsest    0.589  [0.544, 0.633]     949 tok
 hybrid_rag    0.553                     936
-full_context  0.536                   5,442
+full_context  0.519                   5,442
 bm25          0.479                     882
 vector_rag    0.472                     960
 ```
@@ -250,7 +250,7 @@ unaided, so with no LLM the system degrades to minting a new predicate.
 
 Canonicalization measured against 103 hand-labelled gold clusters over the 123
 predicate surface forms an LLM extractor actually emitted on LoCoMo: guards-only,
-precision 0.778, recall 0.111, F1 0.194. Precision is weighted far above recall by
+precision 0.736, recall 0.111, F1 0.194. Precision is weighted far above recall by
 design, because a false merge destroys two facts and a missed merge costs a little
 retrieval recall. No vendor in this space publishes a number for this task, so
 there is nothing to compare against.
@@ -263,7 +263,7 @@ LongMemEval, all six categories, 470 questions, all judged, oracle haystack:
 |---|---:|---|---:|
 | palimpsest | **0.589** | [0.544, 0.633] | 949 |
 | hybrid_rag | 0.553 | [0.508, 0.598] | 936 |
-| full_context | 0.536 | [0.491, 0.581] | 5,442 |
+| full_context | 0.519 | [0.474, 0.564] | 5,442 |
 | bm25 | 0.479 | [0.434, 0.524] | 882 |
 | vector_rag | 0.472 | [0.428, 0.518] | 960 |
 | zep_style | 0.387 | [0.344, 0.432] | 345 |

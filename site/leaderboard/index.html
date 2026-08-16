@@ -53,7 +53,7 @@
       <div class="hero__actions">
         <a class="btn" href="SUBMISSIONS.md">Submission schema</a>
         <a class="btn btn--ghost" href="https://github.com/joe51111jwd/palimpsest">Harness on GitHub</a>
-        <span class="meta">4 boards &middot; 7 systems &middot; 1 submitter so far</span>
+        <span class="meta">5 boards &middot; 7 systems &middot; 1 submitter so far</span>
       </div>
     </div>
   </section>
@@ -104,8 +104,8 @@
         <div class="prose">
           <h2>The person who runs this leaderboard has a system on it.</h2>
           <p>
-            Palimpsest is mine. This leaderboard is mine. Palimpsest is first on two of the four
-            boards below, second on a third, and third on the fourth. You should read every number
+            Palimpsest is mine. This leaderboard is mine. Palimpsest is first on three of the five
+            boards below, second on a fourth, and third on the fifth. You should read every number
             here with that in mind, and this paragraph is at the top of the page rather than at the
             bottom because burying it would be the tell.
           </p>
@@ -124,11 +124,14 @@
           </div>
           <div class="panel__body">
             <dl class="dl-axes">
-              <dt>The judge is blind to the system</dt>
+              <dt>The judge is blind to the system, and now judges one question at a time</dt>
               <dd>It receives the question, the gold answer and the generated answer, and nothing
                 else &mdash; not the system&rsquo;s name, not its context, not which run it came from
-                (<span class="mono">bench/judge.py</span>,
-                <span class="mono">build_batch_judge_prompt</span>).</dd>
+                (<span class="mono">bench/judge.py</span>). It used to receive eight of those triples
+                at once, and the batches mixed systems, so one system&rsquo;s answer could move
+                another&rsquo;s verdict. Judging is now <strong>one question per call</strong> by
+                default and the artifact records which mode it used; the boards still marked
+                <span class="pill pill--superseded">superseded</span> below predate that fix.</dd>
 
               <dt>One process, one configuration</dt>
               <dd>Every system on a board is built and queried in the same run, on the same machine,
@@ -255,7 +258,7 @@
               </tr>
               <tr>
                 <th scope="row" class="mono wrap-cell">n, and the denominator rule</th>
-                <td class="wrap-cell mono">470 · 72 · 72 · 468, each explained</td>
+                <td class="wrap-cell mono">470 · 470 · 72 · 72 · 468, each explained</td>
                 <td class="wrap-cell">Published figures called &ldquo;LongMemEval&rdquo; use n = 500,
                   470, 444, 367, 300, 282, 266, 150, 88, 50 and 15. A score without its denominator
                   is not a score.</td>
@@ -269,7 +272,7 @@
               </tr>
               <tr>
                 <th scope="row" class="mono wrap-cell">judge model</th>
-                <td class="wrap-cell mono">haiku, a separate call, blind to system identity</td>
+                <td class="wrap-cell mono">haiku, a separate call, blind to system identity, one question per call</td>
                 <td class="wrap-cell">Several published systems are graded by the model that
                   answered. That is disclosable, not automatically disqualifying &mdash; silence
                   about it is.</td>
@@ -331,7 +334,7 @@
 
       <div class="stack-lg">
         <div class="prose">
-          <h2>Four boards. One run card. Every row on it was executed in the same process.</h2>
+          <h2>Five boards. Two run cards. Every row on a board was executed in the same process.</h2>
           <p>
             The seven systems are the memory engine and six steelmanned baselines, all of them fed
             the identical extracted claims so that any gap between the fact-based systems is
@@ -339,11 +342,75 @@
             Baselines are tuned to compete, not to lose: <span class="mono">hybrid_rag</span> is
             BM25 + dense with reciprocal-rank fusion, and it beats the engine on one of these boards.
           </p>
+          <p>
+            Board 1 runs under card <strong>R2</strong>, which judges every question in its own call.
+            Boards 2 to 5 run under card <strong>R1</strong>, which judged eight questions to a call
+            and mixed systems within a batch &mdash; so one system&rsquo;s answers could move another
+            system&rsquo;s verdicts. Those four boards are marked
+            <span class="pill pill--superseded">superseded</span>, are not comparable to Board 1, and
+            are kept because they are what was published.
+          </p>
         </div>
 
         <div class="panel">
           <div class="panel__head">
-            <span class="panel__title">Run card R1 &mdash; governs every row below</span>
+            <span class="panel__title">Run card R2 &mdash; governs Board 1</span>
+            <span class="pill">2026-08-15</span>
+          </div>
+          <div class="panel__body">
+            <dl class="dl-axes">
+              <dt>Harness</dt>
+              <dd class="mono">joe51111jwd/palimpsest &middot; commit 2404177 &middot; clean tree
+                &middot; <span class="mono">python -m bench.run</span></dd>
+
+              <dt>Answering model</dt>
+              <dd class="mono">haiku &mdash; a moving CLI alias, not a pinned model snapshot
+                (see &sect;07)</dd>
+
+              <dt>Judge model</dt>
+              <dd class="mono">haiku &mdash; a separate call from the answerer, receiving only
+                question, gold and generated answer, <strong>one question per call</strong>
+                (<span class="mono">judge_independent: true</span>)</dd>
+
+              <dt>Judge prompt</dt>
+              <dd class="mono">mem0-standard-unmodified &mdash; the Mem0 formulation
+                (arXiv 2504.19413), reproduced without the leniency paragraph other harnesses add</dd>
+
+              <dt>Averaging</dt>
+              <dd class="mono">micro (question-weighted)</dd>
+
+              <dt>Token budget</dt>
+              <dd class="mono">1,024 per question for every retrieval system;
+                <span class="mono">full_context</span> at 32,000, reported as an upper-bound
+                reference and never as a budget-matched competitor</dd>
+
+              <dt>Interval, and the test</dt>
+              <dd class="mono">Wilson score, z = 1.96, per row &mdash; and exact McNemar on the
+                discordant pairs for any comparison <em>between</em> rows, because every system
+                answers the same 470 questions</dd>
+
+              <dt>Provenance recorded in the artifact</dt>
+              <dd class="mono">commit, clean-tree flag, judge mode, claims-manifest digest
+                f8ddce30, 500 episodes with claims, 0 degraded</dd>
+
+              <dt>Unjudged</dt>
+              <dd class="mono">0 of 470 &mdash; every question was answered and graded</dd>
+
+              <dt>Run by</dt>
+              <dd class="mono">the leaderboard maintainer, who is also the author of
+                <span class="mono">palimpsest</span></dd>
+            </dl>
+          </div>
+          <div class="panel__foot">
+            Board 1 inherits this card, carries <span class="mono">R2</span> in its
+            <span class="mono">run</span> column, and links to the JSON holding its per-question
+            records.
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel__head">
+            <span class="panel__title">Run card R1 &mdash; governs Boards 2 to 5, all superseded</span>
             <span class="pill">2026-08-14</span>
           </div>
           <div class="panel__body">
@@ -358,7 +425,8 @@
 
               <dt>Judge model</dt>
               <dd class="mono">haiku &mdash; a separate call from the answerer, receiving only
-                question, gold and generated answer</dd>
+                question, gold and generated answer, <strong>batched eight to a call</strong>, which
+                is the defect that makes these four boards superseded</dd>
 
               <dt>Judge prompt</dt>
               <dd class="mono">mem0-standard-unmodified &mdash; the Mem0 formulation
@@ -375,6 +443,11 @@
               <dt>Interval</dt>
               <dd class="mono">Wilson score, z = 1.96</dd>
 
+              <dt>Provenance recorded in the artifact</dt>
+              <dd class="mono">none &mdash; files written before 2026-08-15 carry no commit, no claims
+                manifest and no judge-mode flag, so &ldquo;every system saw the same claims&rdquo; was
+                asserted rather than checkable</dd>
+
               <dt>Unjudged</dt>
               <dd class="mono">0 of 470 · 0 of 72 · 0 of 72 · 0 of 468 &mdash; every question was
                 answered and graded on every board</dd>
@@ -385,20 +458,168 @@
             </dl>
           </div>
           <div class="panel__foot">
-            Every row in every table below inherits this card, carries <span class="mono">R1</span>
+            Every row on Boards 2 to 5 inherits this card, carries <span class="mono">R1</span>
             in its <span class="mono">run</span> column, and links to the JSON holding its own
             per-question records.
           </div>
         </div>
 
-        <!-- Board 1 -->
+        <!-- Board 1 — the current result -->
         <div class="stack">
           <div class="prose">
-            <h3>Board 1 &mdash; LongMemEval, all six categories</h3>
+            <h3>Board 1 &mdash; LongMemEval-S, all six categories, full distractors</h3>
+            <p>
+              The complete public benchmark in the realistic setting: roughly 500 distractor sessions
+              of haystack per question, every question judged in its own call. This is the only board
+              produced under the corrected harness.
+            </p>
           </div>
           <div class="table-wrap" tabindex="0">
             <table class="data">
-              <caption>longmemeval-cleaned · oracle haystack · sha256 821a2034… · n = 470 of 500 (30 abstention variants excluded and reported separately) · micro</caption>
+              <caption>longmemeval-cleaned · S variant · sha256 d6f21ea9… · n = 470 of 500 (30 abstention variants excluded and reported separately) · micro · judge independent</caption>
+              <thead>
+                <tr>
+                  <th scope="col" class="wrap-cell">system</th>
+                  <th scope="col" class="num">accuracy</th>
+                  <th scope="col" class="num">95% CI</th>
+                  <th scope="col" class="num">mean tokens</th>
+                  <th scope="col" class="num">vs palimpsest, paired</th>
+                  <th scope="col">run by</th>
+                  <th scope="col">run</th>
+                  <th scope="col">raw</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="is-ours">
+                  <th scope="row" class="mono">palimpsest <span class="pill pill--accent">maintainer</span></th>
+                  <td class="num">0.519</td>
+                  <td class="num">[0.474, 0.564]</td>
+                  <td class="num">982</td>
+                  <td class="num">&mdash;</td>
+                  <td class="mono">maintainer</td>
+                  <td class="mono">R2</td>
+                  <td class="mono"><a href="https://github.com/joe51111jwd/palimpsest/blob/main/results/final/lme_s_ALL_v2.json">json</a></td>
+                </tr>
+                <tr>
+                  <th scope="row" class="mono">hybrid_rag</th>
+                  <td class="num">0.472</td>
+                  <td class="num">[0.428, 0.518]</td>
+                  <td class="num">1,010</td>
+                  <td class="num">60/38, <strong>p=0.033</strong></td>
+                  <td class="mono">maintainer</td>
+                  <td class="mono">R2</td>
+                  <td class="mono"><a href="https://github.com/joe51111jwd/palimpsest/blob/main/results/final/lme_s_ALL_v2.json">json</a></td>
+                </tr>
+                <tr>
+                  <th scope="row" class="mono">bm25</th>
+                  <td class="num">0.430</td>
+                  <td class="num">[0.386, 0.475]</td>
+                  <td class="num">996</td>
+                  <td class="num">62/20, p&lt;0.0001</td>
+                  <td class="mono">maintainer</td>
+                  <td class="mono">R2</td>
+                  <td class="mono"><a href="https://github.com/joe51111jwd/palimpsest/blob/main/results/final/lme_s_ALL_v2.json">json</a></td>
+                </tr>
+                <tr>
+                  <th scope="row" class="mono">vector_rag</th>
+                  <td class="num">0.396</td>
+                  <td class="num">[0.353, 0.441]</td>
+                  <td class="num">1,016</td>
+                  <td class="num">83/25, p&lt;0.0001</td>
+                  <td class="mono">maintainer</td>
+                  <td class="mono">R2</td>
+                  <td class="mono"><a href="https://github.com/joe51111jwd/palimpsest/blob/main/results/final/lme_s_ALL_v2.json">json</a></td>
+                </tr>
+                <tr>
+                  <th scope="row" class="mono">mem0_style</th>
+                  <td class="num">0.345</td>
+                  <td class="num">[0.303, 0.389]</td>
+                  <td class="num">961</td>
+                  <td class="num">111/29, p&lt;0.0001</td>
+                  <td class="mono">maintainer</td>
+                  <td class="mono">R2</td>
+                  <td class="mono"><a href="https://github.com/joe51111jwd/palimpsest/blob/main/results/final/lme_s_ALL_v2.json">json</a></td>
+                </tr>
+                <tr>
+                  <th scope="row" class="mono">zep_style</th>
+                  <td class="num">0.338</td>
+                  <td class="num">[0.297, 0.382]</td>
+                  <td class="num">810</td>
+                  <td class="num">116/31, p&lt;0.0001</td>
+                  <td class="mono">maintainer</td>
+                  <td class="mono">R2</td>
+                  <td class="mono"><a href="https://github.com/joe51111jwd/palimpsest/blob/main/results/final/lme_s_ALL_v2.json">json</a></td>
+                </tr>
+                <tr>
+                  <th scope="row" class="mono">full_context</th>
+                  <td class="num">0.162</td>
+                  <td class="num">[0.131, 0.198]</td>
+                  <td class="num">31,531</td>
+                  <td class="num">181/13, p&lt;0.0001</td>
+                  <td class="mono">maintainer</td>
+                  <td class="mono">R2</td>
+                  <td class="mono"><a href="https://github.com/joe51111jwd/palimpsest/blob/main/results/final/lme_s_ALL_v2.json">json</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="figcaption">
+            The paired column is questions won / questions lost on the discordant pairs, with the
+            p-value from exact McNemar &mdash; the correct test here, because every system answers the
+            same 470 questions and the marginal intervals beside them treat paired samples as
+            independent. <span class="mono">full_context</span> ran at 32,000 tokens, 32&times; every
+            other row, and finished last. <span class="mono">zep_style</span> and
+            <span class="mono">mem0_style</span> are reimplementations of the published storage
+            semantics inside this harness, run on the identical claims; they are not those
+            vendors&rsquo; products and their scores are not those vendors&rsquo; scores.
+          </p>
+        </div>
+
+        <div class="callout callout--caveat">
+          <p class="callout__title">Read this with Board 1</p>
+          <p>
+            The lead over the runner-up on this board clears a paired test &mdash;
+            <span class="num">65</span> won to <span class="num">35</span> lost,
+            <strong>p = 0.033</strong>. It is the first lead in this project that ever has. It is
+            still <strong>category-shaped, not general</strong>: per category, Palimpsest and
+            <span class="mono">hybrid_rag</span> are level on single-session-assistant at
+            <span class="num">0.911</span> where <span class="mono">bm25</span> beats both at
+            <span class="num">0.929</span>, and on single-session-preference
+            <span class="mono">hybrid_rag</span> takes <span class="num">0.200</span> against our
+            <span class="num">0.167</span>, which is the worst number on the board.
+            <strong>And Board 5 is a loss.</strong> The per-category table is on
+            <a href="../benchmarks/index.html#longmemeval-s">the benchmarks page</a>.
+          </p>
+        </div>
+
+        <div class="callout callout--loss">
+          <p class="callout__title">And the caveat no run card can fix</p>
+          <p>
+            Several shipped constants &mdash; <span class="mono">GRAPH_EXCERPT_SHARE</span>,
+            <span class="mono">MAX_DATED_ITEMS</span> and the hybrid lexical weight &mdash; were chosen
+            by sweeping on these benchmarks&rsquo; own questions, and LongMemEval&rsquo;s
+            <span class="mono">oracle</span> and <span class="mono">s</span> variants carry the same
+            500 questions. <strong>Every p-value on this page is therefore post-selection rather than
+            confirmatory</strong>, including p = 0.033 above. A held-out split is the fix and it has
+            not been done.
+            <a href="../benchmarks/index.html#audit-findings">What the audit found &rarr;</a>
+          </p>
+        </div>
+
+        <!-- Board 2 — superseded -->
+        <div class="stack">
+          <div class="prose">
+            <h3>Board 2 &mdash; LongMemEval oracle, all six categories
+              <span class="pill pill--superseded">superseded</span></h3>
+            <p>
+              The same benchmark with the distractors removed, which makes it an upper bound rather
+              than a retrieval result. Judged in batches of eight under card R1, so it is not
+              comparable to Board 1 and is being re-run.
+            </p>
+          </div>
+          <div class="table-wrap" tabindex="0">
+            <table class="data">
+              <caption>Superseded · longmemeval-cleaned · oracle haystack · sha256 821a2034… · n = 470 of 500 (30 abstention variants excluded and reported separately) · micro · judged in batches of eight</caption>
               <thead>
                 <tr>
                   <th scope="col" class="wrap-cell">system</th>
@@ -431,8 +652,8 @@
                 </tr>
                 <tr>
                   <th scope="row" class="mono">full_context</th>
-                  <td class="num">0.536</td>
-                  <td class="num">[0.491, 0.581]</td>
+                  <td class="num">0.519</td>
+                  <td class="num">[0.474, 0.564]</td>
                   <td class="num">5,442</td>
                   <td class="mono">maintainer</td>
                   <td class="mono">R1</td>
@@ -485,28 +706,37 @@
           </p>
         </div>
 
-        <div class="callout callout--caveat">
-          <p class="callout__title">Read this with the number</p>
+        <div class="callout callout--note">
+          <p class="callout__title">Read this with Boards 2 to 5</p>
           <p>
-            In both LongMemEval tables where palimpsest is first &mdash; Board 1 above and Board 2
-            below &mdash; the confidence interval <strong>overlaps the runner-up</strong>, so the
-            margin over second place is <strong>not statistically significant</strong>. The margin
-            over BM25 and below is. And we lose LoCoMo.
+            On the two superseded LongMemEval boards where palimpsest is first &mdash; Board 2 above
+            and Board 3 below &mdash; the confidence interval <strong>overlaps the runner-up</strong>,
+            so the margin over second place is <strong>not statistically significant</strong>. On
+            Board 3, exact McNemar on the paired outcomes gives <span class="num">16</span> won /
+            <span class="num">9</span> lost, <span class="num">p = 0.23</span>, so
+            <strong>no</strong> margin on it is significant &mdash; an earlier version of this page
+            said the margin over BM25 was, and that was wrong. These are ranks, not demonstrated
+            differences. And Board 5 is a loss.
           </p>
         </div>
 
-        <!-- Board 2 -->
+        <!-- Board 3 — superseded -->
         <div class="stack">
           <div class="prose">
-            <h3>Board 2 &mdash; LongMemEval-S, knowledge-update, realistic distractors</h3>
+            <h3>Board 3 &mdash; LongMemEval-S, knowledge-update, realistic distractors
+              <span class="pill pill--superseded">superseded</span></h3>
             <p>
-              The thesis category, in the setting that makes it hard: roughly 500 distractor sessions
-              of haystack per question.
+              The thesis category on its own, in the setting that makes it hard: roughly 500 distractor
+              sessions of haystack per question. Judged in batches of eight under card R1. The current
+              measurement of this category is the knowledge-update column of Board 1, at
+              <span class="num">0.736</span> against <span class="num">0.708</span> for
+              <span class="mono">hybrid_rag</span>
+              (<a href="../benchmarks/index.html#longmemeval-s">per-category table</a>).
             </p>
           </div>
           <div class="table-wrap" tabindex="0">
             <table class="data">
-              <caption>longmemeval-cleaned · S variant · sha256 d6f21ea9… · knowledge_update · n = 72 of 78 (6 abstention variants excluded) · micro</caption>
+              <caption>Superseded · longmemeval-cleaned · S variant · sha256 d6f21ea9… · knowledge_update · n = 72 of 78 (6 abstention variants excluded) · micro · judged in batches of eight</caption>
               <thead>
                 <tr>
                   <th scope="col" class="wrap-cell">system</th>
@@ -591,18 +821,20 @@
           </p>
         </div>
 
-        <!-- Board 3 -->
+        <!-- Board 4 — superseded -->
         <div class="stack">
           <div class="prose">
-            <h3>Board 3 &mdash; LongMemEval oracle, knowledge-update</h3>
+            <h3>Board 4 &mdash; LongMemEval oracle, knowledge-update
+              <span class="pill pill--superseded">superseded</span></h3>
             <p>
               The same questions with the distractors removed. This is an upper bound rather than a
-              retrieval result, and it is the board where the engine is beaten.
+              retrieval result, and it is the board where the engine is beaten. Judged in batches of
+              eight under card R1.
             </p>
           </div>
           <div class="table-wrap" tabindex="0">
             <table class="data">
-              <caption>longmemeval-cleaned · oracle haystack · sha256 821a2034… · knowledge_update · n = 72 of 78 · micro</caption>
+              <caption>Superseded · longmemeval-cleaned · oracle haystack · sha256 821a2034… · knowledge_update · n = 72 of 78 · micro · judged in batches of eight</caption>
               <thead>
                 <tr>
                   <th scope="col" class="wrap-cell">system</th>
