@@ -17,11 +17,16 @@ Workflow:
 
 Ground rules baked into every draft, do not edit them out:
 
-- Sender is a high-school sophomore working alone. No "we" implying a team, no company,
+- Sender is an independent developer working alone. No "we" implying a team, no company,
   no title. That is the differentiator, not a weakness to hide.
-- The claim is: **first overall on LongMemEval in this harness (0.589), CI overlapping
-  second place so the margin over the runner-up is not significant, and we lose LoCoMo
-  (0.408 vs 0.549 full context).** Never "best memory system."
+- The claim is: **first overall on LongMemEval-S in this harness — 0.519 against 0.472
+  for the runner-up, all six categories, 470 questions, and the margin holds on an exact
+  paired test (60 won / 38 lost, p = 0.033) — and we lose LoCoMo, 0.534 against BM25's
+  0.549 and full context's 0.625.** Never "best memory system."
+- **Numbers changed on 2026-08-15/16 and several earlier ones were withdrawn.** Do not
+  quote 0.589, 0.736, 0.819 or 0.408 from any older copy of this file, and do not say
+  "the margin over second place is not significant" — that was true of the batched-judge
+  runs and is not true of the current one. Check `docs/RESULTS.md` on the day you send.
 - Baselines named `mem0_style` / `zep_style` are re-implementations, never the real
   product, and every email that mentions them says so before it says the number.
 - Each email has exactly one ask, answerable in one line.
@@ -50,30 +55,32 @@ are not email and are shorter by necessity.
 
 ## 0. Agent Memory Leaderboard — `contact@agentmemories.ai`
 
-**Subject:** Academic board — evaluated now, or queued for round 2?
+**Also live as a Gmail draft** in James's account, subject line below — this file is
+the source of truth, the draft is there so it is findable from a mail client.
+
+**Subject:** Academic board — evaluating now, or queued for round 2?
 
 > Hi,
 >
-> I've built an open-source memory engine and I'd like to submit it to the academic
-> board. One thing I couldn't answer from the docs or the issue tracker first: round 1
-> closed on 7 August, so is the academic board evaluating new requests now, or queuing
-> them for a second cycle?
+> I've built an open-source memory engine and would like to submit it to the academic
+> board. One thing I couldn't settle from the docs or the issue tracker: round 1 closed
+> on 7 August, so is the board evaluating new requests now, or queuing them for a second
+> cycle?
 >
-> I ask because the write path costs API calls I pay for myself, so I'd rather run
-> against a live cycle than into a queue.
+> I ask because the write path costs API calls I fund myself, and I'd rather run against
+> a live cycle than into a queue.
 >
 > The system is Palimpsest (github.com/joe51111jwd/palimpsest, Apache-2.0). It stores
-> facts as interval-keyed claims, so a new value closes the previous one rather than
-> sitting beside it — Search returns records labelled with whether they are still true
-> and when they stopped being true. Add/Search are implemented against your API guide,
-> with tests for the synchronous-write and sample-isolation requirements.
+> facts as interval-keyed claims — a new value closes the previous one instead of sitting
+> beside it — so Search returns records labelled with whether they are still true and
+> when they stopped being true. Add and Search are implemented against your API guide,
+> with tests covering the synchronous-write and sample-isolation requirements.
 >
 > One disclosure up front, because it changes how a result should be read: on the Docker
-> route the container has no LLM available, which leaves the fact ledger empty and
-> reduces the system to plain hybrid retrieval. If I submit that way I'd want it labelled
-> as the reduced configuration rather than as the engine.
->
-> I'm a high-school student working on this alone, so I'd rather ask than waste a cycle.
+> route the container has no LLM available, which leaves the claim ledger empty and
+> reduces the system to plain hybrid retrieval. That is materially weaker than the engine,
+> and if I submit that way I'd want it labelled as the reduced configuration rather than
+> as the system.
 >
 > Thanks,
 > James
@@ -81,6 +88,12 @@ are not email and are shorter by necessity.
 **Why this goes first.** Every other decision depends on the answer — whether to spend on
 a full extraction run, whether to host or ship an image, when to publish. It is one
 question and it is cheap for them to answer.
+
+**No accuracy figure is quoted, deliberately.** The ask is procedural, and a number would
+dilute it. If you want one, the defensible statement is: first on LongMemEval-S across all
+six categories, 470 questions, 0.519 against 0.472 for the strongest baseline, p = 0.033
+on a paired test — measured in our own harness and not independently verified. Do not
+quote any earlier figure; several were withdrawn on 2026-08-15/16.
 
 **Before sending:** confirm `contact@agentmemories.ai` is still the address listed at
 agentmemories.ai (it was on 2026-08-14), and check whether AML GitHub issue #5
@@ -102,13 +115,13 @@ vendor number I can find is still measured on the pre-September files, and issue
 are people posting scores without stating the release, the judge, or the answering model.
 None of those are comparable to each other.
 
-I'm a high school sophomore in Las Vegas. I built a harness that runs seven memory systems
+I built a harness that runs seven memory systems
 in one process: same answering model, your judge prompt unmodified, same token budget, and
 the identical extracted claims handed to every fact-based system, so the only variable is
 the data structure. All six categories, 470 questions, all judged. Mine comes first at
-0.589, CI [0.544, 0.633] — that overlaps hybrid RAG at 0.553, so I make no claim of
-separation from second place. It loses LoCoMo, 0.408 against 0.549 for full context, and I
-publish that.
+0.519 against 0.472 for the runner-up, and the margin holds on a paired test
+(60 questions won to 38 lost, exact McNemar p=0.033). It loses LoCoMo, 0.534 against
+0.549 for BM25 and 0.625 for full context, and I publish that.
 
 One ask: name the file third parties should be running — cleaned, or LongMemEval-V2 with
 the leaderboard packaging — and I'll rerun all seven on it.
@@ -131,10 +144,10 @@ receives the identical extracted claims, one answering model, one judge, one tok
 Retrieval quality is held constant, so what varies is the memory data structure rather than
 the pipeline wrapped around it.
 
-I'm a high school sophomore in Las Vegas. The engine is Palimpsest, a bitemporal
+The engine is Palimpsest, a bitemporal
 claim-interval store: Apache-2.0, CPU-only, three dependencies. On LongMemEval oracle
-(470 questions, six categories) it is first at 0.589, but the CI overlaps hybrid RAG at
-0.553, so I don't claim separation. On LoCoMo it loses, 0.408 against 0.549 for full
+(470 questions, six categories) it is first at 0.519 against 0.472, significant on a
+paired test at p=0.033. On LoCoMo it loses, 0.534 against 0.549 for BM25 and 0.625 for full
 context. Both are published, along with nine defects four adversarial audits found in my
 own engine and harness.
 
@@ -158,11 +171,11 @@ Hi Professor Zuccon,
 rarer in this corner of the field than it should be. I wrote to Shuai two weeks ago about
 the harness below and didn't hear back, so I'm trying you once and then leaving it.
 
-I'm a high school sophomore in Las Vegas. I built a harness that runs seven agent-memory
+I built a harness that runs seven agent-memory
 systems in one process — same answering model, same judge with the unmodified prompt, same
 token budget, identical extracted claims across every fact-based system — on both
-LongMemEval and LoCoMo. My own engine wins the first (0.589, with a CI that overlaps second
-place, which the README says explicitly) and loses the second (0.408 against 0.549 for full
+LongMemEval and LoCoMo. My own engine wins the first (0.519 against 0.472, p=0.033 paired)
+and loses the second (0.534 against 0.549 for BM25, 0.625 for full
 context). The loss is in the README rather than a footnote, as are nine defects found by
 audits of my own code.
 
@@ -189,8 +202,8 @@ Two other things you may not have seen: Penfield Labs' audit finds 6.4% of the a
 wrong, and `mem-eval-suite/LoCoMo_refined` reports 43.67% agreement between the original
 judge and humans, against 86.33% with a stricter one.
 
-The disqualifying thing first: I'm a high school sophomore in Las Vegas with a memory engine
-of my own, and it loses on LoCoMo — 0.408, below full context at 0.549 and statistically
+The disqualifying thing first: I have my own memory engine
+of my own, and it loses on LoCoMo — 0.534, below full context at 0.549 and below BM25 at 0.549, statistically
 tied with BM25 at 0.417. That's published, so this isn't a complaint that your benchmark
 was unfair to me.
 
@@ -215,8 +228,8 @@ wrong; and `mem-eval-suite/LoCoMo_refined` measures original judge/human agreeme
 versus 86.33% for a stricter judge. None of that is a criticism of the benchmark's design —
 it's what happens downstream when nobody re-derives the labels.
 
-I'm a high school sophomore in Las Vegas, so weigh the source accordingly. I run a
-seven-system harness under identical conditions, and my own engine loses on LoCoMo (0.408
+I work on this independently, with no company behind it, so weigh the source accordingly. I run a
+seven-system harness under identical conditions, and my own engine loses on LoCoMo (0.534
 against 0.549 for full context), which I publish. That's the only reason I think I can raise
 this without it being self-serving.
 
@@ -244,7 +257,7 @@ You're one of very few people who'd spot the problem quickly: Graphiti is bitemp
 is my engine — valid time and transaction time kept separate, a new value closing the prior
 interval so "what is true now" is a key lookup rather than a similarity search.
 
-I'm a high school sophomore in Las Vegas. My engine is first on LongMemEval in this harness
+My engine is first on LongMemEval in this harness
 with a CI overlapping second place, and it loses LoCoMo. Both published.
 
 One ask: read the single file that implements `zep_style` and name the biggest thing it does
@@ -271,9 +284,9 @@ LongMemEval oracle: 470 questions, all six categories, one process, one answerin
 judge with the unmodified prompt, one token budget, and the identical extracted claims given
 to every fact-based system.
 
-I'm a high school sophomore in Las Vegas. My own engine is first at 0.589 with a CI that
-overlaps hybrid RAG's 0.553 — the README says the margin over second place is not
-significant — and it loses LoCoMo, 0.408 against 0.549.
+My own engine is first at 0.519 with a margin that
+beats hybrid RAG's 0.472 by a margin that holds on a paired test — and it still loses
+LoCoMo, 0.534 against 0.549.
 
 One ask: name the single biggest thing my baseline does that Mem0 doesn't. I'll fix it,
 rerun, and publish whatever comes out.
@@ -299,13 +312,13 @@ counterexample and I'd like you to tell me whether it actually is one.
 
 Seven memory systems in one process: one answering model, one judge with the unmodified
 prompt, one token budget, identical extracted claims across every fact-based system.
-LongMemEval, all six categories, 470 questions, all judged — mine is first at 0.589, but the
-CI overlaps hybrid RAG at 0.553, so the README states the margin over second place isn't
-significant. LoCoMo: mine loses, 0.408 against 0.549 for full context. Nine defects from
+LongMemEval, all six categories, 470 questions, all judged — mine is first at 0.519, but the
+margin over hybrid RAG at 0.472 is significant on a paired test, which the README states
+with the test. LoCoMo: mine loses, 0.534 against 0.549. Nine defects from
 audits of my own engine are published too, including one where it could see the future and
 inflate its own results.
 
-I'm a high school sophomore in Las Vegas, which is part of why the MemPalace `BENCHMARKS.md`
+I have no institution behind this, which is part of why the MemPalace `BENCHMARKS.md`
 admission you quoted stuck with me.
 
 One ask: which of your six sins does my harness still commit? I'd rather hear it from you
@@ -317,8 +330,8 @@ github.com/joe51111jwd/palimpsest
 **Short variant for a LinkedIn connection request (300-char limit):**
 
 > You wrote that the deepest problem is that every system is evaluated by its own authors.
-> I'm a HS sophomore who ran seven memory systems in one harness — same model, same judge,
-> same budget. Mine wins LongMemEval (CI overlaps 2nd) and loses LoCoMo. Which of your six
+> I ran seven memory systems in one harness — same model, same judge,
+> same budget. Mine wins LongMemEval and loses LoCoMo. Which of your six
 > sins does it still commit?
 
 ---
@@ -343,7 +356,7 @@ I've asked Deshraj whether that baseline is fair. This is the repo-side half of 
 question: I'd rather people could run the harness against real Mem0 than against a
 re-implementation they have to take my word for.
 
-I'm a high school sophomore in Las Vegas. My own engine is first on LongMemEval in this
+My own engine is first on LongMemEval in this
 harness with a CI overlapping second place, and it loses LoCoMo. Both published.
 
 One ask: would a PR adding a real-Mem0 adapter be something you'd point a maintainer at for
@@ -361,7 +374,7 @@ notes that issues #44–#53 have turned the tracker into a score-claiming board.
 posts a harness, states which dataset release it ran, and publishes a loss will read
 differently from everything else there. Use the same text as email #1, retitled
 *"Harness: 7 systems, one judge, one budget — and which release should this run on?"*, and
-drop the "I'm a high school sophomore" line to the last paragraph. **Send the email or the
+keep the self-description to one clause. **Send the email or the
 issue, not both.**
 
 ---
