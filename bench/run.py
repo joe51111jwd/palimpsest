@@ -32,7 +32,7 @@ import json
 import os
 import random
 import time
-from collections import defaultdict
+from collections import Counter, defaultdict
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
@@ -259,6 +259,33 @@ def run(
     for rec, ans in zip(pending, answers):
         rec.answer = clean_answer(ans)
 
+    # A failed LLM call returns None, `clean_answer` turns it into "", and the
+    # judge scores "" as wrong. So an infrastructure outage does not look like an
+    # outage — it looks like every system suddenly got much worse, uniformly and
+    # plausibly.
+    #
+    # This is not hypothetical and it cost a day. A LoCoMo run lost 3,412 calls to
+    # a transient failure and reported palimpsest 0.133 / bm25 0.246 /
+    # full_context 0.292. The same command on the same contexts a few hours later
+    # reported 0.534 / 0.549 / 0.625. Half of BM25's answers in the bad run were
+    # the empty string, and nothing in the output said so — the run printed a
+    # complete-looking table with n=1540 judged=1540.
+    #
+    # Worse, that run was then used as the control arm of an A/B, which produced a
+    # 20-point "finding" at p=3e-28 that was entirely the missing answers. An
+    # unanswered question is missing data. It is never a wrong answer.
+    _retry_unanswered(client, pending, prompts)
+    unanswered = [r for r in pending if not (r.answer or "").strip()]
+    if unanswered:
+        by_system = Counter(r.system for r in unanswered)
+        raise SystemExit(
+            f"\nABORTING: {len(unanswered)} of {len(pending)} questions have no answer "
+            f"after retries — {dict(by_system)}.\n"
+            "These would be scored as wrong and the report would look complete. "
+            "Re-run when the model is reachable; the claims cache is intact so "
+            "nothing is lost."
+        )
+
     # PHASE 3 — judge, also batched.
     print("judging ...")
     _judge(client, pending, batch=judge_batch)
@@ -295,6 +322,28 @@ def run(
     print(f"\nwrote {path}")
     print_report(report)
     return report
+
+
+def _retry_unanswered(client, pending: list[QARecord], prompts: list[str],
+                      rounds: int = 3) -> None:
+    """Re-ask only the questions that came back empty, a few times.
+
+    Transient saturation is the common case and it clusters in time, so a second
+    pass minutes later usually succeeds where the first failed. Only the missing
+    ones are re-sent, which keeps the retry cheap even when a run loses thousands
+    of calls.
+    """
+    for attempt in range(1, rounds + 1):
+        missing = [i for i, r in enumerate(pending) if not (r.answer or "").strip()]
+        if not missing:
+            return
+        print(f"  [answer retry {attempt}/{rounds}] {len(missing)} unanswered")
+        again = client.complete_many([prompts[i] for i in missing],
+                                     system=ANSWER_SYSTEM, progress=True)
+        for i, ans in zip(missing, again):
+            cleaned = clean_answer(ans)
+            if cleaned.strip():
+                pending[i].answer = cleaned
 
 
 def _claims_digest(claims) -> str:
